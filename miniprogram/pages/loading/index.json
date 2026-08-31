@@ -1,0 +1,8 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "loading-bar": "/components/loading-bar/loading-bar",
+    "loading-frame": "/components/loading-frame/loading-frame",
+    "profile-auth": "/components/profile-auth/profile-auth"
+  }
+}

@@ -1,0 +1,24 @@
+# WeChat
+miniprogram/node_modules/
+project.private.config.json
+miniprogram/.tea/
+
+# Admin
+admin-web/node_modules/
+admin-web/dist/
+
+# Cloud
+cloud/functions/**/node_modules/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Env / secrets
+.env
+.env.local
+*.pem

@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "note": "在云开发控制台按此创建索引；unique=true 表示唯一索引",
+  "indexes": [
+    { "collection": "users", "fields": [{ "name": "openid", "order": "asc" }], "unique": true },
+    { "collection": "users", "fields": [{ "name": "userId", "order": "asc" }], "unique": true },
+    { "collection": "items", "fields": [{ "name": "id", "order": "asc" }], "unique": true },
+    { "collection": "items", "fields": [{ "name": "enabled", "order": "asc" }, { "name": "shopSort", "order": "asc" }], "unique": false },
+    { "collection": "destinations", "fields": [{ "name": "id", "order": "asc" }], "unique": true },
+    { "collection": "destinations", "fields": [{ "name": "enabled", "order": "asc" }], "unique": false },
+    { "collection": "postcards", "fields": [{ "name": "id", "order": "asc" }], "unique": true },
+    { "collection": "postcards", "fields": [{ "name": "enabled", "order": "asc" }], "unique": false },
+    { "collection": "game_config", "fields": [{ "name": "key", "order": "asc" }], "unique": true },
+    { "collection": "user_inventory", "fields": [{ "name": "userId", "order": "asc" }, { "name": "itemId", "order": "asc" }], "unique": true },
+    { "collection": "user_showcase", "fields": [{ "name": "userId", "order": "asc" }, { "name": "itemId", "order": "asc" }], "unique": true },
+    { "collection": "user_showcase", "fields": [{ "name": "userId", "order": "asc" }, { "name": "obtainedAt", "order": "asc" }], "unique": false },
+    { "collection": "user_postcards", "fields": [{ "name": "userId", "order": "asc" }, { "name": "postcardId", "order": "asc" }], "unique": true },
+    { "collection": "user_outfits", "fields": [{ "name": "userId", "order": "asc" }, { "name": "outfitId", "order": "asc" }], "unique": true },
+    { "collection": "user_gacha", "fields": [{ "name": "userId", "order": "asc" }, { "name": "gachaId", "order": "asc" }], "unique": true },
+    { "collection": "roof_stars", "fields": [{ "name": "userId", "order": "asc" }, { "name": "status", "order": "asc" }], "unique": false },
+    { "collection": "trips", "fields": [{ "name": "userId", "order": "asc" }, { "name": "status", "order": "asc" }], "unique": false },
+    { "collection": "daily_purchases", "fields": [{ "name": "userId", "order": "asc" }, { "name": "itemId", "order": "asc" }, { "name": "dayKey", "order": "asc" }], "unique": true },
+    { "collection": "idempotency", "fields": [{ "name": "key", "order": "asc" }], "unique": true },
+    { "collection": "copy_pool", "fields": [{ "name": "type", "order": "asc" }, { "name": "enabled", "order": "asc" }], "unique": false },
+    { "collection": "gacha_pool", "fields": [{ "name": "enabled", "order": "asc" }], "unique": false },
+    { "collection": "asset_manifest", "fields": [{ "name": "path", "order": "asc" }], "unique": true }
+  ]
+}

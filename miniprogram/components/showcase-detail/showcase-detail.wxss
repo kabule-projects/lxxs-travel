@@ -1,0 +1,86 @@
+.sc-detail-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background: rgba(20, 12, 8, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sc-detail-panel {
+  position: relative;
+  width: 620rpx;
+  max-height: 80vh;
+  padding: 48rpx 36rpx 40rpx;
+  box-sizing: border-box;
+  border-radius: 28rpx;
+  background: #f7efe0;
+  border: 8rpx solid #5a3a22;
+}
+
+.sc-detail-close {
+  position: absolute;
+  top: -18rpx;
+  right: -18rpx;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: #5a3a22;
+  color: #fff;
+  font-size: 40rpx;
+  line-height: 58rpx;
+  text-align: center;
+  z-index: 2;
+}
+
+.sc-detail-title {
+  text-align: center;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #5a3a22;
+  line-height: 1.35;
+  padding: 0 24rpx;
+  /* 近似描边标题 */
+  text-shadow:
+    -2rpx -2rpx 0 #fffaf0,
+    2rpx -2rpx 0 #fffaf0,
+    -2rpx 2rpx 0 #fffaf0,
+    2rpx 2rpx 0 #fffaf0;
+}
+
+.sc-detail-image {
+  margin: 28rpx auto 0;
+  width: 360rpx;
+  height: 360rpx;
+  border-radius: 16rpx;
+  background: #6b4a2e;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sc-detail-img {
+  width: 100%;
+  height: 100%;
+}
+
+.sc-detail-img-ph {
+  color: #f7efe0;
+  font-size: 80rpx;
+  font-weight: 700;
+}
+
+.sc-detail-desc {
+  margin-top: 28rpx;
+  text-align: center;
+  font-size: 26rpx;
+  line-height: 1.55;
+  color: #2e2218;
+  white-space: pre-wrap;
+  padding: 0 12rpx;
+}

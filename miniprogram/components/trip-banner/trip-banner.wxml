@@ -1,0 +1,4 @@
+<view class="trip-banner" wx:if="{{visible}}">
+  <image class="trip-banner-bg" src="{{bannerBg}}" mode="widthFix" />
+  <text class="trip-banner-text">{{text}}</text>
+</view>

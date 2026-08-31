@@ -1,0 +1,12 @@
+<view class="md-mask" wx:if="{{visible}}" catchtap="onClose">
+  <view class="md-panel" catchtap="onStop">
+    <view class="md-close" catchtap="onClose">×</view>
+    <view class="md-title">{{title}}</view>
+    <view class="md-image">
+      <image wx:if="{{image}}" src="{{image}}" mode="aspectFit" />
+      <view wx:else class="md-ph">信</view>
+    </view>
+    <view class="md-story">{{story}}</view>
+    <view class="md-claim" catchtap="onClaim">收下明信片</view>
+  </view>
+</view>

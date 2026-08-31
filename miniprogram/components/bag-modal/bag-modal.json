@@ -1,0 +1,7 @@
+{
+  "component": true,
+  "usingComponents": {
+    "inventory-picker": "/components/inventory-picker/inventory-picker",
+    "icon-close": "/components/icon-close/icon-close"
+  }
+}

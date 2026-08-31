@@ -1,0 +1,14 @@
+<view
+  class="nav-icon {{size}}"
+  bindtap="onTap"
+  hover-class="nav-icon--hover"
+>
+  <image
+    wx:if="{{src && !failed}}"
+    class="nav-icon__img"
+    src="{{src}}"
+    mode="widthFix"
+    binderror="onError"
+  />
+  <view wx:else class="nav-icon__placeholder">{{label}}</view>
+</view>

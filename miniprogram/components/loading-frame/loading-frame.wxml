@@ -1,0 +1,5 @@
+<view class="loading-frame" style="padding-bottom: {{safeBottom}}px">
+  <slot name="content"></slot>
+  <loading-bar wx:if="{{showBar}}" progress="{{progress}}" />
+  <text class="tip" wx:if="{{tip}}">{{tip}}</text>
+</view>

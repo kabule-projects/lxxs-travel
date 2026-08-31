@@ -1,0 +1,6 @@
+{
+  "component": true,
+  "usingComponents": {
+    "loading-bar": "/components/loading-bar/loading-bar"
+  }
+}

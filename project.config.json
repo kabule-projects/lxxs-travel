@@ -1,0 +1,27 @@
+{
+  "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "cloud/functions/",
+  "cloudbaseRoot": "cloud/",
+  "compileType": "miniprogram",
+  "setting": {
+    "es6": true,
+    "minified": true,
+    "enhance": true,
+    "postcss": true,
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "coverView": true,
+    "cloudEnv": "lxxs-cloud-env-placeholder",
+    "packNpmRelationList": [],
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "appid": "wxYOUR_APPID",
+  "projectname": "lxxs-travel",
+  "libVersion": "3.7.0",
+  "srcMiniprogramRoot": "miniprogram/",
+  "condition": {}
+}

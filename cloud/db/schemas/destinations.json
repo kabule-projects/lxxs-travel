@@ -1,0 +1,25 @@
+{
+  "_comment": "目的地",
+  "fields": {
+    "id": "string",
+    "name": "string",
+    "terrainTags": "string[]",
+    "distanceTier": "number",
+    "baseWeight": "number >0",
+    "durationMinH": "number",
+    "durationMaxH": "number",
+    "souvenirPool": "string[] items.id 归来抽1，写入 showcase",
+    "enabled": "boolean"
+  },
+  "example": {
+    "id": "dest_park",
+    "name": "附近的小公园",
+    "terrainTags": ["sunny", "nature"],
+    "distanceTier": 1,
+    "baseWeight": 10,
+    "durationMinH": 2,
+    "durationMaxH": 5,
+    "souvenirPool": ["souvenir_potato"],
+    "enabled": true
+  }
+}

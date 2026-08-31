@@ -1,0 +1,19 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; background: #f5f5f7; color: #1d1d1f; }
+.app { max-width: 960px; margin: 0 auto; padding: 24px; }
+header h1 { margin: 0 0 8px; font-size: 1.5rem; }
+.sub { margin: 0 0 16px; color: #666; font-size: 0.9rem; }
+nav { display: flex; gap: 8px; margin-bottom: 24px; }
+nav button { padding: 8px 16px; border: 1px solid #ccc; background: #fff; border-radius: 8px; cursor: pointer; }
+nav button.active { background: #007aff; color: #fff; border-color: #007aff; }
+.form { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 24px; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; flex: 1; min-width: 140px; }
+input, select, textarea { padding: 8px; border: 1px solid #ddd; border-radius: 6px; }
+.actions { display: flex; gap: 8px; margin-top: 12px; }
+button { cursor: pointer; }
+.table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; }
+.table th, .table td { padding: 10px 12px; border-bottom: 1px solid #eee; text-align: left; font-size: 0.9rem; }
+.err { color: #c00; }
+.ok { color: #080; }
+.warn { color: #a60; background: #fff8e6; padding: 12px; border-radius: 8px; }

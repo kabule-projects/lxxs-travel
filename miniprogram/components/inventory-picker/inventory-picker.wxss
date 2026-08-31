@@ -1,0 +1,133 @@
+.inv-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 80;
+  background: rgba(12, 8, 6, 0.62);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inv-panel {
+  position: relative;
+  width: 640rpx;
+  max-height: 78vh;
+  padding: 28rpx 24rpx 36rpx;
+  box-sizing: border-box;
+  border-radius: 28rpx;
+  background: #f4ead8;
+  border: 6rpx dashed #c48a4a;
+}
+
+.inv-close {
+  position: absolute;
+  top: -18rpx;
+  right: -18rpx;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: #e8923a;
+  color: #fff;
+  font-size: 40rpx;
+  line-height: 58rpx;
+  text-align: center;
+  z-index: 2;
+}
+
+.inv-tabs {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+  margin-top: 8rpx;
+}
+
+.inv-tab {
+  flex: 1;
+  height: 64rpx;
+  line-height: 64rpx;
+  text-align: center;
+  border-radius: 16rpx 16rpx 0 0;
+  background: #f0c89a;
+  color: #5a4030;
+  font-size: 28rpx;
+}
+
+.inv-tab--on {
+  background: #5a4030;
+  color: #f8efe3;
+}
+
+.inv-list {
+  max-height: 62vh;
+  min-height: 360rpx;
+}
+
+.inv-card {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 20rpx;
+  margin-bottom: 16rpx;
+  border-radius: 20rpx;
+  background: #fffaf3;
+  box-shadow: 0 4rpx 0 rgba(196, 138, 74, 0.2);
+}
+
+.inv-icon {
+  position: relative;
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background: #f2d56b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b5344;
+  font-size: 40rpx;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.inv-icon image {
+  width: 100%;
+  height: 100%;
+}
+
+.inv-count {
+  position: absolute;
+  right: 4rpx;
+  bottom: 0;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #e07a2a;
+}
+
+.inv-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.inv-name {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #c47a2e;
+}
+
+.inv-desc {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #4a3728;
+  line-height: 1.4;
+}
+
+.inv-empty {
+  padding: 80rpx 20rpx;
+  text-align: center;
+  color: #8a7463;
+  font-size: 26rpx;
+}

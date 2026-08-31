@@ -1,0 +1,105 @@
+.gacha {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding-left: 24rpx;
+  padding-right: 24rpx;
+  background: #f8efd8;
+  display: flex;
+  flex-direction: column;
+}
+
+.gacha-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12rpx;
+}
+
+.machine-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  width: 100%;
+  max-width: 620rpx;
+}
+
+.machine-img {
+  width: 100%;
+}
+
+.gacha--spin .machine-img {
+  animation: dome-shake 0.35s ease-in-out infinite alternate;
+}
+
+@keyframes dome-shake {
+  from { transform: rotate(-1deg); }
+  to { transform: rotate(1deg); }
+}
+
+.machine-controls {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.count-btn-img {
+  height: 64rpx;
+  opacity: 0.65;
+}
+
+.count-btn-img--on {
+  opacity: 1;
+}
+
+.spin-btn-img {
+  width: 200rpx;
+  height: 80rpx;
+}
+
+.rug-img {
+  width: 88%;
+  margin-top: 24rpx;
+}
+
+.gacha-foot {
+  padding: 16rpx 0 24rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.exchange-banner-img {
+  width: 100%;
+}
+
+.prizes-btn-img {
+  width: 240rpx;
+  height: 72rpx;
+}
+
+.spin-overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+}
+
+.spin-hint {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 120rpx;
+  z-index: 51;
+  text-align: center;
+  font-size: 24rpx;
+  color: rgba(74, 55, 40, 0.75);
+}

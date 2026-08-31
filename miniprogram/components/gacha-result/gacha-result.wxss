@@ -1,0 +1,164 @@
+.gr-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 120;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gr-panel {
+  position: relative;
+  width: 620rpx;
+  padding: 40rpx 32rpx 36rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.gr-panel-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.gr-close {
+  position: absolute;
+  top: -20rpx;
+  left: -16rpx;
+  z-index: 2;
+}
+
+.gr-title {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #5a3a22;
+  margin-bottom: 28rpx;
+}
+
+.gr-single {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.gr-multi {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.gr-row {
+  display: flex;
+  justify-content: center;
+  gap: 16rpx;
+}
+
+.gr-row--center {
+  padding: 0 40rpx;
+}
+
+.gr-item {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  border: 5rpx solid #5a3a22;
+  background: #8b6340;
+  overflow: hidden;
+}
+
+.gr-item--lg {
+  width: 360rpx;
+  height: 360rpx;
+}
+
+.gr-icon {
+  width: 100%;
+  height: 100%;
+}
+
+.gr-ph {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #f3e6cf;
+}
+
+.gr-item--lg .gr-ph {
+  font-size: 96rpx;
+}
+
+.gr-dim {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: #000;
+  opacity: 0;
+  transition: opacity 0.55s ease;
+  pointer-events: none;
+}
+
+.gr-star,
+.gr-star-fallback {
+  position: absolute;
+  left: 8rpx;
+  top: 8rpx;
+  width: 48rpx;
+  height: 48rpx;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.65s ease 0.15s, transform 0.65s ease 0.15s;
+  pointer-events: none;
+}
+
+.gr-item--lg .gr-star,
+.gr-item--lg .gr-star-fallback {
+  width: 72rpx;
+  height: 72rpx;
+  left: 16rpx;
+  top: 16rpx;
+}
+
+.gr-star-fallback {
+  font-size: 40rpx;
+  color: #e8a830;
+  line-height: 48rpx;
+  text-align: center;
+}
+
+.gr-item--converted .gr-dim {
+  opacity: 0.72;
+}
+
+.gr-item--converted .gr-star,
+.gr-item--converted .gr-star-fallback {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.gr-confirm-img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 80rpx;
+  margin-top: 32rpx;
+}

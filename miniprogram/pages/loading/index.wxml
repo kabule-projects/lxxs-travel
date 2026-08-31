@@ -1,0 +1,37 @@
+<view class="scene">
+  <!-- 与屋顶同场景：sky + rooftop 分层 WebP -->
+  <image
+    class="layer layer-sky"
+    src="{{skySrc}}"
+    mode="aspectFill"
+    bindload="onLayerLoaded"
+    binderror="onLayerError"
+  />
+  <image
+    class="layer layer-rooftop"
+    src="{{rooftopSrc}}"
+    mode="aspectFill"
+    bindload="onLayerLoaded"
+    binderror="onLayerError"
+  />
+
+  <view class="enter-zone" style="padding-top: {{safeTop}}px">
+    <view class="enter-hit" bindtap="onEnterGame">
+      <image
+        class="enter-img {{canEnter ? '' : 'enter-img--wait'}}"
+        src="{{canEnter ? btnEnterSrc : btnEnterDisabledSrc}}"
+        mode="widthFix"
+        show-menu-by-longpress="{{false}}"
+      />
+    </view>
+  </view>
+
+  <loading-frame
+    progress="{{progress}}"
+    tip="{{canEnter ? '' : tip}}"
+    safeBottom="{{safeBottom}}"
+    showBar="{{true}}"
+  />
+
+  <profile-auth visible="{{showAuth}}" bind:submit="onAuthSubmit" />
+</view>

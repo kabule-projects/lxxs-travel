@@ -1,0 +1,59 @@
+<view class="dl-mask" wx:if="{{visible}}" catchtap="onClose">
+  <view class="dl-card" catchtap="onStop">
+    <view class="dl-head">
+      <view class="dl-date-col">
+        <image
+          wx:if="{{assets.dateLabel}}"
+          class="dl-date-label-img"
+          src="{{assets.dateLabel}}"
+          mode="heightFix"
+        />
+        <text class="dl-date" wx:if="{{dateText}}">{{dateText}}</text>
+      </view>
+      <view class="dl-weather">
+        <image
+          wx:if="{{assets.weatherSun}}"
+          class="dl-weather-img"
+          src="{{assets.weatherSun}}"
+          mode="aspectFit"
+        />
+        <image
+          wx:if="{{assets.weatherSunset}}"
+          class="dl-weather-img"
+          src="{{assets.weatherSunset}}"
+          mode="aspectFit"
+        />
+      </view>
+    </view>
+
+    <scroll-view class="dl-body" scroll-y enhanced show-scrollbar="{{false}}">
+      <view class="dl-paper">
+        <image
+          wx:if="{{assets.paper}}"
+          class="dl-paper-bg"
+          src="{{assets.paper}}"
+          mode="scaleToFill"
+        />
+        <view class="dl-paper-content">
+          <text class="dl-story">{{bodyText || '（暂无信件内容）'}}</text>
+          <text class="dl-sign" wx:if="{{signText}}">{{signText}}</text>
+        </view>
+      </view>
+    </scroll-view>
+
+    <image
+      wx:if="{{assets.logo}}"
+      class="dl-logo-img"
+      src="{{assets.logo}}"
+      mode="widthFix"
+    />
+
+    <image
+      wx:if="{{showClaim && assets.btnClaim}}"
+      class="dl-claim-img"
+      src="{{assets.btnClaim}}"
+      mode="widthFix"
+      catchtap="onClaim"
+    />
+  </view>
+</view>

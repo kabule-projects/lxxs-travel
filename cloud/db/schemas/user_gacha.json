@@ -1,0 +1,21 @@
+{
+  "_comment": "扭蛋图鉴；userId = openid",
+  "fields": {
+    "userId": "string 玩家 openid",
+    "gachaId": "string 奖池条目 ID，与 gacha_pool.gachaId 对应",
+    "name": "string 快照名称",
+    "icon": "string 图标路径",
+    "rarity": "string N/R/SR/SSR/UR",
+    "firstObtainedAt": "number 首次获得时间",
+    "count": "number 获得次数（重复会转星，通常仍为 1）"
+  },
+  "example": {
+    "userId": "oXXXX",
+    "gachaId": "gacha_potato",
+    "name": "烤土豆",
+    "icon": "",
+    "rarity": "N",
+    "firstObtainedAt": 0,
+    "count": 1
+  }
+}

@@ -1,0 +1,10 @@
+<view class="page">
+  <view class="hud" style="padding-top: {{safeTop}}px">
+    <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
+    <nav-icon src="{{assets.iconGrid}}" label="设置" size="sm" bind:tap="onTapSettings" />
+  </view>
+  <image class="empty-img" src="{{assets.empty}}" mode="widthFix" />
+  <view class="empty-text">{{message || '衣柜还是空的'}}</view>
+
+  <settings-modal visible="{{showSettings}}" bind:close="onCloseSettings" />
+</view>

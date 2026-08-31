@@ -1,0 +1,7 @@
+<view class="gate">
+  <view class="card">
+    <text class="title">当前设备暂不支持</text>
+    <text class="desc">旅行小深需要在常用 iPhone 或高端安卓设备上运行。</text>
+    <text class="meta">机型 {{model}} · 宽 {{width}} · DPR {{dpr}}</text>
+  </view>
+</view>
