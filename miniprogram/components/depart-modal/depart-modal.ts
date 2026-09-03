@@ -10,7 +10,6 @@ Component({
   data: {
     panelBg: '',
     btnWait: '',
-    btnConfirm: '',
   },
 
   lifetimes: {
@@ -20,9 +19,6 @@ Component({
       });
       resolveAsset(DEPART_ASSETS.btnWait).then((btnWait) => {
         this.setData({ btnWait });
-      });
-      resolveAsset(DEPART_ASSETS.btnConfirm).then((btnConfirm) => {
-        this.setData({ btnConfirm });
       });
     },
   },

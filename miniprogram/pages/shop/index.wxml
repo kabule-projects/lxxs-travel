@@ -17,7 +17,6 @@
         </view>
       </view>
       <view class="hud-right">
-        <nav-icon src="{{assets.iconGacha}}" label="扭蛋" size="sm" bind:tap="onTapGacha" />
         <nav-icon src="{{assets.iconGrid}}" label="设置" size="sm" bind:tap="onTapSettings" />
       </view>
     </view>
@@ -90,7 +89,7 @@
       </view>
 
       <image class="side-btn side-btn--bag" src="{{assets.sideBtnBag}}" mode="aspectFit" bindtap="onTapBag" />
-      <image class="side-btn side-btn--star" src="{{assets.sideBtnStar}}" mode="aspectFit" bindtap="onTapGacha" />
+      <image class="side-btn side-btn--gacha" src="{{assets.sideBtnGacha}}" mode="aspectFit" bindtap="onTapGacha" />
 
       <image
         class="buy-btn-img"

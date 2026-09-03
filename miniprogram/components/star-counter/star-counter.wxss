@@ -10,6 +10,8 @@
 
 .star-icon {
   width: 48rpx;
+  height: 48rpx;
+  flex-shrink: 0;
 }
 
 .star-icon-fallback {

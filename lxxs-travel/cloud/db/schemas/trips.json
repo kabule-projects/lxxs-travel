@@ -1,0 +1,30 @@
+{
+  "_comment": "旅行实例",
+  "fields": {
+    "userId": "string",
+    "status": "traveling|returned|at_home",
+    "loadout": "{ bento, riceStar?, props? }",
+    "destId": "string",
+    "destName": "string",
+    "startAt": "number",
+    "endAt": "number",
+    "durationH": "number",
+    "postcards": "TripPostcardInstance[]",
+    "souvenirs": "string[]",
+    "usedRiceStar": "boolean",
+    "secondPostcardRate": "number",
+    "createdAt": "number"
+  },
+  "example_postcard_instance": {
+    "instanceId": "tpm_xxx",
+    "postcardId": "pc_park_duck",
+    "status": "pending",
+    "deliverAt": 0,
+    "title": "喂鸭子的午后",
+    "rarity": "N",
+    "groupId": "daily",
+    "imageThumb": "",
+    "imageFull": "",
+    "story": ""
+  }
+}

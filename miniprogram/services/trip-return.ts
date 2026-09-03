@@ -3,12 +3,9 @@ import { setLocalTraveling } from './postcard';
 import { emit, GameEvent } from '../utils/event-bus';
 
 export const TRIP_BANNER_MS = 5000;
-export const TRIP_BANNER_DEPART = '小深出门旅行了';
-export const TRIP_BANNER_RETURN = '小深回来了';
 
 export interface TripBannerState {
   visible: boolean;
-  text: string;
   mode: 'depart' | 'return' | null;
 }
 
@@ -69,7 +66,7 @@ export async function resolveTripSyncView(): Promise<TripSyncView> {
   if (!trip || trip.status === 'at_home') {
     stopReturnWatch();
     return {
-      banner: { visible: false, text: '', mode: null },
+      banner: { visible: false, mode: null },
       showCharacter: true,
       sync,
     };
@@ -80,7 +77,7 @@ export async function resolveTripSyncView(): Promise<TripSyncView> {
       emit(GameEvent.TRIP_RETURNED, { trip });
     });
     return {
-      banner: { visible: false, text: '', mode: null },
+      banner: { visible: false, mode: null },
       showCharacter: false,
       sync,
     };
@@ -91,7 +88,6 @@ export async function resolveTripSyncView(): Promise<TripSyncView> {
     return {
       banner: {
         visible: true,
-        text: TRIP_BANNER_RETURN,
         mode: 'return',
       },
       showCharacter: true,
@@ -100,7 +96,7 @@ export async function resolveTripSyncView(): Promise<TripSyncView> {
   }
 
   return {
-    banner: { visible: false, text: '', mode: null },
+    banner: { visible: false, mode: null },
     showCharacter: true,
     sync,
   };

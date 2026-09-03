@@ -162,8 +162,12 @@ async function startTrip(openid, loadout, requestId) {
   };
 
   const addRes = await db.collection('trips').add({ data: tripDoc });
+  const userPatch = { currentTripId: addRes._id };
+  if (useRice) {
+    userPatch.riceStars = _.inc(-1);
+  }
   await db.collection('users').doc(user._id).update({
-    data: { currentTripId: addRes._id },
+    data: userPatch,
   });
 
   const result = {

@@ -6,7 +6,11 @@
       "distanceMissMul": 0.4,
       "riceDestMul": 1.15,
       "ricePostcardMul": 1.25,
-      "riceRarityMul": { "SR": 1.2, "SSR": 1.35, "UR": 1.5 },
+      "riceRarityMul": {
+        "SR": 1.2,
+        "SSR": 1.35,
+        "UR": 1.5
+      },
       "secondPostcardRate": 0.929,
       "riceSecondPostcardBonus": 0.03,
       "deliverAtMinRatio": 0.1,
@@ -19,7 +23,7 @@
       "id": "food_bento_a",
       "type": "food",
       "name": "普通便当",
-      "icon": "items/food/bento-a",
+      "icon": "items/food/mifan",
       "description": "简单的家常便当，出行必带。",
       "price": 3,
       "shopCategory": "food",
@@ -29,8 +33,14 @@
       "distanceMin": 1,
       "distanceMax": 2,
       "postcardBias": [
-        { "groupId": "daily", "weight": 1.2 },
-        { "groupId": "nature", "weight": 1.0 }
+        {
+          "groupId": "daily",
+          "weight": 1.2
+        },
+        {
+          "groupId": "nature",
+          "weight": 1
+        }
       ],
       "enabled": true,
       "dailyLimit": 1
@@ -39,7 +49,7 @@
       "id": "food_bento_b",
       "type": "food",
       "name": "豪华便当",
-      "icon": "items/food/bento-b",
+      "icon": "items/food/dangao",
       "description": "丰盛一些，旅途更安心。",
       "price": 5,
       "shopCategory": "food",
@@ -49,8 +59,14 @@
       "distanceMin": 2,
       "distanceMax": 4,
       "postcardBias": [
-        { "groupId": "scenic", "weight": 1.4 },
-        { "groupId": "city", "weight": 1.1 }
+        {
+          "groupId": "scenic",
+          "weight": 1.4
+        },
+        {
+          "groupId": "city",
+          "weight": 1.1
+        }
       ],
       "enabled": true,
       "dailyLimit": 1
@@ -59,7 +75,7 @@
       "id": "food_tea",
       "type": "food",
       "name": "保温壶茶",
-      "icon": "items/food/tea",
+      "icon": "items/food/zhou",
       "description": "路上喝一口暖暖的。",
       "price": 3,
       "shopCategory": "food",
@@ -68,7 +84,12 @@
       "durationMaxH": 8,
       "distanceMin": 1,
       "distanceMax": 3,
-      "postcardBias": [{ "groupId": "nature", "weight": 1.3 }],
+      "postcardBias": [
+        {
+          "groupId": "nature",
+          "weight": 1.3
+        }
+      ],
       "enabled": true,
       "dailyLimit": 1
     },
@@ -76,13 +97,23 @@
       "id": "acc_scarf",
       "type": "accessory",
       "name": "小围巾",
-      "icon": "items/acc/scarf",
+      "icon": "items/accessory/hat",
       "description": "暖暖的，适合微凉天气。",
       "price": 4,
       "shopCategory": "accessory",
       "shopSort": 10,
-      "terrainBias": [{ "tag": "cold", "weightMul": 1.35 }],
-      "postcardBias": [{ "groupId": "nature", "weight": 1.15 }],
+      "terrainBias": [
+        {
+          "tag": "cold",
+          "weightMul": 1.35
+        }
+      ],
+      "postcardBias": [
+        {
+          "groupId": "nature",
+          "weight": 1.15
+        }
+      ],
       "secondPostcardRateBonus": 0.02,
       "destWeightMul": 1,
       "enabled": true,
@@ -92,13 +123,23 @@
       "id": "acc_hat",
       "type": "accessory",
       "name": "旅行帽",
-      "icon": "items/acc/hat",
+      "icon": "items/accessory/bear",
       "description": "遮阳又好看。",
       "price": 4,
       "shopCategory": "accessory",
       "shopSort": 20,
-      "terrainBias": [{ "tag": "sunny", "weightMul": 1.3 }],
-      "postcardBias": [{ "groupId": "scenic", "weight": 1.2 }],
+      "terrainBias": [
+        {
+          "tag": "sunny",
+          "weightMul": 1.3
+        }
+      ],
+      "postcardBias": [
+        {
+          "groupId": "scenic",
+          "weight": 1.2
+        }
+      ],
       "secondPostcardRateBonus": 0,
       "enabled": true,
       "dailyLimit": 1
@@ -107,7 +148,7 @@
       "id": "acc_glasses",
       "type": "accessory",
       "name": "圆框眼镜",
-      "icon": "items/acc/glasses",
+      "icon": "items/accessory/hat",
       "description": "看起来更机灵一点。",
       "price": 5,
       "shopCategory": "accessory",
@@ -120,16 +161,27 @@
       "id": "eq_map",
       "type": "equipment",
       "name": "旧地图",
-      "icon": "items/eq/map",
+      "icon": "items/equipment/laobiao",
       "description": "好像能走到更远的地方。",
       "price": 6,
       "shopCategory": "equipment",
       "shopSort": 10,
       "terrainBias": [
-        { "tag": "far", "weightMul": 1.5 },
-        { "tag": "city", "weightMul": 1.1 }
+        {
+          "tag": "far",
+          "weightMul": 1.5
+        },
+        {
+          "tag": "city",
+          "weightMul": 1.1
+        }
       ],
-      "postcardBias": [{ "groupId": "city", "weight": 1.25 }],
+      "postcardBias": [
+        {
+          "groupId": "city",
+          "weight": 1.25
+        }
+      ],
       "destWeightMul": 1.05,
       "secondPostcardRateBonus": 0.04,
       "enabled": true,
@@ -139,15 +191,26 @@
       "id": "eq_cam",
       "type": "equipment",
       "name": "拍立得",
-      "icon": "items/eq/cam",
+      "icon": "items/equipment/mic",
       "description": "旅途风景更容易留下。",
       "price": 8,
       "shopCategory": "equipment",
       "shopSort": 20,
-      "terrainBias": [{ "tag": "scenic", "weightMul": 1.4 }],
+      "terrainBias": [
+        {
+          "tag": "scenic",
+          "weightMul": 1.4
+        }
+      ],
       "postcardBias": [
-        { "groupId": "scenic", "weight": 1.5 },
-        { "groupId": "daily", "weight": 0.9 }
+        {
+          "groupId": "scenic",
+          "weight": 1.5
+        },
+        {
+          "groupId": "daily",
+          "weight": 0.9
+        }
       ],
       "secondPostcardRateBonus": 0.08,
       "enabled": true,
@@ -157,13 +220,23 @@
       "id": "eq_compass",
       "type": "equipment",
       "name": "小指南针",
-      "icon": "items/eq/compass",
+      "icon": "items/equipment/laobiao",
       "description": "迷路时派得上用场。",
       "price": 6,
       "shopCategory": "equipment",
       "shopSort": 30,
-      "terrainBias": [{ "tag": "wild", "weightMul": 1.45 }],
-      "postcardBias": [{ "groupId": "nature", "weight": 1.3 }],
+      "terrainBias": [
+        {
+          "tag": "wild",
+          "weightMul": 1.45
+        }
+      ],
+      "postcardBias": [
+        {
+          "groupId": "nature",
+          "weight": 1.3
+        }
+      ],
       "enabled": true,
       "dailyLimit": 1
     },
@@ -171,7 +244,7 @@
       "id": "souvenir_potato",
       "type": "souvenir",
       "name": "贵阳六中门口的狼牙土豆",
-      "icon": "items/souvenir/potato",
+      "icon": "items/souvenir/yizhuan",
       "description": "放学时间在贵阳六中门口小摊前\n随机刷新一名周姓学子",
       "showcase": true,
       "enabled": true,
@@ -181,7 +254,7 @@
       "id": "souvenir_leaf",
       "type": "souvenir",
       "name": "一片会说话的叶子",
-      "icon": "items/souvenir/leaf",
+      "icon": "items/souvenir/erzhuan",
       "description": "叶子上写着：记得喝水。",
       "showcase": true,
       "enabled": true,
@@ -191,7 +264,7 @@
       "id": "souvenir_badge",
       "type": "souvenir",
       "name": "旧街纪念章",
-      "icon": "items/souvenir/badge",
+      "icon": "items/souvenir/biao",
       "description": "市集摊子上淘来的小徽章。",
       "showcase": true,
       "enabled": true,
@@ -201,7 +274,7 @@
       "id": "souvenir_shell",
       "type": "souvenir",
       "name": "灯塔旁的贝壳",
-      "icon": "items/souvenir/shell",
+      "icon": "items/souvenir/youtiao",
       "description": "贴耳能听见一点点潮声。",
       "showcase": true,
       "enabled": true,
@@ -211,7 +284,7 @@
       "id": "souvenir_pebble",
       "type": "souvenir",
       "name": "山顶圆石",
-      "icon": "items/souvenir/pebble",
+      "icon": "items/souvenir/frame-1",
       "description": "风很大，石头却很安静。",
       "showcase": true,
       "enabled": true,
@@ -221,7 +294,7 @@
       "id": "acc_badge",
       "type": "accessory",
       "name": "纪念徽章",
-      "icon": "items/acc/badge",
+      "icon": "items/souvenir/glasses",
       "description": "别在衣服上更有精神。",
       "price": 2,
       "shopCategory": "accessory",
@@ -235,56 +308,85 @@
     {
       "id": "dest_park",
       "name": "附近的小公园",
-      "terrainTags": ["sunny", "nature"],
+      "terrainTags": [
+        "sunny",
+        "nature"
+      ],
       "distanceTier": 1,
       "baseWeight": 10,
       "durationMinH": 2,
       "durationMaxH": 5,
-      "souvenirPool": ["souvenir_potato", "souvenir_leaf"],
+      "souvenirPool": [
+        "souvenir_potato",
+        "souvenir_leaf"
+      ],
       "enabled": true
     },
     {
       "id": "dest_lakeside",
       "name": "湖心步道",
-      "terrainTags": ["nature", "cold", "scenic"],
+      "terrainTags": [
+        "nature",
+        "cold",
+        "scenic"
+      ],
       "distanceTier": 2,
       "baseWeight": 8,
       "durationMinH": 3,
       "durationMaxH": 7,
-      "souvenirPool": ["souvenir_leaf"],
+      "souvenirPool": [
+        "souvenir_leaf"
+      ],
       "enabled": true
     },
     {
       "id": "dest_oldtown",
       "name": "旧街市集",
-      "terrainTags": ["city", "sunny"],
+      "terrainTags": [
+        "city",
+        "sunny"
+      ],
       "distanceTier": 2,
       "baseWeight": 7,
       "durationMinH": 4,
       "durationMaxH": 8,
-      "souvenirPool": ["souvenir_badge"],
+      "souvenirPool": [
+        "souvenir_badge"
+      ],
       "enabled": true
     },
     {
       "id": "dest_hill",
       "name": "远山观景台",
-      "terrainTags": ["scenic", "far", "wild"],
+      "terrainTags": [
+        "scenic",
+        "far",
+        "wild"
+      ],
       "distanceTier": 3,
       "baseWeight": 5,
       "durationMinH": 6,
       "durationMaxH": 12,
-      "souvenirPool": ["souvenir_pebble"],
+      "souvenirPool": [
+        "souvenir_pebble"
+      ],
       "enabled": true
     },
     {
       "id": "dest_coast",
       "name": "海边灯塔",
-      "terrainTags": ["scenic", "far", "sunny"],
+      "terrainTags": [
+        "scenic",
+        "far",
+        "sunny"
+      ],
       "distanceTier": 4,
       "baseWeight": 4,
       "durationMinH": 8,
       "durationMaxH": 16,
-      "souvenirPool": ["souvenir_shell"],
+      "souvenirPool": [
+        "souvenir_shell"
+      ],
       "enabled": true
     }
   ],
@@ -295,11 +397,12 @@
       "rarity": "N",
       "groupId": "daily",
       "destId": "dest_park",
-      "imageThumb": "postcards/park-duck-thumb",
-      "imageFull": "postcards/park-duck",
+      "imageThumb": "postcards/letter-1-thumb",
+      "imageFull": "postcards/letter-1",
       "story": "深深在公园长椅上睡着了，鸭子把他的面包屑偷走了。",
       "baseWeight": 10,
-      "enabled": true
+      "enabled": true,
+      "type": "letter"
     },
     {
       "id": "pc_park_slide",
@@ -307,11 +410,12 @@
       "rarity": "R",
       "groupId": "daily",
       "destId": "dest_park",
-      "imageThumb": "postcards/park-slide-thumb",
-      "imageFull": "postcards/park-slide",
+      "imageThumb": "postcards/letter-2-thumb",
+      "imageFull": "postcards/letter-2",
       "story": "滑了十二次，第十三次决定回家。",
       "baseWeight": 6,
-      "enabled": true
+      "enabled": true,
+      "type": "letter"
     },
     {
       "id": "pc_lake_mist",
@@ -319,11 +423,12 @@
       "rarity": "R",
       "groupId": "nature",
       "destId": "dest_lakeside",
-      "imageThumb": "postcards/lake-mist-thumb",
-      "imageFull": "postcards/lake-mist",
+      "imageThumb": "postcards/letter-3-thumb",
+      "imageFull": "postcards/letter-3",
       "story": "雾散开时，对岸有人在挥手。",
       "baseWeight": 7,
-      "enabled": true
+      "enabled": true,
+      "type": "letter"
     },
     {
       "id": "pc_lake_sr",
@@ -331,11 +436,12 @@
       "rarity": "SR",
       "groupId": "nature",
       "destId": "dest_lakeside",
-      "imageThumb": "postcards/lake-moon-thumb",
-      "imageFull": "postcards/lake-moon",
+      "imageThumb": "postcards/letter-4-thumb",
+      "imageFull": "postcards/letter-4",
       "story": "明明是白天，湖面却映出一弯细月。",
       "baseWeight": 3,
-      "enabled": true
+      "enabled": true,
+      "type": "letter"
     },
     {
       "id": "pc_town_lantern",
@@ -343,11 +449,12 @@
       "rarity": "R",
       "groupId": "city",
       "destId": "dest_oldtown",
-      "imageThumb": "postcards/town-lantern-thumb",
-      "imageFull": "postcards/town-lantern",
+      "imageThumb": "postcards/letter-5-thumb",
+      "imageFull": "postcards/letter-5",
       "story": "巷子尽头飘来糖炒栗子的味道。",
       "baseWeight": 6,
-      "enabled": true
+      "enabled": true,
+      "type": "letter"
     },
     {
       "id": "pc_hill_wind",
@@ -355,11 +462,12 @@
       "rarity": "SR",
       "groupId": "scenic",
       "destId": "dest_hill",
-      "imageThumb": "postcards/hill-wind-thumb",
-      "imageFull": "postcards/hill-wind",
+      "imageThumb": "postcards/letter-6-thumb",
+      "imageFull": "postcards/letter-6",
       "story": "帽子差点儿飞走，深深紧紧按住。",
       "baseWeight": 4,
-      "enabled": true
+      "enabled": true,
+      "type": "letter"
     },
     {
       "id": "pc_coast_ssr",
@@ -367,41 +475,68 @@
       "rarity": "SSR",
       "groupId": "scenic",
       "destId": "dest_coast",
-      "imageThumb": "postcards/coast-lighthouse-thumb",
-      "imageFull": "postcards/coast-lighthouse",
+      "imageThumb": "postcards/letter-7-thumb",
+      "imageFull": "postcards/letter-7",
       "story": "潮水拍岸，灯塔一闪一闪，像在说晚安。",
       "baseWeight": 2,
-      "enabled": true
+      "enabled": true,
+      "type": "letter"
     },
     {
       "id": "pc_anywhere_star",
       "title": "随身星空",
       "rarity": "UR",
       "groupId": "scenic",
-      "imageThumb": "postcards/starry-thumb",
-      "imageFull": "postcards/starry",
+      "imageThumb": "postcards/letter-8-thumb",
+      "imageFull": "postcards/letter-8",
       "story": "无论走到哪里，头顶好像都有同一片星。",
       "baseWeight": 1,
-      "enabled": true
+      "enabled": true,
+      "type": "letter"
     },
     {
       "id": "pc_nature_leaf",
       "title": "一片会说话的叶子",
       "rarity": "N",
       "groupId": "nature",
-      "imageThumb": "postcards/leaf-thumb",
-      "imageFull": "postcards/leaf",
+      "imageThumb": "postcards/letter-9-thumb",
+      "imageFull": "postcards/letter-9",
       "story": "叶子上写着：记得喝水。",
       "baseWeight": 9,
-      "enabled": true
+      "enabled": true,
+      "type": "letter"
     }
   ],
   "copy_pool": [
-    { "type": "depart_farewell", "text": "路上小心，记得想我～", "enabled": true },
-    { "type": "depart_farewell", "text": "去看看外面的世界吧！", "enabled": true },
-    { "type": "depart_farewell", "text": "带点好吃的回来哦。", "enabled": true },
-    { "type": "depart_farewell", "text": "深深，一路顺风！", "enabled": true },
-    { "type": "shop_talk", "text": "今天也要好好挑选行李呀～", "enabled": true },
-    { "type": "shop_talk", "text": "这件很适合深深出门用！", "enabled": true }
+    {
+      "type": "depart_farewell",
+      "text": "路上小心，记得想我～",
+      "enabled": true
+    },
+    {
+      "type": "depart_farewell",
+      "text": "去看看外面的世界吧！",
+      "enabled": true
+    },
+    {
+      "type": "depart_farewell",
+      "text": "带点好吃的回来哦。",
+      "enabled": true
+    },
+    {
+      "type": "depart_farewell",
+      "text": "深深，一路顺风！",
+      "enabled": true
+    },
+    {
+      "type": "shop_talk",
+      "text": "今天也要好好挑选行李呀～",
+      "enabled": true
+    },
+    {
+      "type": "shop_talk",
+      "text": "这件很适合深深出门用！",
+      "enabled": true
+    }
   ]
 }

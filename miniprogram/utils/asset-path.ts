@@ -6,15 +6,16 @@ export type AssetDpr = '2x' | '3x';
 /** 全项目通用 icon */
 export const COMMON_ASSETS = {
   iconClose: 'icons/common/close',
-  iconClear: 'icons/common/clear',
+  /** 与关闭同图（槽位清除等） */
+  iconClear: 'icons/common/close',
   iconStar: 'icons/home/star',
   iconSettingsGrid: 'icons/common/settings-grid',
   thumbPlaceholder: 'icons/common/thumb-placeholder',
 } as const;
 
 export const ROOF_SCENE_ASSETS = {
-  sky: 'shared/roof/sky',
-  rooftop: 'shared/roof/rooftop',
+  /** loading / 屋顶 共用完整背景（原 sky/rooftop 两层合并） */
+  bg: 'shared/roof/bg',
 } as const;
 
 export const ROOF_ASSETS = {
@@ -23,7 +24,10 @@ export const ROOF_ASSETS = {
   magicHat: 'roof/magic-hat',
   pigeon: 'roof/pigeon',
   pigeonMail: 'roof/pigeon-mail',
+  /** 未读提示 NEW（未满） */
   mailTip: 'roof/mail-tip',
+  /** 未读已满提示「满」（= PIGEON_MAIL_CAP） */
+  mailTipFull: 'roof/mail-tip-full',
   btnPrepare: 'home/btn-prepare',
   iconStar: 'icons/home/star',
   iconRiceStar: 'roof/star-rice',
@@ -32,6 +36,10 @@ export const ROOF_ASSETS = {
   iconHome: 'icons/roof/home',
   iconPrepare: 'icons/home/prepare',
   iconGrid: 'icons/common/settings-grid',
+  /** 屋顶底部坐着的角色装饰 */
+  charShen: 'roof/char-shen',
+  charBiao: 'roof/char-biao',
+  charMi: 'roof/char-mi',
 } as const;
 
 export const HOME_ASSETS = {
@@ -53,98 +61,103 @@ export const SHOP_ASSETS = {
   iconBack: 'icons/shop/back',
   iconStar: 'icons/home/star',
   iconRiceStar: 'roof/star-rice',
-  iconGacha: 'icons/shop/utility-gacha',
   iconGrid: 'icons/common/settings-grid',
   priceTag: 'shop/price-tag',
   btnBuy: 'shop/btn-buy',
   btnBuyDisabled: 'shop/btn-buy-disabled',
+  /** 底部侧键：背包 / 扭蛋（顶栏无扭蛋） */
   sideBtnBag: 'shop/side-btn-bag',
-  sideBtnStar: 'shop/side-btn-star',
+  sideBtnGacha: 'shop/side-btn-gacha',
 } as const;
 
 export const GACHA_ASSETS = {
   iconBack: 'icons/shop/back',
   iconStar: 'icons/home/star',
   iconGrid: 'icons/common/settings-grid',
+  /** 整页背景（含地毯等，勿再单独出地毯） */
+  pageBg: 'gacha/page-bg',
   machine: 'gacha/machine',
-  rug: 'gacha/rug',
   btnSpin: 'gacha/btn-spin',
   btnDraw1: 'gacha/btn-draw-1',
   btnDraw5: 'gacha/btn-draw-5',
   btnPrizes: 'gacha/btn-prizes',
   exchangeBanner: 'gacha/exchange-banner',
   resultPanel: 'gacha/result-panel',
+  /** 结果格底图；实物 icon 叠在其上 */
+  resultItemBg: 'gacha/result-item-bg',
   btnConfirm: 'gacha/btn-confirm',
   catalogPanel: 'gacha/catalog-panel',
   prizeLocked: 'icons/gacha/prize-locked',
 } as const;
 
+/** 展示柜：层板已画进 cabinet 背景；详情小方块 = 底图 + 纪念品叠放 */
 export const SHOWCASE_ASSETS = {
   iconBack: 'icons/shop/back',
   iconGrid: 'icons/common/settings-grid',
   cabinet: 'showcase/cabinet',
-  shelfBoard: 'showcase/shelf-board',
   detailPanel: 'showcase/detail-panel',
+  /** 详情弹窗内纪念品方块底图 */
+  detailItemBg: 'showcase/detail-item-bg',
 } as const;
 
+/** 日记：书脊/天气/吉祥物已画进 notebook */
 export const DIARY_ASSETS = {
   iconBack: 'icons/shop/back',
   iconGrid: 'icons/common/settings-grid',
   frame: 'diary/frame',
   notebook: 'diary/notebook',
-  spine: 'diary/spine',
   tab: 'diary/tab',
   tabActive: 'diary/tab-active',
-  weatherSun: 'icons/diary/weather-sun',
-  weatherCloud: 'icons/diary/weather-cloud',
-  weatherRain: 'icons/diary/weather-rain',
-  mascot: 'diary/mascot',
+  /** 格子半透明底图；明信片切图叠其上 */
+  gridCell: 'diary/grid-cell',
+  /** 信封按钮（含角标） */
   envelope: 'icons/diary/envelope',
-  envelopeBadge: 'icons/diary/envelope-badge',
 } as const;
 
+/** 信件：date 标签 / 天气 / logo 已画进信纸；展开即收下，无按钮 */
 export const LETTER_ASSETS = {
-  dateLabel: 'diary/letter-date-label',
-  weatherSun: 'icons/diary/letter-weather-sun',
-  weatherSunset: 'icons/diary/letter-weather-sunset',
   paper: 'diary/letter-paper',
-  logo: 'diary/letter-logo',
-  btnClaim: 'diary/letter-btn-claim',
 } as const;
 
+/** 信箱面板：角饰已画进 panel；列表缩略图用明信片 imageThumb */
 export const MAILBOX_ASSETS = {
   panel: 'mailbox/panel',
   title: 'mailbox/title',
   iconClose: 'mailbox/icon-close',
-  deco: 'mailbox/deco',
+  /** 信封按钮（含角标） */
   envelope: 'icons/diary/envelope',
-  envelopeBadge: 'icons/diary/envelope-badge',
 } as const;
 
+/** 背包面板：槽位/标签已画进 panel；出发按钮含 GO 气泡 */
 export const BAG_ASSETS = {
   panel: 'bag/panel',
-  slotFood: 'bag/slot-food',
-  slotRice: 'bag/slot-rice',
-  slotProp: 'bag/slot-prop',
-  labelFood: 'bag/label-food',
-  labelRice: 'bag/label-rice',
-  labelProp: 'bag/label-prop',
-  goBubble: 'bag/go-bubble',
   btnDepart: 'bag/btn-depart',
 } as const;
 
 export const INVENTORY_ASSETS = {
   panel: 'inventory/panel',
+  /** 美食 Tab：未选 / 选中（选中更高） */
+  tabFood: 'inventory/tab-food',
+  tabFoodOn: 'inventory/tab-food-on',
+  /** 道具 Tab：未选 / 选中（选中更高） */
+  tabProp: 'inventory/tab-prop',
+  tabPropOn: 'inventory/tab-prop-on',
+  /** 列表行背景框（每件物品一块；其上叠 icon + 文字） */
+  itemRow: 'inventory/item-row',
 } as const;
 
 export const DEPART_ASSETS = {
   panel: 'depart/panel',
   btnWait: 'depart/btn-wait',
+  /** 真出发按钮待美术；勿再使用曾错映的回家提示图 */
   btnConfirm: 'depart/btn-confirm',
 } as const;
 
 export const TRIP_ASSETS = {
-  banner: 'shared/trip-banner',
+  /** 出门提示整图（文案在图上） */
+  bannerDepart: 'shared/trip-banner',
+  /** 回家提示整图（文案在图上） */
+  bannerReturn: 'shared/trip-banner-return',
 } as const;
 
 export const PROFILE_ASSETS = {
@@ -160,9 +173,9 @@ export const WARDROBE_ASSETS = {
 } as const;
 
 /** 宅家四姿势，各一张 WebP */
+/** 设置弹窗：标题已画进 panel */
 export const SETTINGS_ASSETS = {
   panel: 'settings/panel',
-  title: 'settings/title',
   toggleOn: 'settings/toggle-on',
   toggleOff: 'settings/toggle-off',
   userIdBar: 'settings/user-id-bar',
@@ -180,6 +193,7 @@ export const LOADING_ASSETS = {
   btnEnterDisabled: 'loading/btn-enter-disabled',
   barTrack: 'loading/bar-track',
   barFill: 'loading/bar-fill',
+  /** 米子图标，跟随进度条填充末端 */
   barThumb: 'loading/bar-thumb',
 } as const;
 

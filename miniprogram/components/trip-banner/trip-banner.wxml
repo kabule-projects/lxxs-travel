@@ -1,4 +1,8 @@
 <view class="trip-banner" wx:if="{{visible}}">
-  <image class="trip-banner-bg" src="{{bannerBg}}" mode="widthFix" />
-  <text class="trip-banner-text">{{text}}</text>
+  <!-- 完整提示图（文案已画在图上），按出发/归来切换 -->
+  <image
+    class="trip-banner-img"
+    src="{{mode === 'return' ? returnSrc : departSrc}}"
+    mode="widthFix"
+  />
 </view>

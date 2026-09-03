@@ -54,6 +54,7 @@ export function setStars(stars: number): void {
 export function setRiceStars(riceStars: number): void {
   if (!state.profile) return;
   state.profile = { ...state.profile, riceStars };
+  emit(GameEvent.STARS_UPDATED, { stars: state.profile.stars, riceStars });
 }
 
 export function isReady(): boolean {
@@ -74,8 +75,11 @@ export function setProfile(profile: UserProfile): void {
 export function patchProfile(patch: Partial<UserProfile>): void {
   if (!state.profile) return;
   state.profile = { ...state.profile, ...patch };
-  if (patch.stars != null) {
-    emit(GameEvent.STARS_UPDATED, { stars: patch.stars });
+  if (patch.stars != null || patch.riceStars != null) {
+    emit(GameEvent.STARS_UPDATED, {
+      stars: state.profile.stars,
+      riceStars: state.profile.riceStars,
+    });
   }
   if (patch.currentTripId !== undefined) {
     state.traveling = !!patch.currentTripId;

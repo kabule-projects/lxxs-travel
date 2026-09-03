@@ -39,55 +39,69 @@
 
 .inv-tabs {
   display: flex;
+  align-items: flex-end;
   gap: 12rpx;
   margin-bottom: 16rpx;
   margin-top: 8rpx;
+  min-height: 80rpx;
 }
 
+.inv-tabs--locked {
+  justify-content: flex-start;
+}
+
+/* 未选中较矮；选中增高一截（切图本身也应更高） */
 .inv-tab {
-  flex: 1;
-  height: 64rpx;
-  line-height: 64rpx;
-  text-align: center;
-  border-radius: 16rpx 16rpx 0 0;
-  background: #f0c89a;
-  color: #5a4030;
-  font-size: 28rpx;
+  height: 56rpx;
+  max-width: 48%;
+  flex-shrink: 0;
 }
 
 .inv-tab--on {
-  background: #5a4030;
-  color: #f8efe3;
+  height: 80rpx;
 }
 
 .inv-list {
+  position: relative;
+  z-index: 1;
   max-height: 62vh;
   min-height: 360rpx;
 }
 
 .inv-card {
+  position: relative;
+  margin-bottom: 16rpx;
+  min-height: 140rpx;
+  overflow: hidden;
+}
+
+.inv-card-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.inv-card-body {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
-  gap: 20rpx;
-  padding: 20rpx;
-  margin-bottom: 16rpx;
-  border-radius: 20rpx;
-  background: #fffaf3;
-  box-shadow: 0 4rpx 0 rgba(196, 138, 74, 0.2);
+  gap: 16rpx;
+  padding: 20rpx 18rpx;
+  box-sizing: border-box;
 }
 
 .inv-icon {
   position: relative;
   width: 100rpx;
   height: 100rpx;
-  border-radius: 50%;
-  background: #f2d56b;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6b5344;
-  font-size: 40rpx;
-  flex-shrink: 0;
   overflow: hidden;
 }
 

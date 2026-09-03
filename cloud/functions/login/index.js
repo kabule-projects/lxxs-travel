@@ -10,10 +10,40 @@ const {
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
+function defaultNickName(userId) {
+  const suffix = String(userId).replace(/-/g, '').slice(-4) || '0001';
+  return `旅行者${suffix}`;
+}
+
+async function createUser(openid) {
+  const now = Date.now();
+  const userId = newUserId();
+  const doc = {
+    userId,
+    openid,
+    nickName: defaultNickName(userId),
+    avatarUrl: '',
+    profileAuthorized: false,
+    stars: 0,
+    riceStars: 0,
+    gm: false,
+    pitySR: 0,
+    pitySSR: 0,
+    pityUR: 0,
+    lastSpawnAt: now,
+    nextSpawnAt: now + 600_000,
+    createdAt: now,
+    lastLoginAt: now,
+  };
+  const addRes = await db.collection('users').add({ data: doc });
+  return { ...doc, _id: addRes._id };
+}
+
+/** 按 openid 静默登录；首访自动建号，无需头像昵称授权 */
 async function session(openid) {
   let user = await getUserByOpenid(db, openid);
   if (!user) {
-    return ok({ needsProfile: true });
+    user = await createUser(openid);
   }
   user = await ensureUserId(db, user);
   const now = Date.now();

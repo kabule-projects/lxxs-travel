@@ -1,0 +1,27 @@
+{
+  "_comment": "明信片配置",
+  "fields": {
+    "id": "string",
+    "title": "string",
+    "rarity": "N|R|SR|SSR|UR",
+    "groupId": "string",
+    "destId": "string?",
+    "imageThumb": "string",
+    "imageFull": "string",
+    "story": "string",
+    "baseWeight": "number",
+    "enabled": "boolean"
+  },
+  "example": {
+    "id": "pc_park_duck",
+    "title": "喂鸭子的午后",
+    "rarity": "N",
+    "groupId": "daily",
+    "destId": "dest_park",
+    "imageThumb": "postcards/park-duck-thumb",
+    "imageFull": "postcards/park-duck",
+    "story": "深深在公园长椅上睡着了。",
+    "baseWeight": 10,
+    "enabled": true
+  }
+}

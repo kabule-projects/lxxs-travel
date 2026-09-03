@@ -1,0 +1,29 @@
+{
+  "_comment": "全局概率。key 唯一，出行用 key=trip",
+  "fields": {
+    "key": "trip",
+    "distanceMatchMul": "number",
+    "distanceMissMul": "number",
+    "riceDestMul": "number",
+    "ricePostcardMul": "number",
+    "riceRarityMul": "object",
+    "secondPostcardRate": "number",
+    "riceSecondPostcardBonus": "number",
+    "deliverAtMinRatio": "number",
+    "deliverAtMaxRatio": "number",
+    "destMatchMul": "number"
+  },
+  "example": {
+    "key": "trip",
+    "distanceMatchMul": 1.4,
+    "distanceMissMul": 0.4,
+    "riceDestMul": 1.15,
+    "ricePostcardMul": 1.25,
+    "riceRarityMul": { "SR": 1.2, "SSR": 1.35, "UR": 1.5 },
+    "secondPostcardRate": 0.929,
+    "riceSecondPostcardBonus": 0.03,
+    "deliverAtMinRatio": 0.1,
+    "deliverAtMaxRatio": 0.9,
+    "destMatchMul": 1.5
+  }
+}

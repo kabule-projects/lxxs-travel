@@ -12,6 +12,8 @@
           class="gp-cell {{item.obtained ? 'gp-cell--on' : 'gp-cell--lock'}}"
         >
           <block wx:if="{{item.obtained}}">
+            <!-- 已收集：底图 + 实物叠放 -->
+            <image class="gp-item-bg" src="{{itemBg}}" mode="aspectFill" />
             <image
               wx:if="{{item.icon}}"
               class="gp-icon"

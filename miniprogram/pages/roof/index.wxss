@@ -14,16 +14,10 @@
   pointer-events: none;
 }
 
-.layer-sky {
+.layer-bg {
   top: 0;
-  height: 62%;
+  height: 100%;
   z-index: 0;
-}
-
-.layer-rooftop {
-  bottom: 0;
-  height: 48%;
-  z-index: 1;
 }
 
 .sky-layer {
@@ -33,6 +27,33 @@
   right: 0;
   bottom: 0;
   z-index: 3;
+}
+
+/* ── 屋顶底部角色装饰 ── */
+.roof-characters {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 220rpx;
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.char-shen {
+  width: 200rpx;
+}
+
+.char-biao {
+  width: 110rpx;
+  margin-left: -20rpx;
+}
+
+.char-mi {
+  width: 90rpx;
+  margin-right: -12rpx;
 }
 
 /* ── 顶栏（同主页/商店） ── */
@@ -71,6 +92,7 @@
   justify-content: center;
   gap: 16rpx;
   flex: 1;
+  min-width: 0;
 }
 
 .currency-pill {
@@ -176,7 +198,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  padding: 0 24rpx 32rpx;
+  padding: 0 32rpx 40rpx;
   box-sizing: border-box;
   pointer-events: none;
 }
@@ -190,7 +212,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 16rpx;
+  gap: 20rpx;
 }
 
 .btn-prepare-img {

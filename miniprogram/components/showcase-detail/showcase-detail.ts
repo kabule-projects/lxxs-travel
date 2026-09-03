@@ -11,6 +11,7 @@ Component({
 
   data: {
     panelBg: '',
+    itemBg: '',
     iconClose: '',
   },
 
@@ -18,6 +19,9 @@ Component({
     attached() {
       resolveAsset(SHOWCASE_ASSETS.detailPanel).then((panelBg) => {
         this.setData({ panelBg });
+      });
+      resolveAsset(SHOWCASE_ASSETS.detailItemBg).then((itemBg) => {
+        this.setData({ itemBg });
       });
       resolveAsset(COMMON_ASSETS.iconClose).then((iconClose) => {
         this.setData({ iconClose });

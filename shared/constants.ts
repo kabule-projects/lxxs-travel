@@ -57,6 +57,11 @@ export const SHOP_TABS = ['all', 'food', 'accessory', 'equipment'] as const;
 
 export const POSTCARD_RARITY = ['N', 'R', 'SR', 'SSR', 'UR'] as const;
 
+/** 明信片展示/交互类型（与 items.type 无关） */
+export const POSTCARD_TYPES = ['postcard', 'letter', 'photo', 'special'] as const;
+
+export const DEFAULT_POSTCARD_TYPE = 'postcard' as const;
+
 export const TRIP_STATUS = [
   'preparing',
   'traveling',

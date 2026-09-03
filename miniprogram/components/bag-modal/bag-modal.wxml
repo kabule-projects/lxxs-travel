@@ -8,20 +8,16 @@
     />
 
     <view class="bag-body">
-      <image class="bag-panel-bg" src="{{assets.panel}}" mode="scaleToFill" />
+      <!-- 背景已含槽位框与标签文案 -->
+      <image class="bag-panel-bg" src="{{assets.panel}}" mode="widthFix" />
 
-      <image class="bag-label bag-label--food" src="{{assets.labelFood}}" mode="heightFix" />
-      <image class="bag-label bag-label--rice" src="{{assets.labelRice}}" mode="heightFix" />
-      <image class="bag-label bag-label--prop" src="{{assets.labelProp}}" mode="heightFix" />
-
+      <!-- 透明热区：物品图叠在背包背景槽位上 -->
       <view class="slot slot-food" catchtap="onTapFood">
-        <image class="slot-bg" src="{{assets.slotFood}}" mode="aspectFit" />
         <view wx:if="{{food}}" class="slot-fill">
           <image wx:if="{{food.icon}}" class="slot-item-icon" src="{{food.icon}}" mode="aspectFit" />
-          <text class="slot-name">{{food.name}}</text>
           <image
             class="slot-clear"
-            src="{{iconClear}}"
+            src="{{iconClose}}"
             mode="aspectFit"
             catchtap="onClearFood"
             data-stop="1"
@@ -30,12 +26,11 @@
       </view>
 
       <view class="slot slot-rice" catchtap="onTapRice">
-        <image class="slot-bg" src="{{assets.slotRice}}" mode="aspectFit" />
         <view wx:if="{{riceStar}}" class="slot-fill">
-          <text class="slot-name">米字星</text>
+          <text class="slot-rice-mark">米</text>
           <image
             class="slot-clear"
-            src="{{iconClear}}"
+            src="{{iconClose}}"
             mode="aspectFit"
             catchtap="onClearRice"
           />
@@ -45,13 +40,11 @@
       </view>
 
       <view class="slot slot-prop0" data-index="0" catchtap="onTapProp">
-        <image class="slot-bg" src="{{assets.slotProp}}" mode="aspectFit" />
         <view wx:if="{{props[0]}}" class="slot-fill">
           <image wx:if="{{props[0].icon}}" class="slot-item-icon" src="{{props[0].icon}}" mode="aspectFit" />
-          <text class="slot-name">{{props[0].name}}</text>
           <image
             class="slot-clear"
-            src="{{iconClear}}"
+            src="{{iconClose}}"
             mode="aspectFit"
             data-index="0"
             catchtap="onClearProp"
@@ -60,13 +53,11 @@
       </view>
 
       <view class="slot slot-prop1" data-index="1" catchtap="onTapProp">
-        <image class="slot-bg" src="{{assets.slotProp}}" mode="aspectFit" />
         <view wx:if="{{props[1]}}" class="slot-fill">
           <image wx:if="{{props[1].icon}}" class="slot-item-icon" src="{{props[1].icon}}" mode="aspectFit" />
-          <text class="slot-name">{{props[1].name}}</text>
           <image
             class="slot-clear"
-            src="{{iconClear}}"
+            src="{{iconClose}}"
             mode="aspectFit"
             data-index="1"
             catchtap="onClearProp"
@@ -75,8 +66,8 @@
       </view>
     </view>
 
+    <!-- 出发按钮图已含 GO 气泡 -->
     <view class="depart-area">
-      <image class="go-bubble-img" src="{{assets.goBubble}}" mode="widthFix" />
       <image
         class="depart-btn-img"
         src="{{assets.btnDepart}}"

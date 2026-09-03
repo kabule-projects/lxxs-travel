@@ -1,6 +1,7 @@
 import GAME from '../utils/constants';
 import { call } from './api';
 import { ITEM_CATALOG, listOwned } from './inventory';
+import { resolveDynamicAssetList } from '../utils/resolve-dynamic-asset';
 
 export interface ShowcaseItemView {
   id: string;
@@ -30,7 +31,6 @@ function localList(): ShowcaseListResult {
     obtainedAt: Date.now() - (owned.length - i) * 1000,
   }));
 
-  /** 再补几条纯展示占位，方便看满页滑动 */
   const extras: ShowcaseItemView[] = [
     {
       id: 'demo_potato',
@@ -55,7 +55,6 @@ function localList(): ShowcaseListResult {
     if (!seen.has(e.itemId)) fromInv.push(e);
   }
 
-  /** 目录里再取未持有的几件填满至少 2 页联调 */
   for (const c of ITEM_CATALOG) {
     if (fromInv.length >= GAME.SHOWCASE_PAGE_SIZE * 2) break;
     if (seen.has(c.id)) continue;
@@ -79,20 +78,26 @@ function localList(): ShowcaseListResult {
   };
 }
 
+function normalizeList(res: ShowcaseListResult): ShowcaseListResult {
+  return {
+    pageSize: res.pageSize || GAME.SHOWCASE_PAGE_SIZE,
+    total: res.total ?? res.items.length,
+    totalPages:
+      res.totalPages ||
+      Math.max(1, Math.ceil(res.items.length / GAME.SHOWCASE_PAGE_SIZE)),
+    items: res.items,
+  };
+}
+
+/** 展示柜：云端 user_showcase；云调用失败才走本地联调数据 */
 export async function listShowcase(): Promise<ShowcaseListResult> {
   try {
     const res = await call<ShowcaseListResult>('showcase', { action: 'list' });
-    if (res && Array.isArray(res.items) && res.items.length) {
-      return {
-        pageSize: res.pageSize || GAME.SHOWCASE_PAGE_SIZE,
-        total: res.total ?? res.items.length,
-        totalPages:
-          res.totalPages ||
-          Math.max(1, Math.ceil(res.items.length / GAME.SHOWCASE_PAGE_SIZE)),
-        items: res.items,
-      };
+    if (!res || !Array.isArray(res.items)) {
+      return localList();
     }
-    return localList();
+    const items = await resolveDynamicAssetList(res.items, ['icon']);
+    return normalizeList({ ...res, items });
   } catch {
     return localList();
   }

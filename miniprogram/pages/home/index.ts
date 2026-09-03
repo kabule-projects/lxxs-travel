@@ -14,8 +14,6 @@ import {
   scheduleReturnWatch,
   stopReturnWatch,
   clearTripBannerTimer,
-  TRIP_BANNER_DEPART,
-  TRIP_BANNER_RETURN,
 } from '../../services/trip-return';
 
 type HomeAssets = Record<keyof typeof HOME_ASSETS, string>;
@@ -25,7 +23,7 @@ Page({
     stars: 0,
     riceStars: 0,
     showTravelBanner: false,
-    travelBannerText: '',
+    travelBannerMode: 'depart' as 'depart' | 'return',
     safeTop: 0,
     safeBottom: 0,
     assets: {} as HomeAssets,
@@ -88,32 +86,31 @@ Page({
   applyTripSyncView(view: Awaited<ReturnType<typeof resolveTripSyncView>>) {
     const { banner, sync } = view;
     if (banner.mode === 'return' && sync.trip?._id) {
-      this.showReturnBanner(sync.trip._id, banner.text);
+      this.showReturnBanner(sync.trip._id);
       return;
     }
     this.setData({
       showTravelBanner: false,
-      travelBannerText: '',
     });
   },
 
   showDepartBanner() {
     this.setData({
       showTravelBanner: true,
-      travelBannerText: TRIP_BANNER_DEPART,
+      travelBannerMode: 'depart',
     });
     runDepartBannerFlow(() => {
-      this.setData({ showTravelBanner: false, travelBannerText: '' });
+      this.setData({ showTravelBanner: false });
     });
   },
 
-  showReturnBanner(tripId: string, text = TRIP_BANNER_RETURN) {
+  showReturnBanner(tripId: string) {
     this.setData({
       showTravelBanner: true,
-      travelBannerText: text,
+      travelBannerMode: 'return',
     });
     runReturnBannerFlow(tripId, () => {
-      this.setData({ showTravelBanner: false, travelBannerText: '' });
+      this.setData({ showTravelBanner: false });
     });
   },
 
@@ -123,7 +120,7 @@ Page({
     });
     this._offVisible = on(GameEvent.CHARACTER_VISIBLE, () => {
       if (!isTraveling()) {
-        this.setData({ showTravelBanner: false, travelBannerText: '' });
+        this.setData({ showTravelBanner: false });
       }
     });
     this._offStars = on(GameEvent.STARS_UPDATED, () => {
@@ -180,9 +177,9 @@ Page({
     playTap();
     const loadout = (e.detail as { loadout?: TripLoadout }).loadout;
     if (!loadout) return;
-    this.setData({ showBag: false });
     try {
       await startTrip(loadout);
+      this.setData({ showBag: false });
       setLocalTraveling(true);
       emit(GameEvent.CHARACTER_HIDDEN);
     } catch (err) {
@@ -208,10 +205,8 @@ Page({
     navigateTo('/pages/showcase/index');
   },
 
-  onTapWardrobe() {
-    playTap();
-    navigateTo('/pages/wardrobe/index');
-  },
+  /** 衣柜交互 Phase2 再开放 */
+  // onTapWardrobe() {}
 
   onTapDiary() {
     playTap();

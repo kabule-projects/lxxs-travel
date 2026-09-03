@@ -1,21 +1,11 @@
 <view class="depart-mask" wx:if="{{visible}}" catchtap="onClose">
   <view class="depart-panel" catchtap="onStop">
-    <image class="depart-panel-bg" src="{{panelBg}}" mode="scaleToFill" />
+    <image wx:if="{{panelBg}}" class="depart-panel-bg" src="{{panelBg}}" mode="aspectFill" />
     <text class="depart-title">深深要出门啦</text>
     <text class="depart-desc">{{farewell || '路上小心～'}}</text>
     <view class="depart-actions">
-      <image
-        class="depart-btn-img"
-        src="{{btnWait}}"
-        mode="widthFix"
-        catchtap="onClose"
-      />
-      <image
-        class="depart-btn-img"
-        src="{{btnConfirm}}"
-        mode="widthFix"
-        catchtap="onConfirm"
-      />
+      <view class="depart-btn-fallback depart-btn-fallback--wait" catchtap="onClose">再等等</view>
+      <view class="depart-btn-fallback depart-btn-fallback--ok" catchtap="onConfirm">出发</view>
     </view>
   </view>
 </view>

@@ -292,6 +292,7 @@ export async function purchaseShop(itemId: string): Promise<ShopPurchaseResult> 
       requestId,
     });
     if (typeof res.stars === 'number') setStars(res.stars);
+    bumpInventory(itemId);
     emit(GameEvent.INVENTORY_CHANGED, { itemId, delta: 1 });
     return res;
   } catch (e) {

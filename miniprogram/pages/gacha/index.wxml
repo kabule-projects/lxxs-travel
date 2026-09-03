@@ -2,6 +2,8 @@
   class="gacha {{spinning ? 'gacha--spin' : ''}}"
   style="padding-top: {{safeTop}}px; padding-bottom: {{safeBottom}}px"
 >
+  <image class="gacha-page-bg" src="{{assets.pageBg}}" mode="aspectFill" />
+
   <view class="gacha-hud">
     <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
     <star-counter count="{{stars}}" iconSrc="{{assets.iconStar}}" />
@@ -9,7 +11,7 @@
   </view>
 
   <view class="machine-wrap">
-    <image class="machine-img" src="{{assets.machine}}" mode="widthFix" />
+    <image class="machine-img" src="{{assets.machine}}" mode="aspectFit" />
     <view class="machine-controls">
       <image
         class="count-btn-img {{drawCount === 1 ? 'count-btn-img--on' : ''}}"
@@ -32,7 +34,6 @@
         catchtap="onTapSpin"
       />
     </view>
-    <image class="rug-img" src="{{assets.rug}}" mode="widthFix" />
   </view>
 
   <view class="gacha-foot">

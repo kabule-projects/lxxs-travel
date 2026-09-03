@@ -4,17 +4,22 @@ import { resolveAsset } from '../../utils/resolve-assets';
 Component({
   properties: {
     visible: { type: Boolean, value: false },
-    text: { type: String, value: '' },
+    /** depart = 出门提示图；return = 回家提示图（文案在图内） */
+    mode: { type: String, value: 'depart' },
   },
 
   data: {
-    bannerBg: '',
+    departSrc: '',
+    returnSrc: '',
   },
 
   lifetimes: {
     attached() {
-      resolveAsset(TRIP_ASSETS.banner).then((bannerBg) => {
-        this.setData({ bannerBg });
+      Promise.all([
+        resolveAsset(TRIP_ASSETS.bannerDepart),
+        resolveAsset(TRIP_ASSETS.bannerReturn),
+      ]).then(([departSrc, returnSrc]) => {
+        this.setData({ departSrc, returnSrc });
       });
     },
   },

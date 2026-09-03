@@ -2,7 +2,7 @@
   <image
     class="star-icon"
     src="{{iconSrc}}"
-    mode="widthFix"
+    mode="aspectFit"
     binderror="onIconError"
   />
   <view class="star-icon-fallback" wx:if="{{iconFailed}}">★</view>

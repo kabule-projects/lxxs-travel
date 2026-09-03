@@ -1,6 +1,5 @@
 <view class="roof" style="padding-top: {{safeTop}}px; padding-bottom: {{safeBottom}}px">
-  <image class="layer layer-sky" src="{{skySrc}}" mode="aspectFill" />
-  <image class="layer layer-rooftop" src="{{rooftopSrc}}" mode="aspectFill" />
+  <image class="layer layer-bg" src="{{bgSrc}}" mode="aspectFill" />
 
   <!-- 星星：单一列表，空中倒计时 / 落下后堆在鸽子左下 -->
   <view class="sky-layer">
@@ -20,6 +19,13 @@
     />
   </view>
 
+  <!-- 屋顶底部角色装饰 -->
+  <view class="roof-characters">
+    <image class="char-mi" src="{{assets.charMi}}" mode="widthFix" />
+    <image class="char-shen" src="{{assets.charShen}}" mode="widthFix" />
+    <image class="char-biao" src="{{assets.charBiao}}" mode="widthFix" />
+  </view>
+
   <!-- 鸽子 + 魔术帽（静态装饰 + 信箱入口） -->
   <view class="pigeon-spot" bindtap="onTapPigeon">
     <image class="magic-hat-img" src="{{assets.magicHat}}" mode="aspectFit" />
@@ -32,13 +38,13 @@
     <image
       wx:if="{{pigeonState === 'mail' && !flyAway}}"
       class="mail-tip-img"
-      src="{{assets.mailTip}}"
+      src="{{mailFull ? assets.mailTipFull : assets.mailTip}}"
       mode="widthFix"
     />
     <text class="plus-one" wx:if="{{plusOneVisible}}" wx:key="plusOneSeq">+1</text>
   </view>
 
-  <trip-banner visible="{{showTravelBanner}}" text="{{travelBannerText}}" />
+  <trip-banner visible="{{showTravelBanner}}" mode="{{travelBannerMode}}" />
 
   <!-- 顶栏：双货币 + 物品 / 设置 -->
   <view class="roof-hud">

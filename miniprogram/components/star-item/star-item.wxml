@@ -7,7 +7,7 @@
     wx:if="{{src && !failed}}"
     class="star-item__img"
     src="{{src}}"
-    mode="widthFix"
+    mode="aspectFit"
     binderror="onError"
   />
   <view wx:else class="star-item__fallback">★</view>

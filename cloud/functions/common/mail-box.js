@@ -1,8 +1,10 @@
 const { PIGEON_MAIL_CAP } = require('./game');
+const { normalizePostcardSnapshot } = require('./postcard-images');
 
 const CAP = PIGEON_MAIL_CAP || 5;
 
 async function upsertDiaryEntry(db, _, openid, card) {
+  const snap = normalizePostcardSnapshot(card);
   const album = await db
     .collection('user_postcards')
     .where({ userId: openid, postcardId: card.postcardId })
@@ -14,10 +16,11 @@ async function upsertDiaryEntry(db, _, openid, card) {
       data: {
         userId: openid,
         postcardId: card.postcardId,
+        type: snap.type,
         title: card.title || '明信片',
         rarity: card.rarity || 'N',
-        imageThumb: card.imageThumb || '',
-        imageFull: card.imageFull || '',
+        imageThumb: snap.imageThumb,
+        imageFull: snap.imageFull,
         story: card.story || '',
         firstClaimedAt: Date.now(),
         claimCount: 1,
@@ -92,18 +95,22 @@ async function collectAndTrimUnread(db, _, openid, tripDocs) {
   }
 
   const items = unread
-    .map((u) => ({
-      tripId: u.tripId,
-      instanceId: u.card.instanceId,
-      postcardId: u.card.postcardId,
-      title: u.card.title || '明信片',
-      rarity: u.card.rarity || 'N',
-      imageThumb: u.card.imageThumb || '',
-      imageFull: u.card.imageFull || '',
-      story: u.card.story || '',
-      deliverAt: u.card.deliverAt || 0,
-      isNew: u.card.isNew !== false,
-    }))
+    .map((u) => {
+      const snap = normalizePostcardSnapshot(u.card);
+      return {
+        tripId: u.tripId,
+        instanceId: u.card.instanceId,
+        postcardId: u.card.postcardId,
+        type: snap.type,
+        title: u.card.title || '明信片',
+        rarity: u.card.rarity || 'N',
+        imageThumb: snap.imageThumb,
+        imageFull: snap.imageFull,
+        story: u.card.story || '',
+        deliverAt: u.card.deliverAt || 0,
+        isNew: u.card.isNew !== false,
+      };
+    })
     .sort((a, b) => b.deliverAt - a.deliverAt);
 
   return { items, autoReadCount };

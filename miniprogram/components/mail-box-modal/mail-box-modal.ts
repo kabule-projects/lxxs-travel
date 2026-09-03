@@ -1,8 +1,8 @@
 import type { MailItem } from '../../services/postcard';
 import { markMailSeen } from '../../services/postcard';
 import { playTap } from '../../services/sound';
-import { COMMON_ASSETS, MAILBOX_ASSETS } from '../../utils/asset-path';
-import { resolveAsset, resolveAssetMap } from '../../utils/resolve-assets';
+import { MAILBOX_ASSETS } from '../../utils/asset-path';
+import { resolveAssetMap } from '../../utils/resolve-assets';
 
 function formatMailDate(ts: number): string {
   if (!ts) return '';
@@ -32,24 +32,17 @@ Component({
       panel: '',
       title: '',
       iconClose: '',
-      deco: '',
       envelope: '',
-      envelopeBadge: '',
     },
-    thumbPlaceholder: '',
   },
 
   lifetimes: {
     attached() {
-      resolveAsset(COMMON_ASSETS.thumbPlaceholder).then((thumbPlaceholder) => {
-        this.setData({ thumbPlaceholder });
-      });
       resolveAssetMap(MAILBOX_ASSETS).then((assets) => {
         this.setData({ assets });
       });
     },
   },
-
   _active: null as MailItem | null,
 
   observers: {
@@ -107,7 +100,7 @@ Component({
       this.setData({
         detailVisible: true,
         letterVisible: false,
-        zoomImage: item.imageFull || item.imageThumb || '',
+        zoomImage: item.imageFull || '',
         zoomTitle: item.title || '明信片的名字',
         letterDate: formatMailDate(item.deliverAt),
         letterStory: item.story || '',
@@ -131,11 +124,15 @@ Component({
       this.setData({ letterVisible: false });
     },
 
+    /** 展开信件时自动收下：保持阅读态，仅从列表移除并通知父级 */
     onClaim() {
       const item = this._active as MailItem | null;
       if (!item) return;
-      playTap();
-      this.resetDetail();
+      const listItems = (this.data.listItems as MailItem[]).filter(
+        (m) => m.instanceId !== item.instanceId,
+      );
+      this.setData({ listItems });
+      this.triggerEvent('itemschange', { items: listItems });
       this.triggerEvent('claim', { item });
     },
   },

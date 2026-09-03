@@ -1,0 +1,10 @@
+<view class="star-counter">
+  <image
+    class="star-icon"
+    src="{{iconSrc}}"
+    mode="widthFix"
+    binderror="onIconError"
+  />
+  <view class="star-icon-fallback" wx:if="{{iconFailed}}">★</view>
+  <text class="star-num">{{count}}</text>
+</view>

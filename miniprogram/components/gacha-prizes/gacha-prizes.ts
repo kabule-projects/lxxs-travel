@@ -10,6 +10,7 @@ Component({
 
   data: {
     panelBg: '',
+    itemBg: '',
     iconClose: '',
     lockIcon: '',
   },
@@ -18,6 +19,10 @@ Component({
     attached() {
       resolveAsset(GACHA_ASSETS.catalogPanel).then((panelBg) => {
         this.setData({ panelBg });
+      });
+      /** 与结果弹窗共用物品格底图 */
+      resolveAsset(GACHA_ASSETS.resultItemBg).then((itemBg) => {
+        this.setData({ itemBg });
       });
       resolveAsset(COMMON_ASSETS.iconClose).then((iconClose) => {
         this.setData({ iconClose });

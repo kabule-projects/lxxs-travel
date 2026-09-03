@@ -1,10 +1,7 @@
-# 屋顶 / Loading 共用场景层
+# Loading + 屋顶共用背景
 
-Loading 与 `pages/roof` 共用此分层 WebP：
+| 登记路径 | 文件示例 | 说明 |
+|----------|----------|------|
+| `shared/roof/bg` | `bg@3x.webp` | 整页背景（夜空+屋顶+小屋），Loading 与屋顶共用 |
 
-| 路径 | 说明 |
-|------|------|
-| `shared/roof/sky@3x.webp` | 天空层（Loading 页面上半） |
-| `shared/roof/rooftop@3x.webp` | 天台层（Loading 页面下半 / 捡星星） |
-
-Sprint 2 屋顶页将复用这两层，并叠加星星与明信片 element。
+详见 [`../ASSET-NAMING.md`](../ASSET-NAMING.md) 第 5、6 节。

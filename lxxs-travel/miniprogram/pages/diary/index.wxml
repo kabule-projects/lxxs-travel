@@ -1,0 +1,86 @@
+<view class="diary">
+  <image class="diary-frame-bg" src="{{assets.frame}}" mode="scaleToFill" />
+  <view class="diary-frame">
+    <view class="diary-hud" style="padding-top: {{safeTop}}px">
+      <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
+      <nav-icon src="{{assets.iconGrid}}" label="设置" size="sm" bind:tap="onTapSettings" />
+    </view>
+
+    <view class="notebook">
+      <image class="notebook-bg" src="{{assets.notebook}}" mode="scaleToFill" />
+      <image class="notebook-spine-img" src="{{assets.spine}}" mode="scaleToFill" />
+
+      <view class="notebook-tabs">
+        <image class="tab-img tab-img--active" src="{{assets.tabActive}}" mode="scaleToFill" />
+        <image class="tab-img" src="{{assets.tab}}" mode="scaleToFill" />
+        <image class="tab-img" src="{{assets.tab}}" mode="scaleToFill" />
+        <image class="tab-img" src="{{assets.tab}}" mode="scaleToFill" />
+      </view>
+
+      <view class="notebook-deco">
+        <view class="weather-icons">
+          <image
+            class="weather-img weather-img--on"
+            src="{{assets.weatherSun}}"
+            mode="aspectFit"
+          />
+          <image class="weather-img" src="{{assets.weatherCloud}}" mode="aspectFit" />
+          <image class="weather-img" src="{{assets.weatherRain}}" mode="aspectFit" />
+        </view>
+        <image class="mascot-img" src="{{assets.mascot}}" mode="aspectFit" />
+      </view>
+
+      <scroll-view class="grid-scroll" scroll-y>
+        <view wx:if="{{empty}}" class="empty">还没有解锁的明信片</view>
+        <view wx:else class="grid">
+          <view
+            wx:for="{{entries}}"
+            wx:key="postcardId"
+            class="grid-cell"
+            data-index="{{index}}"
+            bindtap="onTapEntry"
+          >
+            <image
+              wx:if="{{item.imageThumb || item.imageFull}}"
+              class="grid-thumb"
+              src="{{item.imageThumb || item.imageFull}}"
+              mode="aspectFill"
+            />
+            <view wx:else class="grid-ph">{{item.title[0] || '?'}}</view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <view class="zoom-mask" wx:if="{{zoomVisible && !letterVisible}}" catchtap="onCloseZoom">
+    <view class="zoom-card" catchtap="onStopZoom">
+      <image
+        wx:if="{{zoomImage}}"
+        class="zoom-image"
+        src="{{zoomImage}}"
+        mode="aspectFit"
+      />
+      <view wx:else class="zoom-ph">{{zoomTitle[0] || '?'}}</view>
+      <view class="envelope" catchtap="onTapEnvelope">
+        <image class="envelope-img" src="{{assets.envelope}}" mode="aspectFit" />
+        <image
+          wx:if="{{letterStory && assets.envelopeBadge}}"
+          class="envelope-badge-img"
+          src="{{assets.envelopeBadge}}"
+          mode="aspectFit"
+        />
+      </view>
+    </view>
+  </view>
+
+  <diary-letter
+    visible="{{letterVisible}}"
+    date-text="{{letterDate}}"
+    story="{{letterStory}}"
+    title="{{zoomTitle}}"
+    bind:close="onCloseLetter"
+  />
+
+  <settings-modal visible="{{showSettings}}" bind:close="onCloseSettings" />
+</view>

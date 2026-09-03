@@ -14,10 +14,14 @@ Component({
 
   data: {
     tab: 'food' as InvCategory,
-    lockLabel: '美食',
     items: [] as InvItemView[],
     panelBg: '',
     iconClose: '',
+    tabFood: '',
+    tabFoodOn: '',
+    tabProp: '',
+    tabPropOn: '',
+    itemRowBg: '',
   },
 
   lifetimes: {
@@ -27,6 +31,21 @@ Component({
       });
       resolveAsset(COMMON_ASSETS.iconClose).then((iconClose) => {
         this.setData({ iconClose });
+      });
+      resolveAsset(INVENTORY_ASSETS.tabFood).then((tabFood) => {
+        this.setData({ tabFood });
+      });
+      resolveAsset(INVENTORY_ASSETS.tabFoodOn).then((tabFoodOn) => {
+        this.setData({ tabFoodOn });
+      });
+      resolveAsset(INVENTORY_ASSETS.tabProp).then((tabProp) => {
+        this.setData({ tabProp });
+      });
+      resolveAsset(INVENTORY_ASSETS.tabPropOn).then((tabPropOn) => {
+        this.setData({ tabPropOn });
+      });
+      resolveAsset(INVENTORY_ASSETS.itemRow).then((itemRowBg) => {
+        this.setData({ itemRowBg });
       });
     },
   },
@@ -52,17 +71,13 @@ Component({
       const tab: InvCategory =
         lock === 'food' || lock === 'prop' ? lock : this.data.tab;
       const items = await fetchOwned(lock || tab);
-      this.setData({
-        tab,
-        lockLabel: tab === 'food' ? '美食' : '道具',
-        items,
-      });
+      this.setData({ tab, items });
     },
 
     async onTapTab(e: WechatMiniprogram.TouchEvent) {
       if (this.properties.lockTab) return;
       const tab = e.currentTarget.dataset.tab as InvCategory;
-      if (!tab) return;
+      if (!tab || tab === this.data.tab) return;
       const items = await fetchOwned(tab);
       this.setData({ tab, items });
     },

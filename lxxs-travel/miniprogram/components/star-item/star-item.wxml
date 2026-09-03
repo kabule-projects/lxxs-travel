@@ -1,0 +1,15 @@
+<view
+  class="star-item star-item--{{kind}} {{type === 'rice' ? 'star-item--rice' : ''}}"
+  style="left: {{left}}%; top: {{top}}%; transform: rotate({{rotate}}deg); z-index: {{zIndex}};"
+  catchtap="onTap"
+>
+  <image
+    wx:if="{{src && !failed}}"
+    class="star-item__img"
+    src="{{src}}"
+    mode="widthFix"
+    binderror="onError"
+  />
+  <view wx:else class="star-item__fallback">★</view>
+  <text wx:if="{{kind === 'pending'}}" class="star-item__remain">{{remainText}}</text>
+</view>

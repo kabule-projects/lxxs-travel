@@ -1,8 +1,14 @@
 import { call } from './api';
 import { consumeItems } from './inventory';
-import { getRiceStars, getProfile, patchProfile } from '../store/user';
+import {
+  getRiceStars,
+  getProfile,
+  patchProfile,
+  setRiceStars,
+} from '../store/user';
 import { emit, GameEvent } from '../utils/event-bus';
 import GAME from '../utils/constants';
+import { pushLocalDeliveredMail, type MailItem } from './postcard';
 
 export interface TripLoadout {
   bento: string;
@@ -20,6 +26,73 @@ export interface TripStartResult {
 }
 
 const TRIP_KEY = 'lxxs_trip_local';
+
+interface LocalTripPostcard {
+  instanceId: string;
+  postcardId: string;
+  type: MailItem['type'];
+  status: 'pending' | 'delivered' | 'claimed';
+  deliverAt: number;
+  title: string;
+  rarity: string;
+  imageThumb: string;
+  imageFull: string;
+  story: string;
+  isNew: boolean;
+}
+
+function makeLocalPostcards(
+  tripId: string,
+  startAt: number,
+  endAt: number,
+  destName: string,
+): LocalTripPostcard[] {
+  const duration = Math.max(1, endAt - startAt);
+  const deliverAt = startAt + Math.floor(duration * 0.4);
+  return [
+    {
+      instanceId: `local_pm_${startAt}`,
+      postcardId: 'pc_local_park',
+      type: 'letter',
+      status: 'pending',
+      deliverAt,
+      title: destName || '旅途明信片',
+      rarity: 'N',
+      imageThumb: '',
+      imageFull: '',
+      story: '今天天气很好，风轻轻吹过树叶。\n——旅行小深',
+      isNew: true,
+    },
+  ];
+}
+
+function advanceLocalPostcards(
+  tripId: string,
+  postcards: LocalTripPostcard[],
+): { postcards: LocalTripPostcard[]; delivered: MailItem[] } {
+  const now = Date.now();
+  const delivered: MailItem[] = [];
+  const next = postcards.map((p) => {
+    if (p.status !== 'pending' || p.deliverAt > now) return p;
+    const mail: MailItem = {
+      tripId,
+      instanceId: p.instanceId,
+      postcardId: p.postcardId,
+      type: p.type,
+      title: p.title,
+      rarity: p.rarity,
+      imageThumb: p.imageThumb,
+      imageFull: p.imageFull,
+      story: p.story,
+      deliverAt: p.deliverAt,
+      isNew: true,
+    };
+    delivered.push(mail);
+    pushLocalDeliveredMail(mail);
+    return { ...p, status: 'delivered' as const };
+  });
+  return { postcards: next, delivered };
+}
 
 function localStart(loadout: TripLoadout): TripStartResult {
   const profile = getProfile();
@@ -47,6 +120,11 @@ function localStart(loadout: TripLoadout): TripStartResult {
     throw err;
   }
 
+  const usedRice = !!loadout.riceStar;
+  if (usedRice) {
+    setRiceStars(Math.max(0, getRiceStars() - 1));
+  }
+
   const startAt = Date.now();
   /** 本地联调：2–6 小时量级，缩短为 2–5 分钟便于测试 */
   const durationMs = (2 + Math.random() * 3) * 60 * 1000;
@@ -58,11 +136,23 @@ function localStart(loadout: TripLoadout): TripStartResult {
     destName: '附近的小公园',
     startAt,
     endAt,
-    usedRiceStar: !!loadout.riceStar,
+    usedRiceStar: usedRice,
   };
 
+  const postcards = makeLocalPostcards(
+    tripId,
+    startAt,
+    endAt,
+    result.destName,
+  );
+
   try {
-    wx.setStorageSync(TRIP_KEY, { ...result, loadout, status: 'traveling' });
+    wx.setStorageSync(TRIP_KEY, {
+      ...result,
+      loadout,
+      status: 'traveling',
+      postcards,
+    });
   } catch {
     /* ignore */
   }
@@ -82,6 +172,12 @@ export async function startTrip(loadout: TripLoadout): Promise<TripStartResult> 
       source: 'bag',
       requestId,
     });
+    const propIds = (loadout.props || []).filter(Boolean).slice(0, GAME.BAG_PROP_SLOTS);
+    /** 云端已扣库存；同步本地缓存，避免背包/物品列表仍显示旧数量 */
+    consumeItems([loadout.bento, ...propIds]);
+    if (res.usedRiceStar) {
+      setRiceStars(Math.max(0, getRiceStars() - 1));
+    }
     patchProfile({ currentTripId: res.tripId });
     emit(GameEvent.TRIP_STARTED, res);
     emit(GameEvent.INVENTORY_CHANGED, { reason: 'trip_start' });
@@ -157,6 +253,7 @@ function localSyncTrip(): TripSyncResult {
       endAt?: number;
       destName?: string;
       souvenirs?: string[];
+      postcards?: LocalTripPostcard[];
     } | '';
     if (!raw || typeof raw !== 'object' || !raw.tripId) {
       patchProfile({ currentTripId: undefined });
@@ -164,12 +261,29 @@ function localSyncTrip(): TripSyncResult {
     }
     const now = Date.now();
     let status = raw.status || 'traveling';
+    const tripId = raw.tripId;
+    let postcards = Array.isArray(raw.postcards) ? raw.postcards : [];
+    if (!postcards.length && raw.endAt) {
+      postcards = makeLocalPostcards(
+        tripId,
+        now - 60000,
+        raw.endAt,
+        raw.destName || '',
+      );
+    }
+    const advanced = advanceLocalPostcards(tripId, postcards);
+    postcards = advanced.postcards;
+    if (advanced.delivered.length) {
+      advanced.delivered.forEach(() => {
+        emit(GameEvent.POSTCARD_DELIVERED);
+      });
+    }
     if (status === 'traveling' && raw.endAt && now >= raw.endAt) {
       status = 'returned';
-      wx.setStorageSync(TRIP_KEY, { ...raw, status: 'returned' });
     }
+    wx.setStorageSync(TRIP_KEY, { ...raw, status, postcards });
     const trip = {
-      _id: raw.tripId,
+      _id: tripId,
       status,
       endAt: raw.endAt,
       destName: raw.destName,
@@ -178,12 +292,12 @@ function localSyncTrip(): TripSyncResult {
     if (status === 'at_home' || !trip) {
       patchProfile({ currentTripId: undefined });
     } else {
-      patchProfile({ currentTripId: raw.tripId });
+      patchProfile({ currentTripId: tripId });
     }
     if (status === 'returned') {
-      emit(GameEvent.TRIP_RETURNED, { trip, delivered: [] });
+      emit(GameEvent.TRIP_RETURNED, { trip, delivered: advanced.delivered });
     }
-    return { trip, delivered: [] };
+    return { trip, delivered: advanced.delivered };
   } catch {
     return { trip: null, delivered: [] };
   }

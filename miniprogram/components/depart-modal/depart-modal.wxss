@@ -17,6 +17,9 @@
   padding: 48rpx 40rpx 40rpx;
   box-sizing: border-box;
   overflow: hidden;
+  border-radius: 28rpx;
+  background: #fff4d1;
+  border: 4rpx solid #d4a574;
 }
 
 .depart-panel-bg {
@@ -26,6 +29,8 @@
   width: 100%;
   height: 100%;
   z-index: 0;
+  opacity: 0.25;
+  pointer-events: none;
 }
 
 .depart-title {
@@ -39,6 +44,8 @@
 }
 
 .depart-desc {
+  position: relative;
+  z-index: 1;
   display: block;
   margin-top: 20rpx;
   font-size: 26rpx;
@@ -47,20 +54,37 @@
   text-align: center;
 }
 
-.depart-desc {
-  position: relative;
-  z-index: 1;
-}
-
 .depart-actions {
   position: relative;
   z-index: 1;
   margin-top: 40rpx;
   display: flex;
   gap: 24rpx;
+  align-items: center;
 }
 
 .depart-btn-img {
   flex: 1;
+  max-height: 88rpx;
+}
+
+.depart-btn-fallback {
+  flex: 1;
   height: 80rpx;
+  border-radius: 999rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.depart-btn-fallback--wait {
+  background: #f0dcc0;
+  color: #6b5340;
+}
+
+.depart-btn-fallback--ok {
+  background: #c47a3a;
+  color: #fff8ee;
 }

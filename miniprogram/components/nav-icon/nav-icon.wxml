@@ -1,5 +1,5 @@
 <view
-  class="nav-icon {{size}}"
+  class="nav-icon nav-icon--{{size}}"
   bindtap="onTap"
   hover-class="nav-icon--hover"
 >
@@ -7,7 +7,7 @@
     wx:if="{{src && !failed}}"
     class="nav-icon__img"
     src="{{src}}"
-    mode="widthFix"
+    mode="aspectFit"
     binderror="onError"
   />
   <view wx:else class="nav-icon__placeholder">{{label}}</view>

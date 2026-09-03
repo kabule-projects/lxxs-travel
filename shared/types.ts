@@ -7,6 +7,9 @@ export type ItemType =
 
 export type PostcardRarity = 'N' | 'R' | 'SR' | 'SSR' | 'UR';
 
+/** 明信片类型：控制日记/信箱展示形态，后续可扩展 */
+export type PostcardType = 'postcard' | 'letter' | 'photo' | 'special';
+
 export type TripStatus = 'preparing' | 'traveling' | 'returned' | 'at_home';
 
 export type PostcardDeliveryStatus = 'pending' | 'delivered' | 'claimed';
@@ -57,9 +60,17 @@ export interface DestinationDefinition {
   enabled: boolean;
 }
 
+export interface PostcardImages {
+  /** 日记格子 / 信箱列表用缩略切图 */
+  imageThumb: string;
+  /** 点开放大 / 信件主图 */
+  imageFull: string;
+}
+
 export interface PostcardDefinition {
   id: string;
   title: string;
+  type: PostcardType;
   rarity: PostcardRarity;
   groupId: string;
   destId?: string;
@@ -88,6 +99,7 @@ export interface TripGameConfig {
 export interface TripPostcardInstance {
   instanceId: string;
   postcardId: string;
+  type: PostcardType;
   status: PostcardDeliveryStatus;
   deliverAt: number;
   title: string;

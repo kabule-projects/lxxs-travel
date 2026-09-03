@@ -13,7 +13,26 @@ Component({
     },
     trackSrc: { type: String, value: '' },
     fillSrc: { type: String, value: '' },
+    /** 米子图标；默认 loading/bar-thumb */
     thumbSrc: { type: String, value: '' },
+  },
+
+  data: {
+    displayTrack: '',
+    displayFill: '',
+    displayThumb: '',
+  },
+
+  observers: {
+    'trackSrc, fillSrc, thumbSrc'(trackSrc: string, fillSrc: string, thumbSrc: string) {
+      if (trackSrc || fillSrc || thumbSrc) {
+        this.setData({
+          displayTrack: trackSrc || this.data.displayTrack,
+          displayFill: fillSrc || this.data.displayFill,
+          displayThumb: thumbSrc || this.data.displayThumb,
+        });
+      }
+    },
   },
 
   lifetimes: {
@@ -24,22 +43,39 @@ Component({
 
   methods: {
     async resolveAssets() {
-      const track = this.properties.trackSrc;
-      if (track) return;
+      const { trackSrc, fillSrc, thumbSrc } = this.properties;
+      if (trackSrc && fillSrc && thumbSrc) {
+        this.setData({
+          displayTrack: trackSrc,
+          displayFill: fillSrc,
+          displayThumb: thumbSrc,
+        });
+        return;
+      }
 
-      const [trackSrc, fillSrc, thumbSrc] = await Promise.all([
-        preloadFirstAvailable(assetWebpCandidates(LOADING_ASSETS.barTrack)).catch(
-          () => assetWebp(LOADING_ASSETS.barTrack),
-        ),
-        preloadFirstAvailable(assetWebpCandidates(LOADING_ASSETS.barFill)).catch(
-          () => assetWebp(LOADING_ASSETS.barFill),
-        ),
-        preloadFirstAvailable(assetWebpCandidates(LOADING_ASSETS.barThumb)).catch(
-          () => assetWebp(LOADING_ASSETS.barThumb),
-        ),
+      const [track, fill, thumb] = await Promise.all([
+        trackSrc
+          ? Promise.resolve(trackSrc)
+          : preloadFirstAvailable(assetWebpCandidates(LOADING_ASSETS.barTrack)).catch(() =>
+              assetWebp(LOADING_ASSETS.barTrack),
+            ),
+        fillSrc
+          ? Promise.resolve(fillSrc)
+          : preloadFirstAvailable(assetWebpCandidates(LOADING_ASSETS.barFill)).catch(() =>
+              assetWebp(LOADING_ASSETS.barFill),
+            ),
+        thumbSrc
+          ? Promise.resolve(thumbSrc)
+          : preloadFirstAvailable(assetWebpCandidates(LOADING_ASSETS.barThumb)).catch(() =>
+              assetWebp(LOADING_ASSETS.barThumb),
+            ),
       ]);
 
-      this.setData({ trackSrc, fillSrc, thumbSrc });
+      this.setData({
+        displayTrack: track,
+        displayFill: fill,
+        displayThumb: thumb,
+      });
     },
 
     onTrackError() {

@@ -2,15 +2,6 @@
   <view class="sett-backdrop" catchtap="onClose">
     <view class="sett-panel" catchtap="onStop">
       <image class="sett-panel-bg" src="{{assets.panel}}" mode="scaleToFill" />
-      <view class="sett-title-wrap">
-        <image
-          wx:if="{{assets.title}}"
-          class="sett-title-img"
-          src="{{assets.title}}"
-          mode="widthFix"
-        />
-        <text wx:else class="sett-title-text">设置</text>
-      </view>
 
       <view class="sett-row">
         <text class="sett-label">音乐</text>

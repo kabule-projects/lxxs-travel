@@ -1,0 +1,8 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "nav-icon": "/components/nav-icon/nav-icon",
+    "diary-letter": "/components/diary-letter/diary-letter",
+    "settings-modal": "/components/settings-modal/settings-modal"
+  }
+}

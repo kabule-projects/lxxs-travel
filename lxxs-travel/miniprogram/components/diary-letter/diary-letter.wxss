@@ -1,0 +1,128 @@
+.dl-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 120;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.dl-card {
+  width: 85vw;
+  max-width: 640rpx;
+  max-height: 82vh;
+  padding: 28rpx 32rpx 36rpx;
+  box-sizing: border-box;
+  border-radius: 24rpx;
+  border: 5rpx solid #7ea2f6;
+  background: #fff;
+  box-shadow: 0 16rpx 48rpx rgba(42, 58, 120, 0.28);
+  display: flex;
+  flex-direction: column;
+}
+
+.dl-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+  flex-shrink: 0;
+}
+
+.dl-date-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.dl-date-label-img {
+  height: 28rpx;
+  width: 88rpx;
+}
+
+.dl-date {
+  font-size: 22rpx;
+  color: #9ab4e8;
+  letter-spacing: 1rpx;
+}
+
+.dl-weather {
+  display: flex;
+  gap: 12rpx;
+}
+
+.dl-weather-img {
+  width: 52rpx;
+  height: 52rpx;
+  flex-shrink: 0;
+}
+
+.dl-body {
+  flex: 1;
+  min-height: 360rpx;
+  max-height: 52vh;
+  overflow: hidden;
+}
+
+.dl-paper {
+  position: relative;
+  min-height: 360rpx;
+  padding: 4rpx 4rpx 24rpx;
+  box-sizing: border-box;
+}
+
+.dl-paper-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.dl-paper-content {
+  position: relative;
+  z-index: 1;
+}
+
+.dl-story {
+  display: block;
+  font-size: 30rpx;
+  line-height: 54rpx;
+  color: #5a82d8;
+  font-family: 'STKaiti', 'KaiTi', 'PingFang SC', serif;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.dl-sign {
+  display: block;
+  margin-top: 16rpx;
+  text-align: right;
+  font-size: 26rpx;
+  line-height: 44rpx;
+  color: #5a82d8;
+  font-family: 'STKaiti', 'KaiTi', 'PingFang SC', serif;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.dl-logo-img {
+  width: 240rpx;
+  margin: 28rpx auto 0;
+  display: block;
+  flex-shrink: 0;
+}
+
+.dl-claim-img {
+  width: 100%;
+  height: 80rpx;
+  margin-top: 24rpx;
+  flex-shrink: 0;
+}

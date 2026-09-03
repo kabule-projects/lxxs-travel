@@ -193,18 +193,21 @@ function buildPostcardInstances(cards, startAt, endAt, cfg) {
   const duration = Math.max(1, endAt - startAt);
   const minR = cfg.deliverAtMinRatio;
   const maxR = cfg.deliverAtMaxRatio;
+  const { normalizePostcardSnapshot } = require('./postcard-images');
   return cards.map((card) => {
     const ratio = uniform(minR, maxR);
+    const snap = normalizePostcardSnapshot(card);
     return {
       instanceId: makeInstanceId('tpm'),
       postcardId: card.id,
+      type: snap.type,
       status: 'pending',
       deliverAt: startAt + Math.floor(ratio * duration),
       title: card.title || card.id,
       rarity: card.rarity || 'N',
       groupId: card.groupId || '',
-      imageThumb: card.imageThumb || '',
-      imageFull: card.imageFull || '',
+      imageThumb: snap.imageThumb,
+      imageFull: snap.imageFull,
       story: card.story || '',
     };
   });

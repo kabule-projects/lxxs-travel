@@ -6,8 +6,8 @@ import {
   ROOF_SCENE_ASSETS,
   preloadFirstAvailable,
 } from '../../utils/asset-path';
-import { checkSession, registerProfile, uploadAvatar } from '../../services/auth';
-import { setProfile } from '../../store/user';
+
+import { ensureSession } from '../../services/auth';
 import { playTap } from '../../services/sound';
 
 Page({
@@ -16,18 +16,18 @@ Page({
     tip: '正在加载…',
     canEnter: false,
     layersReady: false,
-    skySrc: '',
-    rooftopSrc: '',
+    bgSrc: '',
     btnEnterSrc: '',
     btnEnterDisabledSrc: '',
     safeTop: 0,
     safeBottom: 0,
-    showAuth: false,
-    profileReady: false,
+    sessionReady: false,
   },
 
   _bootDone: false,
   _layerCount: 0,
+  _targetLayerCount: 1,
+  _navigated: false,
 
   onLoad() {
     if (!isSupportedOrDevtools()) {
@@ -46,20 +46,18 @@ Page({
 
   async resolveAssets() {
     try {
-      const [skySrc, rooftopSrc, btnEnterSrc, btnEnterDisabledSrc] = await Promise.all([
-        preloadFirstAvailable(assetWebpCandidates(ROOF_SCENE_ASSETS.sky)),
-        preloadFirstAvailable(assetWebpCandidates(ROOF_SCENE_ASSETS.rooftop)),
+      const [bgSrc, btnEnterSrc, btnEnterDisabledSrc] = await Promise.all([
+        preloadFirstAvailable(assetWebpCandidates(ROOF_SCENE_ASSETS.bg)),
         preloadFirstAvailable(assetWebpCandidates(LOADING_ASSETS.btnEnter)),
         preloadFirstAvailable(assetWebpCandidates(LOADING_ASSETS.btnEnterDisabled)).catch(
           () => preloadFirstAvailable(assetWebpCandidates(LOADING_ASSETS.btnEnter)),
         ),
       ]);
-      this.setData({ skySrc, rooftopSrc, btnEnterSrc, btnEnterDisabledSrc });
+      this.setData({ bgSrc, btnEnterSrc, btnEnterDisabledSrc });
     } catch (e) {
       console.warn('[loading] asset resolve fallback', e);
       this.setData({
-        skySrc: assetWebp(ROOF_SCENE_ASSETS.sky),
-        rooftopSrc: assetWebp(ROOF_SCENE_ASSETS.rooftop),
+        bgSrc: assetWebp(ROOF_SCENE_ASSETS.bg),
         btnEnterSrc: assetWebp(LOADING_ASSETS.btnEnter),
         btnEnterDisabledSrc: assetWebp(LOADING_ASSETS.btnEnterDisabled),
       });
@@ -68,7 +66,7 @@ Page({
 
   onLayerLoaded() {
     this._layerCount += 1;
-    if (this._layerCount >= 2) {
+    if (this._layerCount >= this._targetLayerCount) {
       this.setData({ layersReady: true });
       this.tryFinishBoot();
     }
@@ -76,7 +74,7 @@ Page({
 
   onLayerError() {
     this._layerCount += 1;
-    if (this._layerCount >= 2) {
+    if (this._layerCount >= this._targetLayerCount) {
       this.setData({ layersReady: true });
       this.tryFinishBoot();
     }
@@ -106,25 +104,16 @@ Page({
     await this.tickProgress(15, '加载资源…');
     await this.tickProgress(45, '准备场景…');
 
-    if (app.globalData.cloudReady) {
-      try {
-        await this.tickProgress(60, '连接云端…');
-        const profile = await checkSession();
-        if (profile.needsProfile || !profile.userId) {
-          this.setData({ showAuth: true, profileReady: false });
-          await this.tickProgress(85, '等待授权…');
-        } else {
-          setProfile(profile);
-          this.setData({ profileReady: true });
-          await this.tickProgress(85, '同步数据…');
-        }
-      } catch {
-        this.setData({ showAuth: true, profileReady: false });
-        await this.tickProgress(85, '等待授权…');
-      }
-    } else {
-      this.setData({ showAuth: true, profileReady: false });
-      await this.tickProgress(85, '等待授权…');
+    try {
+      await this.tickProgress(60, app.globalData.cloudReady ? '连接云端…' : '初始化…');
+      await ensureSession();
+      await this.tickProgress(85, '同步数据…');
+      this.setData({ sessionReady: true });
+    } catch (e) {
+      console.warn('[loading] session fallback', e);
+      await ensureSession();
+      this.setData({ sessionReady: true });
+      await this.tickProgress(85, '同步数据…');
     }
 
     this._bootDone = true;
@@ -135,54 +124,29 @@ Page({
   },
 
   async tryFinishBoot() {
-    if (!this._bootDone || !this.data.layersReady || !this.data.profileReady) return;
+    if (!this._bootDone || !this.data.layersReady || !this.data.sessionReady) return;
     await this.tickProgress(100, '');
     this.setData({ canEnter: true, tip: '' });
+    this.enterGame();
   },
 
-  async onAuthSubmit(e: WechatMiniprogram.CustomEvent) {
-    const { nickName, avatarUrl } = (e.detail || {}) as {
-      nickName?: string;
-      avatarUrl?: string;
-    };
-    if (!nickName?.trim()) {
-      wx.showToast({ title: '请填写昵称', icon: 'none' });
+  enterGame() {
+    if (this._navigated) return;
+    if (!this.data.sessionReady) {
+      wx.showToast({ title: '还在加载中', icon: 'none' });
       return;
     }
+    this._navigated = true;
     playTap();
-    wx.showLoading({ title: '注册中…' });
-    try {
-      let avatar = avatarUrl || '';
-      const tempProfile = await registerProfile({ nickName: nickName.trim(), avatarUrl: '' });
-      if (avatar && tempProfile.userId) {
-        avatar = await uploadAvatar(avatar, tempProfile.userId);
-        if (avatar !== avatarUrl) {
-          await registerProfile({ nickName: nickName.trim(), avatarUrl: avatar });
-        }
-      }
-      this.setData({ showAuth: false, profileReady: true });
-      await this.tryFinishBoot();
-    } catch (err) {
-      wx.showToast({
-        title: (err as Error).message || '注册失败',
-        icon: 'none',
-      });
-    } finally {
-      wx.hideLoading();
-    }
+    wx.reLaunch({ url: '/pages/roof/index' });
   },
 
   onEnterGame() {
-    if (!this.data.profileReady) {
-      wx.showToast({ title: '请先完成授权', icon: 'none' });
-      return;
-    }
     if (!this.data.canEnter) {
       wx.showToast({ title: '还在加载中', icon: 'none' });
       return;
     }
-    playTap();
-    wx.reLaunch({ url: '/pages/roof/index' });
+    this.enterGame();
   },
 });
 

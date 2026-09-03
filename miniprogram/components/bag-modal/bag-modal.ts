@@ -4,6 +4,7 @@ import { getItemMeta } from '../../services/inventory';
 import type { InvCategory, InvItemView } from '../../services/inventory';
 import { BAG_ASSETS, COMMON_ASSETS } from '../../utils/asset-path';
 import { resolveAsset, resolveAssetMap } from '../../utils/resolve-assets';
+import { GameEvent, on } from '../../utils/event-bus';
 
 interface SlotItem {
   id: string;
@@ -28,8 +29,9 @@ Component({
     propTarget: 0,
     assets: {} as BagAssets,
     iconClose: '',
-    iconClear: '',
   },
+
+  _offTripStarted: null as (() => void) | null,
 
   lifetimes: {
     attached() {
@@ -39,9 +41,13 @@ Component({
       resolveAsset(COMMON_ASSETS.iconClose).then((iconClose) => {
         this.setData({ iconClose });
       });
-      resolveAsset(COMMON_ASSETS.iconClear).then((iconClear) => {
-        this.setData({ iconClear });
+      this._offTripStarted = on(GameEvent.TRIP_STARTED, () => {
+        this.resetLoadout();
       });
+    },
+    detached() {
+      this._offTripStarted?.();
+      this._offTripStarted = null;
     },
   },
 
@@ -78,7 +84,10 @@ Component({
 
     onTapFood() {
       if (this.data.food) return;
-      this.setData({ pickerVisible: true, pickerLock: 'food' });
+      this.setData({
+        pickerVisible: true,
+        pickerLock: 'food',
+      });
     },
 
     onClearFood() {

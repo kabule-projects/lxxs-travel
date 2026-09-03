@@ -37,8 +37,17 @@
 
 .star-item__img {
   width: 100%;
+  height: 88rpx;
   display: block;
   filter: drop-shadow(0 0 12rpx rgba(255, 255, 255, 0.7));
+}
+
+.star-item--pending .star-item__img {
+  height: 100rpx;
+}
+
+.star-item--dropped .star-item__img {
+  height: 72rpx;
 }
 
 .star-item__fallback {

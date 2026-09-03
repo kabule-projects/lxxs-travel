@@ -1,7 +1,6 @@
 import { CLOUD_ENV_ID, isCloudConfigured } from './config/cloud';
-import { login } from './services/api';
+import { ensureSession } from './services/auth';
 import { initAudioPrefs } from './services/sound';
-import { setProfile } from './store/user';
 import { isSupportedOrDevtools } from './utils/device';
 
 App({
@@ -29,10 +28,7 @@ App({
 
     if (this.globalData.cloudReady) {
       try {
-        const profile = await login();
-        if (!profile.needsProfile && profile.userId) {
-          setProfile(profile);
-        }
+        await ensureSession();
       } catch (e) {
         console.warn('[app] login skipped:', e);
       }

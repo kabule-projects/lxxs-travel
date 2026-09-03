@@ -1,0 +1,17 @@
+<view class="loading-bar">
+  <view class="track">
+    <!-- 轨道底图 WebP -->
+    <image class="track-img" src="{{trackSrc}}" mode="scaleToFill" binderror="onTrackError" />
+    <!-- 进度填充 WebP，宽度随 progress 裁剪 -->
+    <view class="fill-clip" style="width: {{progress}}%">
+      <image class="fill-img" src="{{fillSrc}}" mode="scaleToFill" />
+    </view>
+    <!-- 指示器 WebP -->
+    <image
+      class="thumb-img"
+      src="{{thumbSrc}}"
+      mode="widthFix"
+      style="left: {{progress}}%"
+    />
+  </view>
+</view>

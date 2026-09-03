@@ -1,0 +1,9 @@
+{"id":"pc_park_duck","title":"喂鸭子的午后","rarity":"N","groupId":"daily","destId":"dest_park","imageThumb":"postcards/letter-1","imageFull":"postcards/letter-1","story":"深深在公园长椅上睡着了，鸭子把他的面包屑偷走了。","baseWeight":10,"enabled":true}
+{"id":"pc_park_slide","title":"滑梯一号选手","rarity":"R","groupId":"daily","destId":"dest_park","imageThumb":"postcards/letter-2","imageFull":"postcards/letter-2","story":"滑了十二次，第十三次决定回家。","baseWeight":6,"enabled":true}
+{"id":"pc_lake_mist","title":"湖面薄雾","rarity":"R","groupId":"nature","destId":"dest_lakeside","imageThumb":"postcards/letter-3","imageFull":"postcards/letter-3","story":"雾散开时，对岸有人在挥手。","baseWeight":7,"enabled":true}
+{"id":"pc_lake_sr","title":"倒影里的月亮","rarity":"SR","groupId":"nature","destId":"dest_lakeside","imageThumb":"postcards/letter-4","imageFull":"postcards/letter-4","story":"明明是白天，湖面却映出一弯细月。","baseWeight":3,"enabled":true}
+{"id":"pc_town_lantern","title":"灯笼巷","rarity":"R","groupId":"city","destId":"dest_oldtown","imageThumb":"postcards/letter-5","imageFull":"postcards/letter-5","story":"巷子尽头飘来糖炒栗子的味道。","baseWeight":6,"enabled":true}
+{"id":"pc_hill_wind","title":"风很大的山顶","rarity":"SR","groupId":"scenic","destId":"dest_hill","imageThumb":"postcards/letter-6","imageFull":"postcards/letter-6","story":"帽子差点儿飞走，深深紧紧按住。","baseWeight":4,"enabled":true}
+{"id":"pc_coast_ssr","title":"灯塔与潮声","rarity":"SSR","groupId":"scenic","destId":"dest_coast","imageThumb":"postcards/letter-7","imageFull":"postcards/letter-7","story":"潮水拍岸，灯塔一闪一闪，像在说晚安。","baseWeight":2,"enabled":true}
+{"id":"pc_anywhere_star","title":"随身星空","rarity":"UR","groupId":"scenic","imageThumb":"postcards/letter-8","imageFull":"postcards/letter-8","story":"无论走到哪里，头顶好像都有同一片星。","baseWeight":1,"enabled":true}
+{"id":"pc_nature_leaf","title":"一片会说话的叶子","rarity":"N","groupId":"nature","imageThumb":"postcards/letter-9","imageFull":"postcards/letter-9","story":"叶子上写着：记得喝水。","baseWeight":9,"enabled":true}

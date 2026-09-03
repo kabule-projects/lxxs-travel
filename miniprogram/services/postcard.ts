@@ -1,12 +1,17 @@
 import { call } from './api';
 import GAME from '../utils/constants';
+import { cacheDiaryEntry } from './diary';
+import { resolveDynamicAssetList } from '../utils/resolve-dynamic-asset';
 
 export type PigeonState = 'away' | 'mail' | 'idle';
+
+export type PostcardType = 'postcard' | 'letter' | 'photo' | 'special';
 
 export interface MailItem {
   tripId: string;
   instanceId: string;
   postcardId: string;
+  type: PostcardType;
   title: string;
   rarity: string;
   imageThumb: string;
@@ -74,12 +79,15 @@ function trimLocal(items: MailItem[]): MailItem[] {
 export async function syncMailbox(): Promise<MailboxSyncResult> {
   try {
     const res = await call<MailboxSyncResult>('postcard', { action: 'mailbox' });
+    const items = await resolveDynamicAssetList(sortMailItemsDesc(res.items || []), [
+      'imageThumb',
+      'imageFull',
+    ]);
     writeLocal({
-      items: sortMailItemsDesc(res.items || []),
+      items,
       lastMailboxOpenAt: res.lastMailboxOpenAt || 0,
       traveling: !!res.traveling,
     });
-    const items = sortMailItemsDesc(res.items || []);
     return {
       ...res,
       items,
@@ -103,7 +111,10 @@ export async function syncMailbox(): Promise<MailboxSyncResult> {
 export async function openMailbox(): Promise<MailboxSyncResult> {
   try {
     const res = await call<MailboxSyncResult>('postcard', { action: 'openMailbox' });
-    const items = sortMailItemsDesc(res.items || []);
+    const items = await resolveDynamicAssetList(sortMailItemsDesc(res.items || []), [
+      'imageThumb',
+      'imageFull',
+    ]);
     writeLocal({
       items,
       lastMailboxOpenAt: res.lastMailboxOpenAt || 0,
@@ -135,23 +146,84 @@ export async function markMailSeen(tripId: string, instanceId: string) {
   }
 }
 
-export async function claimMail(tripId: string, instanceId: string) {
-  const res = await call<{
-    postcardId: string;
-    title: string;
-    rarity: string;
-    imageFull?: string;
-    story?: string;
-    firstUnlock: boolean;
-  }>('postcard', { action: 'claim', tripId, instanceId });
-  try {
-    const local = readLocal();
-    local.items = local.items.filter((i) => i.instanceId !== instanceId);
-    writeLocal(local);
-  } catch {
-    /* ignore */
+function claimMailLocal(tripId: string, instanceId: string) {
+  const local = readLocal();
+  const item = local.items.find(
+    (i) => i.tripId === tripId && i.instanceId === instanceId,
+  );
+  if (!item) {
+    const err = new Error('信件不存在') as Error & { code?: string };
+    err.code = 'NOT_FOUND';
+    throw err;
   }
+  const res = {
+    postcardId: item.postcardId,
+    type: item.type,
+    title: item.title,
+    rarity: item.rarity,
+    imageFull: item.imageFull || '',
+    imageThumb: item.imageThumb || '',
+    story: item.story || '',
+    firstUnlock: true,
+  };
+  cacheDiaryEntry({
+    postcardId: res.postcardId,
+    type: res.type || 'postcard',
+    title: res.title,
+    rarity: res.rarity,
+    imageFull: res.imageFull,
+    imageThumb: res.imageThumb,
+    story: res.story,
+  });
+  local.items = local.items.filter((i) => i.instanceId !== instanceId);
+  writeLocal(local);
   return res;
+}
+
+/** 本地旅行途中投递：写入信箱（去重） */
+export function pushLocalDeliveredMail(item: MailItem) {
+  const local = readLocal();
+  if (local.items.some((i) => i.instanceId === item.instanceId)) return;
+  local.items = trimLocal([...local.items, item]);
+  writeLocal(local);
+}
+
+export async function claimMail(tripId: string, instanceId: string) {
+  try {
+    const res = await call<{
+      postcardId: string;
+      type?: PostcardType;
+      title: string;
+      rarity: string;
+      imageFull?: string;
+      imageThumb?: string;
+      story?: string;
+      firstUnlock: boolean;
+    }>('postcard', { action: 'claim', tripId, instanceId });
+    cacheDiaryEntry({
+      postcardId: res.postcardId,
+      type: res.type || 'postcard',
+      title: res.title,
+      rarity: res.rarity,
+      imageFull: res.imageFull || '',
+      imageThumb: res.imageThumb || '',
+      story: res.story || '',
+    });
+    try {
+      const local = readLocal();
+      local.items = local.items.filter((i) => i.instanceId !== instanceId);
+      writeLocal(local);
+    } catch {
+      /* ignore */
+    }
+    return res;
+  } catch (e) {
+    const code = (e as Error & { code?: string }).code;
+    if (code === 'NOT_FOUND' || code === 'NOT_DELIVERED' || code === 'ALREADY_CLAIMED') {
+      throw e;
+    }
+    return claimMailLocal(tripId, instanceId);
+  }
 }
 
 /** 本地联调：模拟一封新信 */
@@ -164,6 +236,7 @@ export function debugPushLocalMail(partial?: Partial<MailItem>) {
       tripId: 'local',
       instanceId: `local_${now}`,
       postcardId: 'pc_debug',
+      type: 'letter',
       title: partial?.title || '明信片的名字',
       rarity: 'N',
       imageThumb: '',

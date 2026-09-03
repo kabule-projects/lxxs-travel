@@ -25,6 +25,12 @@ Page({
     safeTop: 0,
     assets: {} as PageAssets,
     entries: [] as DiaryEntry[],
+    gridSlots: [] as Array<{
+      key: string;
+      entryIndex: number;
+      imageThumb?: string;
+      imageFull?: string;
+    }>,
     empty: true,
     zoomVisible: false,
     letterVisible: false,
@@ -49,7 +55,22 @@ Page({
 
   async reload() {
     const entries = sortByClaimTime(await listDiary());
-    this.setData({ entries, empty: entries.length === 0 });
+    /** 设计稿一屏约 3×5；不足时用空半透明格补齐 */
+    const minSlots = 15;
+    const slotCount = Math.max(minSlots, Math.ceil(entries.length / 3) * 3);
+    const gridSlots = Array.from({ length: slotCount }, (_, i) => {
+      const entry = entries[i];
+      if (!entry) {
+        return { key: `empty-${i}`, entryIndex: -1 };
+      }
+      return {
+        key: entry.postcardId,
+        entryIndex: i,
+        imageThumb: entry.imageThumb,
+        imageFull: entry.imageFull,
+      };
+    });
+    this.setData({ entries, gridSlots, empty: entries.length === 0 });
   },
 
   onTapBack() {
@@ -68,13 +89,14 @@ Page({
 
   onTapEntry(e: WechatMiniprogram.TouchEvent) {
     const index = Number(e.currentTarget.dataset.index);
+    if (index < 0) return;
     const entry = this.data.entries[index];
     if (!entry) return;
     playTap();
     this.setData({
       zoomVisible: true,
       letterVisible: false,
-      zoomImage: entry.imageFull || entry.imageThumb || '',
+      zoomImage: entry.imageFull || '',
       zoomTitle: entry.title,
       letterDate: formatDiaryDate(entry.firstClaimedAt),
       letterStory: entry.story || '',

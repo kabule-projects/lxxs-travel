@@ -99,11 +99,16 @@ API：`showcase/list`、`showcase/unlock`；Admin：`grantShowcase`。
 | 字段 | 含义 |
 |------|------|
 | id, title, rarity, enabled | N/R/SR/SSR/UR |
+| **type** | **展示类型**：`postcard` 标准明信片 / `letter` 手写信 / `photo` 照片 / `special` 活动限定 |
 | groupId | 与 items.postcardBias.groupId 对应 |
 | destId | 可选；等于本趟 dest 时额外 × `destMatchMul`（见下方引擎，默认 1.5，可写进 game_config） |
-| imageThumb / imageFull | WebP 路径 |
+| **imageThumb** | **缩略切图** WebP 路径（日记格子、信箱列表） |
+| **imageFull** | **主图** WebP 路径（点开放大） |
 | story | 翻面故事 |
 | baseWeight | 抽样基础权重（>0） |
+
+成对规则：`imageThumb` 与 `imageFull` 在 `postcards` 配置表定义；写入 `trips.postcards[]` / `user_postcards` 时**快照两份**。  
+缺省推导：仅配 `imageFull` 时，缩略图默认为 `{imageFull}-thumb`。
 
 `game_config.trip.destMatchMul`：明信片绑定目的地命中时乘数，默认 1.5。
 
@@ -119,7 +124,7 @@ API：`showcase/list`、`showcase/unlock`；Admin：`grantShowcase`。
   startAt, endAt,
   usedRiceStar,
   postcards: [{
-    instanceId, postcardId, status: pending|delivered|claimed,
+    instanceId, postcardId, type, status: pending|delivered|claimed,
     deliverAt, title, rarity, groupId, imageThumb, imageFull, story
   }],
   souvenirs: [],

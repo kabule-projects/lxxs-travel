@@ -8,6 +8,7 @@
       <view
         class="gr-item gr-item--lg {{convertFlags[0] && results[0].duplicate ? 'gr-item--converted' : ''}}"
       >
+        <image class="gr-item-bg" src="{{itemBg}}" mode="aspectFill" />
         <image
           wx:if="{{results[0].icon}}"
           class="gr-icon"
@@ -26,6 +27,7 @@
           wx:key="gachaId"
           class="gr-item {{convertFlags[index] && item.duplicate ? 'gr-item--converted' : ''}}"
         >
+          <image class="gr-item-bg" src="{{itemBg}}" mode="aspectFill" />
           <image wx:if="{{item.icon}}" class="gr-icon" src="{{item.icon}}" mode="aspectFit" />
           <view class="gr-dim"></view>
           <image wx:if="{{iconStar}}" class="gr-star" src="{{iconStar}}" mode="aspectFit" />
@@ -38,6 +40,7 @@
           wx:key="gachaId"
           class="gr-item {{convertFlags[bi + 3] && item.duplicate ? 'gr-item--converted' : ''}}"
         >
+          <image class="gr-item-bg" src="{{itemBg}}" mode="aspectFill" />
           <image wx:if="{{item.icon}}" class="gr-icon" src="{{item.icon}}" mode="aspectFit" />
           <view class="gr-dim"></view>
           <image wx:if="{{iconStar}}" class="gr-star" src="{{iconStar}}" mode="aspectFit" />

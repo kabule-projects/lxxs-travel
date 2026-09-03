@@ -1,15 +1,8 @@
 <view class="scene">
-  <!-- 与屋顶同场景：sky + rooftop 分层 WebP -->
+  <!-- 与屋顶共用完整背景 -->
   <image
-    class="layer layer-sky"
-    src="{{skySrc}}"
-    mode="aspectFill"
-    bindload="onLayerLoaded"
-    binderror="onLayerError"
-  />
-  <image
-    class="layer layer-rooftop"
-    src="{{rooftopSrc}}"
+    class="layer layer-bg"
+    src="{{bgSrc}}"
     mode="aspectFill"
     bindload="onLayerLoaded"
     binderror="onLayerError"
@@ -32,6 +25,4 @@
     safeBottom="{{safeBottom}}"
     showBar="{{true}}"
   />
-
-  <profile-auth visible="{{showAuth}}" bind:submit="onAuthSubmit" />
 </view>

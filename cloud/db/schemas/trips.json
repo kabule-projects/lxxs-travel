@@ -18,6 +18,7 @@
   "example_postcard_instance": {
     "instanceId": "tpm_xxx",
     "postcardId": "pc_park_duck",
+    "type": "letter",
     "status": "pending",
     "deliverAt": 0,
     "title": "喂鸭子的午后",

@@ -3,6 +3,7 @@
   "user_postcards": {
     "userId": "string",
     "postcardId": "string",
+    "type": "postcard|letter|photo|special",
     "title": "string",
     "rarity": "string",
     "imageThumb": "string",

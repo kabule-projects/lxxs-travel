@@ -1,21 +1,43 @@
 .gacha {
+  position: relative;
   min-height: 100vh;
   box-sizing: border-box;
   padding-left: 24rpx;
   padding-right: 24rpx;
-  background: #f8efd8;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  background: #f8efd8;
+}
+
+/* 整页背景（地毯已画进背景，勿再叠地毯层） */
+.gacha-page-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
 
 .gacha-hud {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding-bottom: 12rpx;
 }
 
+.gacha-hud .star-counter {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .machine-wrap {
+  position: relative;
+  z-index: 1;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -24,10 +46,12 @@
   min-height: 0;
   width: 100%;
   max-width: 620rpx;
+  margin: 0 auto;
 }
 
 .machine-img {
-  width: 100%;
+  width: 72%;
+  max-height: 52vh;
 }
 
 .gacha--spin .machine-img {
@@ -35,8 +59,12 @@
 }
 
 @keyframes dome-shake {
-  from { transform: rotate(-1deg); }
-  to { transform: rotate(1deg); }
+  from {
+    transform: rotate(-1deg);
+  }
+  to {
+    transform: rotate(1deg);
+  }
 }
 
 .machine-controls {
@@ -59,15 +87,11 @@
 
 .spin-btn-img {
   width: 200rpx;
-  height: 80rpx;
-}
-
-.rug-img {
-  width: 88%;
-  margin-top: 24rpx;
 }
 
 .gacha-foot {
+  position: relative;
+  z-index: 2;
   padding: 16rpx 0 24rpx;
   display: flex;
   flex-direction: column;
@@ -77,11 +101,11 @@
 
 .exchange-banner-img {
   width: 100%;
+  max-width: 620rpx;
 }
 
 .prizes-btn-img {
   width: 240rpx;
-  height: 72rpx;
 }
 
 .spin-overlay {

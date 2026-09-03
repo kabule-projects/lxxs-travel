@@ -48,26 +48,21 @@ function localProfile(partial: RegisterProfileInput): UserProfile {
   };
 }
 
-/** 检查是否已注册；未注册返回 needsProfile */
-export async function checkSession(): Promise<UserProfile> {
+/** 静默登录：云端按 openid 自动建号；离线则本地建号 */
+export async function ensureSession(): Promise<UserProfile> {
   try {
-    return await call<UserProfile>('login', { action: 'session' });
+    const profile = await call<UserProfile>('login', { action: 'session' });
+    if (!profile.userId) {
+      const fallback = localProfile({ nickName: '旅行者' });
+      setProfile(fallback);
+      return fallback;
+    }
+    setProfile(profile);
+    return profile;
   } catch {
-    return {
-      userId: '',
-      openid: '',
-      needsProfile: true,
-      stars: 0,
-      riceStars: 0,
-      gm: false,
-      pitySR: 0,
-      pitySSR: 0,
-      pityUR: 0,
-      lastSpawnAt: 0,
-      nextSpawnAt: 0,
-      createdAt: 0,
-      lastLoginAt: 0,
-    };
+    const profile = localProfile({ nickName: '旅行者' });
+    setProfile(profile);
+    return profile;
   }
 }
 

@@ -1,0 +1,37 @@
+<view class="pa-mask" wx:if="{{visible}}">
+  <view class="pa-panel">
+    <image class="pa-panel-bg" src="{{panelBg}}" mode="scaleToFill" />
+    <view class="pa-title">欢迎来到旅行小深</view>
+    <view class="pa-hint">授权头像与昵称后即可开始游戏</view>
+
+    <button class="pa-avatar-btn" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+      <image
+        wx:if="{{avatarUrl}}"
+        class="pa-avatar"
+        src="{{avatarUrl}}"
+        mode="aspectFill"
+      />
+      <image
+        wx:else
+        class="pa-avatar pa-avatar--ph"
+        src="{{avatarPlaceholder}}"
+        mode="aspectFit"
+      />
+    </button>
+
+    <input
+      class="pa-nickname"
+      type="nickname"
+      placeholder="点击填写昵称"
+      value="{{nickName}}"
+      bindinput="onNicknameInput"
+    />
+
+    <image
+      class="pa-submit-img"
+      src="{{btnSubmit}}"
+      mode="widthFix"
+      bindtap="onSubmit"
+    />
+  </view>
+</view>

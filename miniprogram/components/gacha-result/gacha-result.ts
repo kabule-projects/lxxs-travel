@@ -22,6 +22,7 @@ Component({
     single: true,
     convertFlags: [] as boolean[],
     panelBg: '',
+    itemBg: '',
     btnConfirm: '',
     iconClose: '',
   },
@@ -30,6 +31,9 @@ Component({
     attached() {
       resolveAsset(GACHA_ASSETS.resultPanel).then((panelBg) => {
         this.setData({ panelBg });
+      });
+      resolveAsset(GACHA_ASSETS.resultItemBg).then((itemBg) => {
+        this.setData({ itemBg });
       });
       resolveAsset(GACHA_ASSETS.btnConfirm).then((btnConfirm) => {
         this.setData({ btnConfirm });

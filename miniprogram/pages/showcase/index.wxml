@@ -1,4 +1,6 @@
 <view class="showcase">
+  <image class="showcase-page-bg" src="{{assets.cabinet}}" mode="aspectFill" />
+
   <view class="hud" style="padding-top: {{safeTop}}px">
     <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
     <nav-icon src="{{assets.iconGrid}}" label="设置" size="sm" bind:tap="onTapSettings" />
@@ -11,7 +13,6 @@
   >
     <swiper-item wx:for="{{pages}}" wx:for-item="page" wx:key="index">
       <view class="cabinet">
-        <image class="cabinet-bg" src="{{assets.cabinet}}" mode="scaleToFill" />
         <view class="cabinet-inner">
           <view
             wx:for="{{page.shelves}}"
@@ -20,7 +21,6 @@
             wx:key="si"
             class="shelf"
           >
-            <image class="shelf-board" src="{{assets.shelfBoard}}" mode="scaleToFill" />
             <view class="shelf-slots">
               <view
                 wx:for="{{shelf}}"

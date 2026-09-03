@@ -1,0 +1,105 @@
+<view class="shop" style="padding-top: {{safeTop}}px; padding-bottom: {{safeBottom}}px">
+  <!-- 整页静态背景（条纹/店主/柜台/木纹/信纸装饰等） -->
+  <image class="shop-page-bg" src="{{assets.pageBg}}" mode="aspectFill" />
+
+  <view class="shop-overlay">
+    <!-- 顶栏：按钮 + 星星数量 -->
+    <view class="shop-hud">
+      <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
+      <view class="hud-center">
+        <view class="currency-pill">
+          <image class="currency-icon" src="{{assets.iconStar}}" mode="aspectFit" />
+          <text class="currency-num">{{stars}}</text>
+        </view>
+        <view class="currency-pill">
+          <image class="currency-icon" src="{{assets.iconRiceStar}}" mode="aspectFit" />
+          <text class="currency-num">{{riceStars}}</text>
+        </view>
+      </view>
+      <view class="hud-right">
+        <nav-icon src="{{assets.iconGacha}}" label="扭蛋" size="sm" bind:tap="onTapGacha" />
+        <nav-icon src="{{assets.iconGrid}}" label="设置" size="sm" bind:tap="onTapSettings" />
+      </view>
+    </view>
+
+    <scroll-view class="tabs" scroll-x enable-flex>
+      <view
+        wx:for="{{tabs}}"
+        wx:key="id"
+        class="tab {{activeTab === item.id ? 'tab--on' : ''}}"
+        data-tab="{{item.id}}"
+        bindtap="onTapTab"
+      >{{item.label}}</view>
+    </scroll-view>
+
+    <!-- 展示柜：仅物品 icon + 价签 -->
+    <view class="cabinet-layer">
+      <swiper
+        class="goods-swiper"
+        current="{{pageIndex}}"
+        bindchange="onSwiperChange"
+      >
+        <swiper-item wx:for="{{pages}}" wx:for-item="page" wx:key="index">
+          <view class="shelf-page">
+            <view
+              wx:for="{{page.shelves}}"
+              wx:for-item="shelf"
+              wx:for-index="si"
+              wx:key="si"
+              class="shelf-row shelf-row--{{si}}"
+            >
+              <view class="shelf-slots">
+                <view
+                  wx:for="{{shelf.slots}}"
+                  wx:for-item="goods"
+                  wx:for-index="ci"
+                  wx:key="ci"
+                  class="shelf-slot {{goods.empty ? 'shelf-slot--empty' : ''}} {{selectedId === goods.id ? 'shelf-slot--on' : ''}} {{goods.boughtToday ? 'shelf-slot--sold' : ''}}"
+                  data-id="{{goods.id}}"
+                  bindtap="onTapItem"
+                >
+                  <block wx:if="{{!goods.empty}}">
+                    <image
+                      wx:if="{{goods.icon}}"
+                      class="slot-icon"
+                      src="{{goods.icon}}"
+                      mode="aspectFit"
+                    />
+                    <view class="slot-tag">
+                      <image class="slot-tag-bg" src="{{assets.priceTag}}" mode="scaleToFill" />
+                      <view class="slot-tag-content">
+                        <text class="tag-price">{{goods.price}}</text>
+                        <image class="tag-star" src="{{assets.iconStar}}" mode="aspectFit" />
+                      </view>
+                    </view>
+                  </block>
+                </view>
+              </view>
+            </view>
+          </view>
+        </swiper-item>
+      </swiper>
+      <view class="page-dots" wx:if="{{totalPages > 1}}">{{pageIndex + 1}} / {{totalPages}}</view>
+    </view>
+
+    <!-- 底部：简介文字 + 按钮 -->
+    <view class="footer-layer">
+      <view class="desc-text">
+        <view class="desc-title">{{selectedName || '选择一件商品'}}</view>
+        <view class="desc-body">{{selectedDesc || '点货架上的物品查看简介'}}</view>
+      </view>
+
+      <image class="side-btn side-btn--bag" src="{{assets.sideBtnBag}}" mode="aspectFit" bindtap="onTapBag" />
+      <image class="side-btn side-btn--star" src="{{assets.sideBtnStar}}" mode="aspectFit" bindtap="onTapGacha" />
+
+      <image
+        class="buy-btn-img"
+        src="{{buyEnabled ? assets.btnBuy : assets.btnBuyDisabled}}"
+        mode="widthFix"
+        bindtap="onTapBuy"
+      />
+    </view>
+  </view>
+
+  <settings-modal visible="{{showSettings}}" bind:close="onCloseSettings" />
+</view>

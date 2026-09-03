@@ -16,8 +16,6 @@ import {
   scheduleReturnWatch,
   stopReturnWatch,
   clearTripBannerTimer,
-  TRIP_BANNER_DEPART,
-  TRIP_BANNER_RETURN,
 } from '../../services/trip-return';
 import {
   claimMail,
@@ -34,8 +32,7 @@ Page({
   data: {
     stars: 0,
     riceStars: 0,
-    skySrc: '',
-    rooftopSrc: '',
+    bgSrc: '',
     safeTop: 0,
     safeBottom: 0,
     assets: {} as RoofAssets,
@@ -50,8 +47,10 @@ Page({
     showSettings: false,
     mailItems: [] as MailItem[],
     mailCap: GAME.PIGEON_MAIL_CAP,
+    /** 未读达上限时显示「满」图，否则 NEW */
+    mailFull: false,
     showTravelBanner: false,
-    travelBannerText: '',
+    travelBannerMode: 'depart' as 'depart' | 'return',
   },
 
   _tick: 0 as number,
@@ -90,20 +89,20 @@ Page({
   showDepartBanner() {
     this.setData({
       showTravelBanner: true,
-      travelBannerText: TRIP_BANNER_DEPART,
+      travelBannerMode: 'depart',
     });
     runDepartBannerFlow(() => {
-      this.setData({ showTravelBanner: false, travelBannerText: '' });
+      this.setData({ showTravelBanner: false });
     });
   },
 
-  showReturnBanner(tripId: string, text = TRIP_BANNER_RETURN) {
+  showReturnBanner(tripId: string) {
     this.setData({
       showTravelBanner: true,
-      travelBannerText: text,
+      travelBannerMode: 'return',
     });
     runReturnBannerFlow(tripId, () => {
-      this.setData({ showTravelBanner: false, travelBannerText: '' });
+      this.setData({ showTravelBanner: false });
     });
   },
 
@@ -112,10 +111,10 @@ Page({
       const view = await resolveTripSyncView();
       const { banner, sync } = view;
       if (banner.mode === 'return' && sync.trip?._id) {
-        this.showReturnBanner(sync.trip._id, banner.text);
+        this.showReturnBanner(sync.trip._id);
         return;
       }
-      this.setData({ showTravelBanner: false, travelBannerText: '' });
+      this.setData({ showTravelBanner: false });
     } catch {
       /* ignore */
     }
@@ -147,12 +146,11 @@ Page({
   },
 
   async loadAssets() {
-    const [skySrc, rooftopSrc, assets] = await Promise.all([
-      resolveAsset(ROOF_SCENE_ASSETS.sky),
-      resolveAsset(ROOF_SCENE_ASSETS.rooftop),
+    const [bgSrc, assets] = await Promise.all([
+      resolveAsset(ROOF_SCENE_ASSETS.bg),
       resolveAssetMap(ROOF_ASSETS),
     ]);
-    this.setData({ skySrc, rooftopSrc, assets });
+    this.setData({ bgSrc, assets });
   },
 
   startTick() {
@@ -212,10 +210,13 @@ Page({
   async syncMailboxState() {
     try {
       const res = await syncMailbox();
+      const mailCap = res.mailCap || GAME.PIGEON_MAIL_CAP;
+      const mailItems = res.items || [];
       this.setData({
         pigeonState: res.pigeonState,
-        mailItems: res.items,
-        mailCap: res.mailCap || GAME.PIGEON_MAIL_CAP,
+        mailItems,
+        mailCap,
+        mailFull: mailItems.length >= mailCap,
       });
     } catch {
       /* ignore */
@@ -299,11 +300,14 @@ Page({
     }
     try {
       const res = await openMailbox();
+      const mailCap = res.mailCap || GAME.PIGEON_MAIL_CAP;
+      const mailItems = res.items || [];
       this.setData({
         showMailbox: true,
-        mailItems: res.items || [],
+        mailItems,
         pigeonState: res.pigeonState,
-        mailCap: res.mailCap || GAME.PIGEON_MAIL_CAP,
+        mailCap,
+        mailFull: mailItems.length >= mailCap,
       });
     } catch {
       this.setData({ showMailbox: true });
@@ -317,7 +321,12 @@ Page({
 
   onMailItemsChange(e: WechatMiniprogram.CustomEvent) {
     const items = (e.detail as { items?: MailItem[] }).items;
-    if (items) this.setData({ mailItems: items });
+    if (!items) return;
+    const mailCap = this.data.mailCap || GAME.PIGEON_MAIL_CAP;
+    this.setData({
+      mailItems: items,
+      mailFull: items.length >= mailCap,
+    });
   },
 
   async onClaimMail(e: WechatMiniprogram.CustomEvent) {
@@ -329,7 +338,11 @@ Page({
       const mailItems = this.data.mailItems.filter(
         (m) => m.instanceId !== item.instanceId,
       );
-      this.setData({ mailItems });
+      const mailCap = this.data.mailCap || GAME.PIGEON_MAIL_CAP;
+      this.setData({
+        mailItems,
+        mailFull: mailItems.length >= mailCap,
+      });
       wx.showToast({ title: '已收下', icon: 'success' });
       this.syncMailboxState();
     } catch (err) {
@@ -358,9 +371,9 @@ Page({
     playTap();
     const loadout = (e.detail as { loadout?: TripLoadout }).loadout;
     if (!loadout) return;
-    this.setData({ showBag: false, flyAway: true });
     try {
       await startTrip(loadout);
+      this.setData({ showBag: false, flyAway: true });
       setLocalTraveling(true);
       emit(GameEvent.CHARACTER_HIDDEN);
       this.showDepartBanner();
@@ -369,7 +382,6 @@ Page({
         navigateBack('/pages/home/index');
       }, 950) as unknown as number;
     } catch (err) {
-      this.setData({ flyAway: false });
       wx.showToast({
         title: (err as Error).message || '出发失败',
         icon: 'none',

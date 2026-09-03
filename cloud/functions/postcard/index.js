@@ -2,6 +2,10 @@ const cloud = require('wx-server-sdk');
 const { ok, fail } = require('../common/response');
 const { collectAndTrimUnread, resolvePigeonState } = require('../common/mail-box');
 const { advanceTrip } = require('../common/trip-lifecycle');
+const {
+  normalizePostcardSnapshot,
+  hydratePostcardSnapshotList,
+} = require('../common/postcard-images');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -128,8 +132,10 @@ async function claim(openid, tripId, instanceId) {
   }
 
   const next = [...advanced.trip.postcards];
+  const snap = normalizePostcardSnapshot(card);
   next[idx] = {
     ...card,
+    ...snap,
     status: 'claimed',
     claimedAt: Date.now(),
     isNew: false,
@@ -149,16 +155,18 @@ async function claim(openid, tripId, instanceId) {
     .get();
 
   let firstUnlock = false;
+  const snapshot = normalizePostcardSnapshot(card);
   if (!album.data.length) {
     firstUnlock = true;
     await db.collection('user_postcards').add({
       data: {
         userId: openid,
         postcardId: card.postcardId,
+        type: snapshot.type,
         title: card.title,
         rarity: card.rarity,
-        imageThumb: card.imageThumb,
-        imageFull: card.imageFull,
+        imageThumb: snapshot.imageThumb,
+        imageFull: snapshot.imageFull,
         story: card.story,
         firstClaimedAt: Date.now(),
         claimCount: 1,
@@ -172,10 +180,12 @@ async function claim(openid, tripId, instanceId) {
 
   return ok({
     postcardId: card.postcardId,
+    type: snapshot.type,
     firstUnlock,
     title: card.title,
     rarity: card.rarity,
-    imageFull: card.imageFull,
+    imageThumb: snapshot.imageThumb,
+    imageFull: snapshot.imageFull,
     story: card.story,
   });
 }
@@ -187,9 +197,11 @@ async function diaryList(openid) {
     .orderBy('firstClaimedAt', 'asc')
     .limit(200)
     .get();
+  const rows = await hydratePostcardSnapshotList(db, res.data || []);
   return ok({
-    items: (res.data || []).map((d) => ({
+    items: rows.map((d) => ({
       postcardId: d.postcardId,
+      type: d.type || 'postcard',
       title: d.title,
       rarity: d.rarity,
       imageThumb: d.imageThumb,

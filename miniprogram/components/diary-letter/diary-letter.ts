@@ -4,12 +4,7 @@ import { resolveAssetMap } from '../../utils/resolve-assets';
 const DEFAULT_SIGN = '——旅行小深';
 
 type LetterAssets = {
-  dateLabel: string;
-  weatherSun: string;
-  weatherSunset: string;
   paper: string;
-  logo: string;
-  btnClaim: string;
 };
 
 function splitStory(raw: string): { body: string; sign: string } {
@@ -35,22 +30,20 @@ Component({
     dateText: { type: String, value: '' },
     story: { type: String, value: '' },
     title: { type: String, value: '' },
-    showClaim: { type: Boolean, value: false },
     signature: { type: String, value: '' },
+    /** 展开信件时自动触发 claim（信箱用；日记已入库无需） */
+    autoClaim: { type: Boolean, value: false },
   },
 
   data: {
     bodyText: '',
     signText: DEFAULT_SIGN,
     assets: {
-      dateLabel: '',
-      weatherSun: '',
-      weatherSunset: '',
       paper: '',
-      logo: '',
-      btnClaim: '',
     } as LetterAssets,
   },
+
+  _claimedThisOpen: false,
 
   lifetimes: {
     attached() {
@@ -61,11 +54,29 @@ Component({
   },
 
   observers: {
+    visible(v: boolean) {
+      if (!v) {
+        this._claimedThisOpen = false;
+        return;
+      }
+      this.applyStory(
+        this.properties.story as string,
+        this.properties.signature as string,
+      );
+      if (this.properties.autoClaim && !this._claimedThisOpen) {
+        this._claimedThisOpen = true;
+        this.triggerEvent('claim');
+      }
+    },
     story(story: string) {
-      this.applyStory(story, this.properties.signature as string);
+      if (this.properties.visible) {
+        this.applyStory(story, this.properties.signature as string);
+      }
     },
     signature(sign: string) {
-      this.applyStory(this.properties.story as string, sign);
+      if (this.properties.visible) {
+        this.applyStory(this.properties.story as string, sign);
+      }
     },
   },
 
@@ -81,9 +92,6 @@ Component({
     onStop() {},
     onClose() {
       this.triggerEvent('close');
-    },
-    onClaim() {
-      this.triggerEvent('claim');
     },
   },
 });

@@ -1,0 +1,5 @@
+{
+  "name": "login",
+  "description": "微信登录并初始化 users",
+  "permissions": { "openapi": [] }
+}

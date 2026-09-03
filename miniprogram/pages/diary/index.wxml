@@ -1,5 +1,5 @@
 <view class="diary">
-  <image class="diary-frame-bg" src="{{assets.frame}}" mode="scaleToFill" />
+  <image class="diary-frame-bg" src="{{assets.frame}}" mode="aspectFill" />
   <view class="diary-frame">
     <view class="diary-hud" style="padding-top: {{safeTop}}px">
       <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
@@ -7,46 +7,39 @@
     </view>
 
     <view class="notebook">
-      <image class="notebook-bg" src="{{assets.notebook}}" mode="scaleToFill" />
-      <image class="notebook-spine-img" src="{{assets.spine}}" mode="scaleToFill" />
+      <!-- 笔记本底已含书脊 / 天气 / 吉祥物 -->
+      <image class="notebook-bg" src="{{assets.notebook}}" mode="aspectFill" />
 
       <view class="notebook-tabs">
-        <image class="tab-img tab-img--active" src="{{assets.tabActive}}" mode="scaleToFill" />
-        <image class="tab-img" src="{{assets.tab}}" mode="scaleToFill" />
-        <image class="tab-img" src="{{assets.tab}}" mode="scaleToFill" />
-        <image class="tab-img" src="{{assets.tab}}" mode="scaleToFill" />
-      </view>
-
-      <view class="notebook-deco">
-        <view class="weather-icons">
-          <image
-            class="weather-img weather-img--on"
-            src="{{assets.weatherSun}}"
-            mode="aspectFit"
-          />
-          <image class="weather-img" src="{{assets.weatherCloud}}" mode="aspectFit" />
-          <image class="weather-img" src="{{assets.weatherRain}}" mode="aspectFit" />
-        </view>
-        <image class="mascot-img" src="{{assets.mascot}}" mode="aspectFit" />
+        <image class="tab-img tab-img--active" src="{{assets.tabActive}}" mode="aspectFit" />
+        <image class="tab-img" src="{{assets.tab}}" mode="aspectFit" />
+        <image class="tab-img" src="{{assets.tab}}" mode="aspectFit" />
+        <image class="tab-img" src="{{assets.tab}}" mode="aspectFit" />
       </view>
 
       <scroll-view class="grid-scroll" scroll-y>
-        <view wx:if="{{empty}}" class="empty">还没有解锁的明信片</view>
-        <view wx:else class="grid">
+        <view class="grid">
           <view
-            wx:for="{{entries}}"
-            wx:key="postcardId"
+            wx:for="{{gridSlots}}"
+            wx:key="key"
             class="grid-cell"
-            data-index="{{index}}"
+            data-index="{{item.entryIndex}}"
             bindtap="onTapEntry"
           >
+            <!-- 半透明浅紫底格（对齐设计稿） -->
+            <view class="grid-cell-plate"></view>
             <image
-              wx:if="{{item.imageThumb || item.imageFull}}"
+              wx:if="{{item.imageThumb}}"
               class="grid-thumb"
-              src="{{item.imageThumb || item.imageFull}}"
+              src="{{item.imageThumb}}"
               mode="aspectFill"
             />
-            <view wx:else class="grid-ph">{{item.title[0] || '?'}}</view>
+            <image
+              wx:elif="{{item.imageFull}}"
+              class="grid-thumb"
+              src="{{item.imageFull}}"
+              mode="aspectFill"
+            />
           </view>
         </view>
       </scroll-view>
@@ -64,12 +57,6 @@
       <view wx:else class="zoom-ph">{{zoomTitle[0] || '?'}}</view>
       <view class="envelope" catchtap="onTapEnvelope">
         <image class="envelope-img" src="{{assets.envelope}}" mode="aspectFit" />
-        <image
-          wx:if="{{letterStory && assets.envelopeBadge}}"
-          class="envelope-badge-img"
-          src="{{assets.envelopeBadge}}"
-          mode="aspectFit"
-        />
       </view>
     </view>
   </view>

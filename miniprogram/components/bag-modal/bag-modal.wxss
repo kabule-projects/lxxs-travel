@@ -30,54 +30,24 @@
 .bag-body {
   position: relative;
   width: 620rpx;
-  height: 720rpx;
   overflow: hidden;
+  border-radius: 28rpx;
 }
 
 .bag-panel-bg {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  position: relative;
   z-index: 0;
+  width: 100%;
+  display: block;
 }
 
-.bag-label {
-  position: absolute;
-  z-index: 2;
-  height: 28rpx;
-}
-
-.bag-label--food {
-  left: 80rpx;
-  top: 96rpx;
-}
-
-.bag-label--rice {
-  right: 96rpx;
-  top: 96rpx;
-}
-
-.bag-label--prop {
-  left: 80rpx;
-  top: 340rpx;
-}
-
+/* 透明热区对齐背景里的槽位 */
 .slot {
   position: absolute;
   z-index: 2;
   width: 148rpx;
   height: 148rpx;
   box-sizing: border-box;
-}
-
-.slot-bg {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
 }
 
 .slot-food {
@@ -105,23 +75,20 @@
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 12rpx;
   box-sizing: border-box;
 }
 
 .slot-item-icon {
-  width: 72rpx;
-  height: 72rpx;
+  width: 96rpx;
+  height: 96rpx;
 }
 
-.slot-name {
-  font-size: 22rpx;
-  color: #4a3728;
-  text-align: center;
-  line-height: 1.3;
+.slot-rice-mark {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #e8a830;
 }
 
 .slot-clear {
@@ -130,6 +97,7 @@
   right: -12rpx;
   width: 40rpx;
   height: 40rpx;
+  z-index: 2;
 }
 
 .slot-hint {
@@ -154,14 +122,7 @@
   width: 420rpx;
 }
 
-.go-bubble-img {
-  position: absolute;
-  left: 24rpx;
-  top: -36rpx;
-  width: 100rpx;
-}
-
 .depart-btn-img {
   width: 100%;
-  height: 96rpx;
+  display: block;
 }

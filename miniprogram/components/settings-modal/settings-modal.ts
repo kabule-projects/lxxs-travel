@@ -21,7 +21,6 @@ Component({
     appVersion: GAME.APP_VERSION,
     assets: {
       panel: '',
-      title: '',
       toggleOn: '',
       toggleOff: '',
       userIdBar: '',

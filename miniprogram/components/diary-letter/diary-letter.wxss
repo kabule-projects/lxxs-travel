@@ -17,82 +17,53 @@
   width: 85vw;
   max-width: 640rpx;
   max-height: 82vh;
-  padding: 28rpx 32rpx 36rpx;
   box-sizing: border-box;
+  overflow: hidden;
   border-radius: 24rpx;
-  border: 5rpx solid #7ea2f6;
-  background: #fff;
-  box-shadow: 0 16rpx 48rpx rgba(42, 58, 120, 0.28);
-  display: flex;
-  flex-direction: column;
-}
-
-.dl-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 16rpx;
-  flex-shrink: 0;
-}
-
-.dl-date-col {
-  display: flex;
-  flex-direction: column;
-  gap: 6rpx;
-}
-
-.dl-date-label-img {
-  height: 28rpx;
-  width: 88rpx;
-}
-
-.dl-date {
-  font-size: 22rpx;
-  color: #9ab4e8;
-  letter-spacing: 1rpx;
-}
-
-.dl-weather {
-  display: flex;
-  gap: 12rpx;
-}
-
-.dl-weather-img {
-  width: 52rpx;
-  height: 52rpx;
-  flex-shrink: 0;
 }
 
 .dl-body {
-  flex: 1;
-  min-height: 360rpx;
-  max-height: 52vh;
+  max-height: 82vh;
   overflow: hidden;
 }
 
 .dl-paper {
   position: relative;
-  min-height: 360rpx;
-  padding: 4rpx 4rpx 24rpx;
-  box-sizing: border-box;
+  width: 100%;
 }
 
 .dl-paper-bg {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  position: relative;
   z-index: 0;
+  width: 100%;
+  display: block;
 }
 
 .dl-paper-content {
-  position: relative;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
   z-index: 1;
+  padding: 120rpx 48rpx 80rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.dl-date {
+  display: block;
+  margin-bottom: 24rpx;
+  font-size: 22rpx;
+  color: #9ab4e8;
+  letter-spacing: 1rpx;
+  flex-shrink: 0;
 }
 
 .dl-story {
   display: block;
+  flex: 1;
   font-size: 30rpx;
   line-height: 54rpx;
   color: #5a82d8;
@@ -111,18 +82,5 @@
   font-family: 'STKaiti', 'KaiTi', 'PingFang SC', serif;
   white-space: pre-wrap;
   word-break: break-word;
-}
-
-.dl-logo-img {
-  width: 240rpx;
-  margin: 28rpx auto 0;
-  display: block;
-  flex-shrink: 0;
-}
-
-.dl-claim-img {
-  width: 100%;
-  height: 80rpx;
-  margin-top: 24rpx;
   flex-shrink: 0;
 }

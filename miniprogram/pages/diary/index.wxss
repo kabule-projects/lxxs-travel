@@ -3,41 +3,24 @@
   min-height: 100vh;
   box-sizing: border-box;
   padding: 24rpx 20rpx 32rpx;
+  overflow: hidden;
+  background: #5a4088;
 }
 
 .diary-frame-bg {
   position: absolute;
-  left: 20rpx;
-  right: 20rpx;
-  top: 24rpx;
-  bottom: 32rpx;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
 
 .diary-frame {
   position: relative;
+  z-index: 1;
   min-height: calc(100vh - 56rpx);
   overflow: hidden;
-}
-
-.diary-frame::before,
-.diary-frame::after {
-  content: '+';
-  position: absolute;
-  color: rgba(255, 255, 255, 0.35);
-  font-size: 36rpx;
-  font-weight: 300;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.diary-frame::before {
-  top: 16rpx;
-  right: 20rpx;
-}
-
-.diary-frame::after {
-  bottom: 16rpx;
-  right: 20rpx;
 }
 
 .diary-hud {
@@ -54,6 +37,7 @@
   margin: 16rpx 24rpx 28rpx 32rpx;
   min-height: calc(100vh - 200rpx);
   overflow: hidden;
+  border-radius: 16rpx;
 }
 
 .notebook-bg {
@@ -65,15 +49,6 @@
   z-index: 0;
 }
 
-.notebook-spine-img {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 20rpx;
-  z-index: 2;
-}
-
 .notebook-tabs {
   position: relative;
   z-index: 2;
@@ -83,86 +58,59 @@
 }
 
 .tab-img {
-  flex: 1;
-  height: 28rpx;
-}
-
-.notebook-deco {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 12rpx 24rpx 8rpx 36rpx;
-}
-
-.weather-icons {
-  display: flex;
-  gap: 12rpx;
-}
-
-.weather-img {
-  width: 48rpx;
+  width: 120rpx;
   height: 48rpx;
-  flex-shrink: 0;
-}
-
-.weather-img--on {
-  transform: scale(1.05);
-}
-
-.mascot-img {
-  width: 72rpx;
-  height: 72rpx;
   flex-shrink: 0;
 }
 
 .grid-scroll {
   position: relative;
   z-index: 2;
-  height: calc(100vh - 340rpx);
-  padding: 8rpx 20rpx 32rpx 36rpx;
+  height: calc(100vh - 300rpx);
+  padding: 24rpx 20rpx 32rpx 36rpx;
   box-sizing: border-box;
-  background: repeating-linear-gradient(
-    180deg,
-    transparent 0,
-    transparent 56rpx,
-    rgba(154, 176, 224, 0.35) 56rpx,
-    rgba(154, 176, 224, 0.35) 58rpx
-  );
 }
 
 .grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 16rpx;
+  gap: 20rpx;
 }
 
 .grid-cell {
-  width: calc((100% - 32rpx) / 3);
+  position: relative;
+  width: calc((100% - 40rpx) / 3);
   aspect-ratio: 1;
-  border-radius: 12rpx;
-  border: 4rpx solid #5a4088;
-  background: #c8b8e8;
-  overflow: hidden;
   box-sizing: border-box;
 }
 
-.grid-thumb {
+/* 设计稿空格：浅紫半透明底 + 1px / 50% 紫边 */
+.grid-cell-plate {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 100%;
   height: 100%;
+  z-index: 0;
+  box-sizing: border-box;
+  background: rgba(186, 178, 224, 0.45);
+  border: 1px solid rgba(90, 64, 136, 0.5);
+  border-radius: 4rpx;
 }
 
-.grid-ph {
+/* 明信片切图叠在半透明底上，外围同样 1px / 50% 紫边 */
+.grid-thumb {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40rpx;
-  font-weight: 700;
-  color: #5a4088;
+  z-index: 1;
+  box-sizing: border-box;
+  border: 1px solid rgba(90, 64, 136, 0.5);
+  border-radius: 4rpx;
 }
+
 
 .empty {
   padding: 120rpx 40rpx;
@@ -229,12 +177,4 @@
 .envelope-img {
   width: 56rpx;
   height: 56rpx;
-}
-
-.envelope-badge-img {
-  position: absolute;
-  top: -10rpx;
-  right: -10rpx;
-  width: 32rpx;
-  height: 32rpx;
 }

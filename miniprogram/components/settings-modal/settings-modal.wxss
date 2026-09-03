@@ -22,9 +22,14 @@
 .sett-panel {
   position: relative;
   width: 600rpx;
-  padding: 48rpx 40rpx 40rpx;
+  min-height: 520rpx;
+  /* 顶部留白给背景内嵌的「设置」标题 */
+  padding: 120rpx 40rpx 40rpx;
   box-sizing: border-box;
   overflow: hidden;
+  border-radius: 40rpx;
+  background: #fff4d1;
+  border: 4rpx solid #d4a574;
 }
 
 .sett-panel-bg {
@@ -34,35 +39,7 @@
   width: 100%;
   height: 100%;
   z-index: 0;
-  border-radius: 40rpx;
-  background: #fff4d1;
-  border: 4rpx solid #d4a574;
-  box-sizing: border-box;
-}
-
-.sett-title-wrap {
-  position: relative;
-  z-index: 1;
-  margin-bottom: 36rpx;
-  text-align: center;
-}
-
-.sett-title-img {
-  width: 200rpx;
-  margin: 0 auto;
-  display: block;
-}
-
-.sett-title-text {
-  display: block;
-  font-size: 48rpx;
-  font-weight: 800;
-  color: #e87830;
-  text-shadow:
-    0 3rpx 0 #fff,
-    0 -2rpx 0 #fff,
-    2rpx 0 0 #fff,
-    -2rpx 0 0 #fff;
+  pointer-events: none;
 }
 
 .sett-row {

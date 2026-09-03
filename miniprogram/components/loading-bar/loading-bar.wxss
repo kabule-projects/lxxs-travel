@@ -9,7 +9,7 @@
   width: 670rpx;
   max-width: calc(100vw - 80rpx);
   height: 48rpx;
-  margin: 0 auto;
+  margin: 24rpx auto;
   border-radius: 999rpx;
   overflow: visible;
 }
@@ -41,11 +41,14 @@
   display: block;
 }
 
+/* 米子贴在进度末端，略大于条高以便辨认 */
 .thumb-img {
   position: absolute;
   top: 50%;
-  width: 56rpx;
+  width: 72rpx;
+  height: 72rpx;
   transform: translate(-50%, -50%);
   z-index: 2;
   transition: left 0.25s ease-out;
+  pointer-events: none;
 }

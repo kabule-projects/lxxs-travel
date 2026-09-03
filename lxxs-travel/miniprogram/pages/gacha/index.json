@@ -1,0 +1,10 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "nav-icon": "/components/nav-icon/nav-icon",
+    "star-counter": "/components/star-counter/star-counter",
+    "gacha-result": "/components/gacha-result/gacha-result",
+    "gacha-prizes": "/components/gacha-prizes/gacha-prizes",
+    "settings-modal": "/components/settings-modal/settings-modal"
+  }
+}

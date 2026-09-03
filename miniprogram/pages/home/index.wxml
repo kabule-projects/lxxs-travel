@@ -22,16 +22,16 @@
       </view>
     </view>
 
-    <!-- 家具热区：展示柜 / 衣柜 / 日记（静态图上叠透明点击区） -->
+    <!-- 家具热区：展示柜 / 日记；衣柜 Phase2 再开 -->
     <view
       class="hotspot hotspot-showcase"
       bindtap="onTapShowcase"
       aria-label="展示柜"
     ></view>
     <view
-      class="hotspot hotspot-wardrobe"
-      bindtap="onTapWardrobe"
-      aria-label="衣柜"
+      class="hotspot hotspot-wardrobe hotspot--disabled"
+      aria-label="衣柜（暂未开放）"
+      aria-disabled="true"
     ></view>
     <view
       class="hotspot hotspot-diary"
@@ -39,7 +39,7 @@
       aria-label="日记"
     ></view>
 
-    <trip-banner visible="{{showTravelBanner}}" text="{{travelBannerText}}" />
+    <trip-banner visible="{{showTravelBanner}}" mode="{{travelBannerMode}}" />
 
     <!-- 底栏：准备 + 商店 / 扭蛋 -->
     <view class="home-footer">

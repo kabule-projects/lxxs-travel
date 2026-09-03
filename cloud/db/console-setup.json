@@ -1,0 +1,607 @@
+{
+  "_comment": "旅行小深 · 云开发控制台数据库建表配置（由 CLOUD-SETUP.md / collections.md 生成）",
+  "version": "2026-08-31",
+  "permission": "仅管理端可读写",
+  "collections": [
+    {
+      "name": "items",
+      "category": "配置表",
+      "description": "商店物品、背包、伴手礼、展示柜文案与出行权重",
+      "fields": {
+        "id": "string 业务主键",
+        "type": "food|accessory|equipment|souvenir|rice_star",
+        "name": "string",
+        "icon": "string WebP 相对路径（无扩展名）",
+        "description": "string 展示柜详情简介",
+        "price": "number? 商店价",
+        "shopCategory": "food|accessory|equipment?",
+        "shopSort": "number?",
+        "dailyLimit": "number 默认1",
+        "durationMinH": "number? food",
+        "durationMaxH": "number? food",
+        "distanceMin": "number? food",
+        "distanceMax": "number? food",
+        "postcardBias": "[{groupId, weight}]?",
+        "terrainBias": "[{tag, weightMul}]?",
+        "secondPostcardRateBonus": "number?",
+        "destWeightMul": "number?",
+        "showcase": "boolean? souvenir 默认 true",
+        "enabled": "boolean"
+      },
+      "indexes": [
+        {
+          "name": "id_asc_unique",
+          "fields": [
+            {
+              "name": "id",
+              "order": "asc"
+            }
+          ],
+          "unique": true
+        },
+        {
+          "name": "enabled_shopSort_asc",
+          "fields": [
+            {
+              "name": "enabled",
+              "order": "asc"
+            },
+            {
+              "name": "shopSort",
+              "order": "asc"
+            }
+          ],
+          "unique": false
+        }
+      ],
+      "seedFile": "cloud/db/import/items.json"
+    },
+    {
+      "name": "destinations",
+      "category": "配置表",
+      "description": "目的地权重、时长、伴手礼池",
+      "fields": {
+        "id": "string",
+        "name": "string",
+        "terrainTags": "string[]",
+        "distanceTier": "number",
+        "baseWeight": "number >0",
+        "durationMinH": "number",
+        "durationMaxH": "number",
+        "souvenirPool": "string[] items.id 归来抽1",
+        "enabled": "boolean"
+      },
+      "indexes": [
+        {
+          "name": "id_asc_unique",
+          "fields": [
+            {
+              "name": "id",
+              "order": "asc"
+            }
+          ],
+          "unique": true
+        },
+        {
+          "name": "enabled_asc",
+          "fields": [
+            {
+              "name": "enabled",
+              "order": "asc"
+            }
+          ],
+          "unique": false
+        }
+      ],
+      "seedFile": "cloud/db/import/destinations.json"
+    },
+    {
+      "name": "postcards",
+      "category": "配置表",
+      "description": "明信片权重、故事、图片路径",
+      "fields": {
+        "id": "string",
+        "title": "string",
+        "rarity": "N|R|SR|SSR|UR",
+        "type": "postcard|letter|photo|special",
+        "groupId": "string",
+        "destId": "string?",
+        "imageThumb": "string",
+        "imageFull": "string",
+        "story": "string",
+        "baseWeight": "number",
+        "enabled": "boolean"
+      },
+      "indexes": [
+        {
+          "name": "id_asc_unique",
+          "fields": [
+            {
+              "name": "id",
+              "order": "asc"
+            }
+          ],
+          "unique": true
+        },
+        {
+          "name": "enabled_asc",
+          "fields": [
+            {
+              "name": "enabled",
+              "order": "asc"
+            }
+          ],
+          "unique": false
+        }
+      ],
+      "seedFile": "cloud/db/import/postcards.json"
+    },
+    {
+      "name": "game_config",
+      "category": "配置表",
+      "description": "全局概率旋钮（key=trip 等）",
+      "fields": {
+        "key": "string 唯一",
+        "distanceMatchMul": "number",
+        "distanceMissMul": "number",
+        "riceDestMul": "number",
+        "ricePostcardMul": "number",
+        "riceRarityMul": "object",
+        "secondPostcardRate": "number",
+        "riceSecondPostcardBonus": "number",
+        "deliverAtMinRatio": "number",
+        "deliverAtMaxRatio": "number",
+        "destMatchMul": "number"
+      },
+      "indexes": [
+        {
+          "name": "key_asc_unique",
+          "fields": [
+            {
+              "name": "key",
+              "order": "asc"
+            }
+          ],
+          "unique": true
+        }
+      ],
+      "seedFile": "cloud/db/import/game_config.json"
+    },
+    {
+      "name": "gacha_pool",
+      "category": "配置表",
+      "description": "扭蛋奖池（独立于 items）",
+      "fields": {
+        "gachaId": "string",
+        "name": "string",
+        "icon": "string",
+        "rarity": "N|R|SR|SSR|UR",
+        "weight": "number",
+        "sortOrder": "number",
+        "enabled": "boolean"
+      },
+      "indexes": [
+        {
+          "name": "enabled_asc",
+          "fields": [
+            {
+              "name": "enabled",
+              "order": "asc"
+            }
+          ],
+          "unique": false
+        }
+      ],
+      "seedFile": "cloud/db/import/gacha_pool.json"
+    },
+    {
+      "name": "copy_pool",
+      "category": "配置表",
+      "description": "告别语、商店台词等文案",
+      "fields": {
+        "type": "depart_farewell|shop_talk",
+        "text": "string",
+        "enabled": "boolean"
+      },
+      "indexes": [
+        {
+          "name": "type_enabled_asc",
+          "fields": [
+            {
+              "name": "type",
+              "order": "asc"
+            },
+            {
+              "name": "enabled",
+              "order": "asc"
+            }
+          ],
+          "unique": false
+        }
+      ],
+      "seedFile": "cloud/db/import/copy_pool.json"
+    },
+    {
+      "name": "asset_manifest",
+      "category": "配置表",
+      "description": "云存储 / CDN 资源索引",
+      "fields": {
+        "path": "string",
+        "hash": "string",
+        "w": "number",
+        "h": "number",
+        "dpr": "number[]",
+        "fileID": "string?"
+      },
+      "indexes": [
+        {
+          "name": "path_asc_unique",
+          "fields": [
+            {
+              "name": "path",
+              "order": "asc"
+            }
+          ],
+          "unique": true
+        }
+      ],
+      "seedFile": null
+    },
+    {
+      "name": "users",
+      "category": "玩家进度表",
+      "description": "玩家档案：userId、openid、星星、米字星、pity、旅行状态",
+      "fields": {
+        "userId": "string UUID 业务用户 ID，唯一",
+        "openid": "string 微信 openid，唯一",
+        "nickName": "string",
+        "avatarUrl": "string",
+        "profileAuthorized": "boolean",
+        "stars": "number 星星余额",
+        "riceStars": "number 米字星收藏数",
+        "gm": "boolean",
+        "pitySR": "number",
+        "pitySSR": "number",
+        "pityUR": "number",
+        "currentTripId": "string|null",
+        "lastMailboxOpenAt": "number?",
+        "lastSpawnAt": "number",
+        "nextSpawnAt": "number",
+        "createdAt": "number",
+        "lastLoginAt": "number"
+      },
+      "indexes": [
+        {
+          "name": "openid_asc_unique",
+          "fields": [
+            {
+              "name": "openid",
+              "order": "asc"
+            }
+          ],
+          "unique": true
+        },
+        {
+          "name": "userId_asc_unique",
+          "fields": [
+            {
+              "name": "userId",
+              "order": "asc"
+            }
+          ],
+          "unique": true
+        }
+      ],
+      "seedFile": null
+    },
+    {
+      "name": "user_inventory",
+      "category": "玩家进度表",
+      "description": "背包数量",
+      "fields": {
+        "userId": "string",
+        "itemId": "string",
+        "count": "number >=1",
+        "updatedAt": "number",
+        "createdAt": "number"
+      },
+      "indexes": [
+        {
+          "name": "userId_itemId_asc_unique",
+          "fields": [
+            {
+              "name": "userId",
+              "order": "asc"
+            },
+            {
+              "name": "itemId",
+              "order": "asc"
+            }
+          ],
+          "unique": true
+        }
+      ],
+      "seedFile": null
+    },
+    {
+      "name": "user_showcase",
+      "category": "玩家进度表",
+      "description": "展示柜",
+      "fields": {
+        "userId": "string = openid",
+        "itemId": "string",
+        "name": "string",
+        "icon": "string",
+        "description": "string",
+        "obtainedAt": "number",
+        "source": "trip|gacha|gm|shop?",
+        "createdAt": "number"
+      },
+      "indexes": [
+        {
+          "name": "userId_itemId_asc_unique",
+          "fields": [
+            {
+              "name": "userId",
+              "order": "asc"
+            },
+            {
+              "name": "itemId",
+              "order": "asc"
+            }
+          ],
+          "unique": true
+        },
+        {
+          "name": "userId_obtainedAt_asc",
+          "fields": [
+            {
+              "name": "userId",
+              "order": "asc"
+            },
+            {
+              "name": "obtainedAt",
+              "order": "asc"
+            }
+          ],
+          "unique": false
+        }
+      ],
+      "seedFile": null
+    },
+    {
+      "name": "user_outfits",
+      "category": "玩家进度表",
+      "description": "衣柜（V1 空）",
+      "fields": {
+        "userId": "string",
+        "outfitId": "string",
+        "obtainedAt": "number",
+        "equipped": "boolean"
+      },
+      "indexes": [
+        {
+          "name": "userId_outfitId_asc_unique",
+          "fields": [
+            {
+              "name": "userId",
+              "order": "asc"
+            },
+            {
+              "name": "outfitId",
+              "order": "asc"
+            }
+          ],
+          "unique": true
+        }
+      ],
+      "seedFile": null
+    },
+    {
+      "name": "user_postcards",
+      "category": "玩家进度表",
+      "description": "日记图鉴（firstClaimed 去重）",
+      "fields": {
+        "userId": "string",
+        "postcardId": "string",
+        "type": "postcard|letter|photo|special",
+        "title": "string",
+        "rarity": "string",
+        "imageThumb": "string",
+        "imageFull": "string",
+        "story": "string",
+        "firstClaimedAt": "number",
+        "claimCount": "number"
+      },
+      "indexes": [
+        {
+          "name": "userId_postcardId_asc_unique",
+          "fields": [
+            {
+              "name": "userId",
+              "order": "asc"
+            },
+            {
+              "name": "postcardId",
+              "order": "asc"
+            }
+          ],
+          "unique": true
+        }
+      ],
+      "seedFile": null
+    },
+    {
+      "name": "user_gacha",
+      "category": "玩家进度表",
+      "description": "扭蛋图鉴已获得记录",
+      "fields": {
+        "userId": "string",
+        "gachaId": "string",
+        "name": "string",
+        "icon": "string",
+        "rarity": "string",
+        "firstObtainedAt": "number",
+        "count": "number"
+      },
+      "indexes": [
+        {
+          "name": "userId_gachaId_asc_unique",
+          "fields": [
+            {
+              "name": "userId",
+              "order": "asc"
+            },
+            {
+              "name": "gachaId",
+              "order": "asc"
+            }
+          ],
+          "unique": true
+        }
+      ],
+      "seedFile": null
+    },
+    {
+      "name": "roof_stars",
+      "category": "玩家进度表",
+      "description": "屋顶星星（pending / dropped）",
+      "fields": {
+        "userId": "string",
+        "type": "normal|rice",
+        "status": "pending|dropped|collected",
+        "skyX": "number",
+        "skyY": "number",
+        "x": "number",
+        "y": "number",
+        "rotate": "number",
+        "spawnAt": "number",
+        "dropAt": "number",
+        "collectedAt": "number?"
+      },
+      "indexes": [
+        {
+          "name": "userId_status_asc",
+          "fields": [
+            {
+              "name": "userId",
+              "order": "asc"
+            },
+            {
+              "name": "status",
+              "order": "asc"
+            }
+          ],
+          "unique": false
+        }
+      ],
+      "seedFile": null
+    },
+    {
+      "name": "trips",
+      "category": "玩家进度表",
+      "description": "旅行实例、途中明信片投递时刻",
+      "fields": {
+        "userId": "string",
+        "status": "traveling|returned|at_home",
+        "loadout": "{ bento, riceStar?, props? }",
+        "destId": "string",
+        "destName": "string",
+        "startAt": "number",
+        "endAt": "number",
+        "durationH": "number",
+        "postcards": "TripPostcardInstance[]",
+        "souvenirs": "string[]",
+        "usedRiceStar": "boolean",
+        "secondPostcardRate": "number",
+        "createdAt": "number"
+      },
+      "indexes": [
+        {
+          "name": "userId_status_asc",
+          "fields": [
+            {
+              "name": "userId",
+              "order": "asc"
+            },
+            {
+              "name": "status",
+              "order": "asc"
+            }
+          ],
+          "unique": false
+        }
+      ],
+      "seedFile": null
+    },
+    {
+      "name": "daily_purchases",
+      "category": "系统表",
+      "description": "UTC+8 商店每日限购",
+      "fields": {
+        "userId": "string",
+        "itemId": "string",
+        "dayKey": "YYYY-MM-DD UTC+8",
+        "price": "number",
+        "createdAt": "number"
+      },
+      "indexes": [
+        {
+          "name": "userId_itemId_dayKey_asc_unique",
+          "fields": [
+            {
+              "name": "userId",
+              "order": "asc"
+            },
+            {
+              "name": "itemId",
+              "order": "asc"
+            },
+            {
+              "name": "dayKey",
+              "order": "asc"
+            }
+          ],
+          "unique": true
+        }
+      ],
+      "seedFile": null
+    },
+    {
+      "name": "idempotency",
+      "category": "系统表",
+      "description": "购买 / 出行 / 扭蛋幂等",
+      "fields": {
+        "key": "string",
+        "result": "object",
+        "createdAt": "number"
+      },
+      "indexes": [
+        {
+          "name": "key_asc_unique",
+          "fields": [
+            {
+              "name": "key",
+              "order": "asc"
+            }
+          ],
+          "unique": true
+        }
+      ],
+      "seedFile": null
+    },
+    {
+      "name": "gm_audit",
+      "category": "系统表",
+      "description": "GM 操作审计日志",
+      "fields": {
+        "operator": "string",
+        "action": "string",
+        "payload": "object",
+        "createdAt": "number"
+      },
+      "indexes": [],
+      "seedFile": null
+    }
+  ]
+}

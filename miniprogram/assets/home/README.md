@@ -1,16 +1,18 @@
-# 主页 WebP 资源
+# 旅行小深 · WebP 资源
+
+- **作图 / 导出规范（@2x·@3x）** → [`ASSET-EXPORT.md`](../ASSET-EXPORT.md)
+- **确切文件名总表** → [`ASSET-NAMING.md`](../ASSET-NAMING.md)
 
 设计基准：**iPhone 17 Pro Max 1320×2868 @3x**，同时提供 @2x。
 
-| 路径 | 说明 |
-|------|------|
-| `home/room@3x.webp` | **整页静态背景**（家具/深深/装饰合一，除按钮与货币外不再分层） |
-| `home/btn-prepare@3x.webp` | 底栏「准备」宽按钮（含 Ready? 气泡） |
-| `icons/home/star@3x.webp` | 星星计数 icon |
-| `icons/home/bag@3x.webp` | 顶栏背包 |
-| `icons/home/shop@3x.webp` | 底栏商店 |
-| `icons/shop/utility-gacha@3x.webp` | 底栏扭蛋 |
-| `icons/common/settings-grid@3x.webp` | 顶栏设置（网格） |
-| `roof/star-rice@3x.webp` | 米字星计数 icon（与商店顶栏共用） |
+## 本目录子文件夹
 
-展示柜 / 衣柜 / 日记：点击静态背景上对应家具热区进入，无独立 icon。
+| 目录 | 说明 |
+|------|------|
+| `home/` | 主页 |
+| `roof/` | 屋顶游戏元素 |
+| `shared/roof/` | Loading + 屋顶共用背景 |
+| `shop/` `gacha/` `diary/` … | 各页面与弹窗 |
+| `icons/` | 全站导航与小 icon |
+
+路径必须与 `utils/asset-path.ts` 登记值一致。

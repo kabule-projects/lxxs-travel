@@ -1,0 +1,66 @@
+<view
+  class="gacha {{spinning ? 'gacha--spin' : ''}}"
+  style="padding-top: {{safeTop}}px; padding-bottom: {{safeBottom}}px"
+>
+  <view class="gacha-hud">
+    <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
+    <star-counter count="{{stars}}" iconSrc="{{assets.iconStar}}" />
+    <nav-icon src="{{assets.iconGrid}}" label="设置" size="sm" bind:tap="onTapSettings" />
+  </view>
+
+  <view class="machine-wrap">
+    <image class="machine-img" src="{{assets.machine}}" mode="widthFix" />
+    <view class="machine-controls">
+      <image
+        class="count-btn-img {{drawCount === 1 ? 'count-btn-img--on' : ''}}"
+        src="{{assets.btnDraw1}}"
+        mode="heightFix"
+        data-count="1"
+        catchtap="onSelectCount"
+      />
+      <image
+        class="count-btn-img {{drawCount === 5 ? 'count-btn-img--on' : ''}}"
+        src="{{assets.btnDraw5}}"
+        mode="heightFix"
+        data-count="5"
+        catchtap="onSelectCount"
+      />
+      <image
+        class="spin-btn-img"
+        src="{{assets.btnSpin}}"
+        mode="widthFix"
+        catchtap="onTapSpin"
+      />
+    </view>
+    <image class="rug-img" src="{{assets.rug}}" mode="widthFix" />
+  </view>
+
+  <view class="gacha-foot">
+    <image class="exchange-banner-img" src="{{assets.exchangeBanner}}" mode="widthFix" />
+    <image
+      class="prizes-btn-img"
+      src="{{assets.btnPrizes}}"
+      mode="widthFix"
+      catchtap="onTapPrizes"
+    />
+  </view>
+
+  <view wx:if="{{spinning}}" class="spin-overlay" catchtap="onTapSkipSpin"></view>
+  <view wx:if="{{spinning}}" class="spin-hint">点击屏幕跳过动画</view>
+
+  <gacha-result
+    visible="{{showResult}}"
+    results="{{drawResults}}"
+    icon-star="{{assets.iconStar}}"
+    bind:close="onCloseResult"
+    bind:confirm="onConfirmResult"
+  />
+
+  <gacha-prizes
+    visible="{{showPrizes}}"
+    items="{{catalog}}"
+    bind:close="onClosePrizes"
+  />
+
+  <settings-modal visible="{{showSettings}}" bind:close="onCloseSettings" />
+</view>
