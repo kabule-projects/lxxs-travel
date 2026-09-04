@@ -43,8 +43,9 @@ function randomPilePos(index = 0) {
   const col = index % 3;
   const row = Math.floor(index / 3);
   return {
-    x: 56 + col * 5 + Math.random() * 4 - 2,
-    y: 52 + row * 4 + Math.random() * 3 - 1.5,
+    // 与 miniprogram/utils/roof-logic.ts 保持同步（鸽子 right:5%/bottom:24% 的左下角）
+    x: 64 + col * 4 + Math.random() * 3 - 1.5,
+    y: 73 + row * 1.6 + Math.random() * 2 - 1,
     rotate: Math.floor(Math.random() * 41) - 20,
   };
 }

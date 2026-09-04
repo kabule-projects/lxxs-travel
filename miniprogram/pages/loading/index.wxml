@@ -3,7 +3,7 @@
   <image
     class="layer layer-bg"
     src="{{bgSrc}}"
-    mode="aspectFill"
+    mode="widthFix"
     bindload="onLayerLoaded"
     binderror="onLayerError"
   />

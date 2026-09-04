@@ -12,10 +12,11 @@
   width: 100%;
 }
 
+/* 宽度适配 + 垂直居中：高度由 widthFix 按图片比例自适应，上下溢出裁掉 */
 .layer-bg {
-  top: 0;
-  height: 100%;
+  top: 50%;
   z-index: 0;
+  transform: translateY(-50%);
 }
 
 .enter-zone {

@@ -27,6 +27,26 @@ declare namespace WechatMiniprogram {
       pixelRatio: number;
       platform: string;
       model: string;
+      screenHeight?: number;
+      screenWidth?: number;
+      windowHeight?: number;
+      safeArea?: {
+        top: number;
+        bottom: number;
+        left: number;
+        right: number;
+        width: number;
+        height: number;
+      };
+    };
+    /** 右上角胶囊按钮（关闭/菜单）布局矩形 */
+    getMenuButtonBoundingClientRect?(): {
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+      width: number;
+      height: number;
     };
     getImageInfo(options: {
       src: string;

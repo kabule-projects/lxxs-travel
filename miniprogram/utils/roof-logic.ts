@@ -33,13 +33,13 @@ export function randomSkyPos(index: number): { skyX: number; skyY: number } {
   };
 }
 
-/** 落下后堆在鸽子左下角（百分比相对整屏） */
+/** 落下后堆在鸽子左下角（百分比相对整屏；鸽子位 right:5%/bottom:24%） */
 export function randomPilePos(index = 0): { x: number; y: number; rotate: number } {
   const col = index % 3;
   const row = Math.floor(index / 3);
   return {
-    x: 56 + col * 5 + Math.random() * 4 - 2,
-    y: 52 + row * 4 + Math.random() * 3 - 1.5,
+    x: 64 + col * 4 + Math.random() * 3 - 1.5,
+    y: 73 + row * 1.6 + Math.random() * 2 - 1,
     rotate: Math.floor(Math.random() * 41) - 20,
   };
 }

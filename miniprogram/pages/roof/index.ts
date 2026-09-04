@@ -1,6 +1,6 @@
 import { ROOF_SCENE_ASSETS, ROOF_ASSETS } from '../../utils/asset-path';
 import { resolveAsset, resolveAssetMap } from '../../utils/resolve-assets';
-import { readSafeArea } from '../../utils/device';
+import { readSafeArea, readCapsuleRect } from '../../utils/device';
 import { getRiceStars, getStars, setRiceStars, setStars, isTraveling } from '../../store/user';
 import { playTap } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
@@ -33,8 +33,10 @@ Page({
     stars: 0,
     riceStars: 0,
     bgSrc: '',
-    safeTop: 0,
-    safeBottom: 0,
+    /** 顶栏 top：胶囊按钮底边 + 间距，避开右上角关闭/菜单 */
+    hudTop: 0,
+    /** 底栏 bottom：安全区上沿 + 间距 */
+    footerBottom: 0,
     assets: {} as RoofAssets,
     starItems: [] as RoofStarDisplay[],
     plusOneVisible: false,
@@ -63,9 +65,12 @@ Page({
 
   onLoad() {
     const safe = readSafeArea();
+    const capsule = readCapsuleRect();
     this.setData({
-      safeTop: Math.max(safe.top, 12),
-      safeBottom: Math.max(safe.bottom, 16),
+      // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮
+      hudTop: capsule.bottom + 8,
+      // 底栏贴安全区上沿，底部留间距
+      footerBottom: Math.max(safe.bottom, 16) + 8,
     });
     this.loadAssets();
     this.bindTripEvents();

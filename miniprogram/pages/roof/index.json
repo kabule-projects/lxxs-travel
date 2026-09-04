@@ -1,5 +1,6 @@
 {
   "navigationStyle": "custom",
+  "disableScroll": true,
   "usingComponents": {
     "nav-icon": "/components/nav-icon/nav-icon",
     "star-item": "/components/star-item/star-item",

@@ -1,8 +1,7 @@
 .roof {
   position: relative;
   width: 100%;
-  min-height: 100vh;
-  box-sizing: border-box;
+  height: 100%;
   overflow: hidden;
   background: #2a1f4e;
 }
@@ -14,10 +13,11 @@
   pointer-events: none;
 }
 
+/* 宽度适配 + 垂直居中：高度由 widthFix 按图片比例自适应，上下溢出裁掉 */
 .layer-bg {
-  top: 0;
-  height: 100%;
+  top: 50%;
   z-index: 0;
+  transform: translateY(-50%);
 }
 
 .sky-layer {
@@ -29,12 +29,12 @@
   z-index: 3;
 }
 
-/* ── 屋顶底部角色装饰 ── */
+/* ── 屋顶底部角色装饰（纵向位置按屏幕高度百分比，随屏比漂移小） ── */
 .roof-characters {
   position: absolute;
   left: 0;
-  right: 0;
-  bottom: 220rpx;
+  right: 42%;
+  bottom: 23%;
   z-index: 5;
   display: flex;
   align-items: flex-end;
@@ -48,25 +48,26 @@
 
 .char-biao {
   width: 110rpx;
-  margin-left: -20rpx;
+  margin-left: -70rpx;
 }
 
 .char-mi {
+  position: relative;
+  z-index: 1;
   width: 90rpx;
-  margin-right: -12rpx;
+  margin-right: -80rpx;
 }
 
-/* ── 顶栏（同主页/商店） ── */
+/* ── 顶栏（同主页/商店）；top 由内联样式给定，避让右上角胶囊 ── */
 .roof-hud {
   position: absolute;
   left: 0;
   right: 0;
-  top: 0;
   z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8rpx 20rpx 0;
+  padding: 0 20rpx;
   box-sizing: border-box;
 }
 
@@ -124,8 +125,8 @@
 /* ── 鸽子（屋顶右侧，星星堆在其左下） ── */
 .pigeon-spot {
   position: absolute;
-  right: 10%;
-  bottom: 34%;
+  right: 5%;
+  bottom: 24%;
   z-index: 6;
   width: 160rpx;
   height: 180rpx;
@@ -188,17 +189,16 @@
   }
 }
 
-/* ── 底栏 ── */
+/* ── 底栏；bottom 由内联样式给定（安全区上沿 + 间距） ── */
 .roof-footer {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;
   z-index: 20;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  padding: 0 32rpx 40rpx;
+  padding: 0 32rpx;
   box-sizing: border-box;
   pointer-events: none;
 }
