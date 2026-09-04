@@ -11,33 +11,37 @@
   justify-content: center;
 }
 
+/* 面板按 inventory/panel 切图（1118×1481）等比：宽度占屏 85.4%，内容区按切图相对坐标定位 */
 .inv-panel {
   position: relative;
-  width: 640rpx;
-  max-height: 78vh;
-  padding: 28rpx 24rpx 36rpx;
-  box-sizing: border-box;
-  border-radius: 28rpx;
-  background: #f4ead8;
-  border: 6rpx dashed #c48a4a;
+  width: 85.4%;
+}
+
+.inv-panel-bg {
+  display: block;
+  width: 100%;
+}
+
+.inv-content {
+  position: absolute;
+  left: 5.5%;
+  right: 5.5%;
+  top: 8.5%;
+  bottom: 5.5%;
+  display: flex;
+  flex-direction: column;
 }
 
 .inv-close {
   position: absolute;
-  top: -18rpx;
-  right: -18rpx;
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 50%;
-  background: #e8923a;
-  color: #fff;
-  font-size: 40rpx;
-  line-height: 58rpx;
-  text-align: center;
+  top: 2%;
+  right: 3%;
   z-index: 2;
 }
 
 .inv-tabs {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: flex-end;
   gap: 12rpx;
@@ -64,8 +68,8 @@
 .inv-list {
   position: relative;
   z-index: 1;
-  max-height: 62vh;
-  min-height: 360rpx;
+  flex: 1;
+  min-height: 0;
 }
 
 .inv-card {

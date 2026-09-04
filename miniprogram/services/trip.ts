@@ -1,5 +1,5 @@
 import { call } from './api';
-import { consumeItems } from './inventory';
+import { consumeItems, readInventoryCounts } from './inventory';
 import {
   getRiceStars,
   getProfile,
@@ -113,7 +113,10 @@ function localStart(loadout: TripLoadout): TripStartResult {
   }
 
   const propIds = (loadout.props || []).filter(Boolean).slice(0, GAME.BAG_PROP_SLOTS);
-  const okConsume = consumeItems([loadout.bento, ...propIds]);
+  /** 道具（扭蛋产出）可随行但非消耗品：只校验持有，不扣库存 */
+  const counts = readInventoryCounts();
+  const ownsProps = propIds.every((id) => (counts[id] || 0) >= 1);
+  const okConsume = ownsProps && consumeItems([loadout.bento]);
   if (!okConsume) {
     const err = new Error('物品库存不足') as Error & { code?: string };
     err.code = 'NO_STOCK';
@@ -172,9 +175,8 @@ export async function startTrip(loadout: TripLoadout): Promise<TripStartResult> 
       source: 'bag',
       requestId,
     });
-    const propIds = (loadout.props || []).filter(Boolean).slice(0, GAME.BAG_PROP_SLOTS);
-    /** 云端已扣库存；同步本地缓存，避免背包/物品列表仍显示旧数量 */
-    consumeItems([loadout.bento, ...propIds]);
+    /** 云端已扣食物；道具非消耗品，仍留在背包中 */
+    consumeItems([loadout.bento]);
     if (res.usedRiceStar) {
       setRiceStars(Math.max(0, getRiceStars() - 1));
     }

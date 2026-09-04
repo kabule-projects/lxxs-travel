@@ -30,7 +30,7 @@ Component({
     letterStory: '',
     assets: {
       panel: '',
-      title: '',
+      rowBg: '',
       iconClose: '',
       envelope: '',
     },

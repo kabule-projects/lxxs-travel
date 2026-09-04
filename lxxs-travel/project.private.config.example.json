@@ -1,8 +1,0 @@
-{
-  "description": "项目私有配置示例。复制为 project.private.config.json 并填写真实值（该文件已在 .gitignore）。",
-  "cloudfunctionRoot": "cloud/functions/",
-  "cloudbaseRoot": "cloud/",
-  "setting": {
-    "cloudEnv": "lxxs-cloud-env-placeholder"
-  }
-}

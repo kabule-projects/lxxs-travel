@@ -1,7 +1,0 @@
-{
-  "navigationStyle": "custom",
-  "usingComponents": {
-    "nav-icon": "/components/nav-icon/nav-icon",
-    "settings-modal": "/components/settings-modal/settings-modal"
-  }
-}

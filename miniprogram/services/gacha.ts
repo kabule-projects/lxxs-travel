@@ -1,6 +1,7 @@
 import GAME from '../utils/constants';
 import { call } from './api';
 import { getStars, setStars } from '../store/user';
+import { readInventoryCounts, writeInventoryCounts } from './inventory';
 
 export interface GachaCatalogItem {
   gachaId: string;
@@ -32,19 +33,15 @@ const LOCAL_POOL_KEY = 'lxxs_gacha_pool';
 const LOCAL_OWNED_KEY = 'lxxs_gacha_owned';
 const LOCAL_PITY_KEY = 'lxxs_gacha_pity';
 
+/** 本地联调兜底：与云端 gacha_pool 对齐，只出道具（items 库 accessory/equipment） */
 const SEED_POOL: Omit<GachaCatalogItem, 'obtained'>[] = [
-  { gachaId: 'gacha_potato', name: '烤土豆', icon: '', rarity: 'N' },
-  { gachaId: 'gacha_rice_bowl', name: '米饭碗', icon: '', rarity: 'N' },
-  { gachaId: 'gacha_porridge', name: '葱花粥', icon: '', rarity: 'R' },
-  { gachaId: 'gacha_chocolate', name: '巧克力', icon: '', rarity: 'R' },
-  { gachaId: 'gacha_mushroom_soup', name: '菌菇杯', icon: '', rarity: 'R' },
-  { gachaId: 'gacha_cake', name: '草莓蛋糕', icon: '', rarity: 'SR' },
-  { gachaId: 'gacha_mic', name: '麦克风', icon: '', rarity: 'SR' },
-  { gachaId: 'gacha_camera', name: '拍立得', icon: '', rarity: 'SSR' },
-  { gachaId: 'gacha_umbrella', name: '星星伞', icon: '', rarity: 'SSR' },
-  { gachaId: 'gacha_crown', name: '旅行王冠', icon: '', rarity: 'UR' },
-  { gachaId: 'gacha_compass', name: '幸运罗盘', icon: '', rarity: 'UR' },
-  { gachaId: 'gacha_ticket', name: '神秘车票', icon: '', rarity: 'N' },
+  { gachaId: 'acc_scarf', name: '小围巾', icon: '', rarity: 'N' },
+  { gachaId: 'eq_map', name: '旧地图', icon: '', rarity: 'N' },
+  { gachaId: 'acc_hat', name: '旅行帽', icon: '', rarity: 'R' },
+  { gachaId: 'acc_badge', name: '纪念徽章', icon: '', rarity: 'R' },
+  { gachaId: 'acc_glasses', name: '圆框眼镜', icon: '', rarity: 'SR' },
+  { gachaId: 'eq_cam', name: '拍立得', icon: '', rarity: 'SR' },
+  { gachaId: 'eq_compass', name: '小指南针', icon: '', rarity: 'SSR' },
 ];
 
 const WEIGHTS: Record<string, number> = {
@@ -158,11 +155,14 @@ function localDraw(count: 1 | 5): GachaDrawResult {
     throw err;
   }
   stars -= cost;
+  const inv = readInventoryCounts();
   for (let i = 0; i < count; i += 1) {
     const r = localDrawOne(SEED_POOL, owned, pity);
     if (r.duplicate) stars += 1;
+    else inv[r.gachaId] = (inv[r.gachaId] || 0) + 1; // 扭蛋产出入背包（本地兜底）
     results.push(r);
   }
+  writeInventoryCounts(inv);
   setStars(stars);
   writeOwned(owned);
   writePity({

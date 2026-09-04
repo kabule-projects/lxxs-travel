@@ -14,7 +14,7 @@
 
 .bag-wrap {
   position: relative;
-  width: 680rpx;
+  width: 90.7%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -29,7 +29,7 @@
 
 .bag-body {
   position: relative;
-  width: 620rpx;
+  width: 82.7%;
   overflow: hidden;
   border-radius: 28rpx;
 }
@@ -41,33 +41,33 @@
   display: block;
 }
 
-/* 透明热区对齐背景里的槽位 */
+/* 透明热区按 bag/panel 切图（1707×2809）的相对坐标标定，随面板等比缩放 */
 .slot {
   position: absolute;
   z-index: 2;
-  width: 148rpx;
-  height: 148rpx;
+  width: 23.4%;
+  height: 14.2%;
   box-sizing: border-box;
 }
 
 .slot-food {
-  left: 90rpx;
-  top: 140rpx;
+  left: 25.8%;
+  top: 27.9%;
 }
 
 .slot-rice {
-  right: 90rpx;
-  top: 140rpx;
+  left: 55.4%;
+  top: 27.9%;
 }
 
 .slot-prop0 {
-  left: 120rpx;
-  top: 390rpx;
+  left: 37.8%;
+  top: 50.6%;
 }
 
 .slot-prop1 {
-  right: 120rpx;
-  top: 390rpx;
+  left: 67.4%;
+  top: 50.6%;
 }
 
 .slot-fill {
@@ -81,8 +81,8 @@
 }
 
 .slot-item-icon {
-  width: 96rpx;
-  height: 96rpx;
+  width: 62%;
+  height: 62%;
 }
 
 .slot-rice-mark {
@@ -93,21 +93,21 @@
 
 .slot-clear {
   position: absolute;
-  top: -12rpx;
-  right: -12rpx;
-  width: 40rpx;
-  height: 40rpx;
+  top: -8%;
+  right: -8%;
+  width: 28%;
+  height: 28%;
   z-index: 2;
 }
 
 .slot-hint {
   position: relative;
   z-index: 1;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
-  line-height: 148rpx;
-  text-align: center;
   font-size: 22rpx;
   color: #5a4030;
 }
@@ -119,7 +119,7 @@
 .depart-area {
   position: relative;
   margin-top: 36rpx;
-  width: 420rpx;
+  width: 68%;
 }
 
 .depart-btn-img {

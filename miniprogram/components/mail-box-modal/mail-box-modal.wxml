@@ -8,29 +8,32 @@
         size="{{64}}"
         bind:tap="onClose"
       />
-      <image class="mbox-title-img" src="{{assets.title}}" mode="widthFix" />
-      <view class="mbox-hint">鸽子最多帮忙保存{{mailCap}}封信，超过{{mailCap}}封，旧的信件会自动已读哦</view>
 
-      <scroll-view class="mbox-list" scroll-y>
-        <view
-          wx:for="{{listItems}}"
-          wx:key="instanceId"
-          class="mbox-row {{item.isNew ? 'mbox-row--new' : ''}}"
-          data-index="{{index}}"
-          catchtap="onTapRow"
-        >
-          <view class="mbox-thumb">
-            <image
-              wx:if="{{item.imageThumb}}"
-              src="{{item.imageThumb}}"
-              mode="aspectFill"
-            />
-            <view wx:else class="mbox-thumb-ph">{{item.title[0] || '?'}}</view>
+      <view class="mbox-content">
+        <scroll-view class="mbox-list" scroll-y>
+          <view
+            wx:for="{{listItems}}"
+            wx:key="instanceId"
+            class="mbox-row {{item.isNew ? 'mbox-row--new' : ''}}"
+            data-index="{{index}}"
+            catchtap="onTapRow"
+          >
+            <image class="mbox-row-bg" src="{{assets.rowBg}}" mode="widthFix" />
+            <view class="mbox-row-body">
+              <view class="mbox-thumb">
+                <image
+                  wx:if="{{item.imageThumb}}"
+                  src="{{item.imageThumb}}"
+                  mode="aspectFill"
+                />
+                <view wx:else class="mbox-thumb-ph">{{item.title[0] || '?'}}</view>
+              </view>
+              <text class="mbox-name">{{item.title || '明信片的名字'}}</text>
+            </view>
           </view>
-          <text class="mbox-name">{{item.title || '明信片的名字'}}</text>
-        </view>
-        <view wx:if="{{!listItems.length}}" class="mbox-empty">暂时没有未读信件</view>
-      </scroll-view>
+          <view wx:if="{{!listItems.length}}" class="mbox-empty">暂时没有未读信件</view>
+        </scroll-view>
+      </view>
     </view>
   </view>
 

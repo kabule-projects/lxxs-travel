@@ -97,10 +97,7 @@ Component({
     onTapRice() {
       if (this.data.riceStar) return;
       const count = getRiceStars();
-      if (count <= 0) {
-        wx.showToast({ title: '还没有米字星', icon: 'none' });
-        return;
-      }
+      if (count <= 0) return;
       this.setData({ riceStar: true, riceCount: count });
     },
 

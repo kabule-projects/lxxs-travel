@@ -105,7 +105,7 @@ async function startTrip(openid, loadout, requestId) {
     return fail('明信片未配置，请先导入 seed', 'NO_POSTCARD');
   }
 
-  /** 先校验库存，再抽样，再统一扣除，避免扣了一半失败 */
+  /** 先校验库存（道具需持有但非消耗品），再抽样，最后只扣食物，避免扣了一半失败 */
   const needIds = [loadout.bento, ...propIds];
   for (const id of needIds) {
     const inv = await db
@@ -133,7 +133,8 @@ async function startTrip(openid, loadout, requestId) {
     return fail(e.message || '抽样失败', e.code || 'PLAN_FAIL');
   }
 
-  for (const id of needIds) {
+  /** 只有美食是消耗品；道具随行走一趟仍归还不扣 */
+  for (const id of [loadout.bento]) {
     if (!(await consumeInventory(openid, id))) {
       return fail('物品库存不足', 'NO_STOCK');
     }

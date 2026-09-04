@@ -1,8 +1,0 @@
-{
-  "navigationStyle": "custom",
-  "usingComponents": {
-    "nav-icon": "/components/nav-icon/nav-icon",
-    "showcase-detail": "/components/showcase-detail/showcase-detail",
-    "settings-modal": "/components/settings-modal/settings-modal"
-  }
-}

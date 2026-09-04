@@ -17,7 +17,8 @@ Component({
 
   lifetimes: {
     attached() {
-      resolveAsset(GACHA_ASSETS.catalogPanel).then((panelBg) => {
+      /** 图鉴弹窗复用扭蛋结果弹窗的奶白面板底图（catalog-panel 实为物品格星爆底图，勿作面板） */
+      resolveAsset(GACHA_ASSETS.resultPanel).then((panelBg) => {
         this.setData({ panelBg });
       });
       /** 与结果弹窗共用物品格底图 */

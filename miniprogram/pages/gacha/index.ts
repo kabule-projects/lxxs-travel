@@ -3,8 +3,8 @@ import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readSafeArea } from '../../utils/device';
 import { playTap } from '../../services/sound';
 import { navigateBack } from '../../utils/nav';
-import { getStars, setStars } from '../../store/user';
-import GAME from '../../utils/constants';
+import { getStars, getRiceStars, setStars } from '../../store/user';
+import { GameEvent, on } from '../../utils/event-bus';
 import {
   drawGacha,
   gachaCost,
@@ -21,8 +21,7 @@ Page({
     safeBottom: 0,
     assets: {} as GachaAssets,
     stars: 0,
-    drawCount: 1 as 1 | 5,
-    cost: GAME.GACHA_COST,
+    riceStars: 0,
     spinning: false,
     showResult: false,
     showPrizes: false,
@@ -34,21 +33,36 @@ Page({
   _spinTimer: 0 as number,
   _drawing: false,
   _pendingCount: 1 as 1 | 5,
+  _offStars: null as (() => void) | null,
 
   onLoad() {
     const safe = readSafeArea();
     this.setData({
       safeTop: Math.max(safe.top, 16),
       safeBottom: Math.max(safe.bottom, 16),
-      stars: getStars(),
-      cost: gachaCost(1),
     });
+    this.syncWallet();
     this.loadAssets();
     this.reloadCatalog();
+    this._offStars = on(GameEvent.STARS_UPDATED, () => {
+      this.syncWallet();
+    });
+  },
+
+  onShow() {
+    this.syncWallet();
   },
 
   onUnload() {
     if (this._spinTimer) clearTimeout(this._spinTimer);
+    this._offStars?.();
+  },
+
+  syncWallet() {
+    this.setData({
+      stars: getStars(),
+      riceStars: getRiceStars(),
+    });
   },
 
   async loadAssets() {
@@ -75,27 +89,21 @@ Page({
     this.setData({ showSettings: false });
   },
 
-  onSelectCount(e: WechatMiniprogram.TouchEvent) {
-    if (this.data.spinning) return;
+  onTapDraw(e: WechatMiniprogram.TouchEvent) {
+    if (this.data.spinning || this.data.showResult) return;
     playTap();
     const count = Number(e.currentTarget.dataset.count) as 1 | 5;
     if (count !== 1 && count !== 5) return;
-    this.setData({ drawCount: count, cost: gachaCost(count) });
-  },
-
-  onTapSpin() {
-    if (this.data.spinning || this.data.showResult) return;
-    playTap();
-    const { drawCount, stars } = this.data;
-    const cost = gachaCost(drawCount);
+    const { stars } = this.data;
+    const cost = gachaCost(count);
     if (stars < cost) {
       wx.showToast({
-        title: drawCount > 1 ? '星星不足，无法五连' : '星星不足',
+        title: count > 1 ? '星星不足，无法五连' : '星星不足',
         icon: 'none',
       });
       return;
     }
-    this.startSpin(drawCount);
+    this.startSpin(count);
   },
 
   onTapSkipSpin() {

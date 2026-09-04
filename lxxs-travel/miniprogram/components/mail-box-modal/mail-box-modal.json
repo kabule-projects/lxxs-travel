@@ -1,7 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-    "diary-letter": "/components/diary-letter/diary-letter",
-    "icon-close": "/components/icon-close/icon-close"
-  }
-}

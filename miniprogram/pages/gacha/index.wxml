@@ -6,34 +6,23 @@
 
   <view class="gacha-hud">
     <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
-    <star-counter count="{{stars}}" iconSrc="{{assets.iconStar}}" />
+    <view class="hud-center">
+      <view class="currency-pill">
+        <image class="currency-icon" src="{{assets.iconStar}}" mode="aspectFit" />
+        <text class="currency-num">{{stars}}</text>
+      </view>
+      <view class="currency-pill">
+        <image class="currency-icon" src="{{assets.iconRiceStar}}" mode="aspectFit" />
+        <text class="currency-num">{{riceStars}}</text>
+      </view>
+    </view>
     <nav-icon src="{{assets.iconGrid}}" label="设置" size="sm" bind:tap="onTapSettings" />
   </view>
 
   <view class="machine-wrap">
     <image class="machine-img" src="{{assets.machine}}" mode="aspectFit" />
-    <view class="machine-controls">
-      <image
-        class="count-btn-img {{drawCount === 1 ? 'count-btn-img--on' : ''}}"
-        src="{{assets.btnDraw1}}"
-        mode="heightFix"
-        data-count="1"
-        catchtap="onSelectCount"
-      />
-      <image
-        class="count-btn-img {{drawCount === 5 ? 'count-btn-img--on' : ''}}"
-        src="{{assets.btnDraw5}}"
-        mode="heightFix"
-        data-count="5"
-        catchtap="onSelectCount"
-      />
-      <image
-        class="spin-btn-img"
-        src="{{assets.btnSpin}}"
-        mode="widthFix"
-        catchtap="onTapSpin"
-      />
-    </view>
+    <view class="machine-btn machine-btn--1" data-count="1" catchtap="onTapDraw" />
+    <view class="machine-btn machine-btn--5" data-count="5" catchtap="onTapDraw" />
   </view>
 
   <view class="gacha-foot">

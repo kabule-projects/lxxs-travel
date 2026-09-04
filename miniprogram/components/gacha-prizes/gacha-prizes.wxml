@@ -1,10 +1,11 @@
 <view class="gp-mask" wx:if="{{visible}}" catchtap="onClose">
   <view class="gp-panel" catchtap="onStop">
-    <image class="gp-panel-bg" src="{{panelBg}}" mode="scaleToFill" />
+    <image class="gp-panel-bg" src="{{panelBg}}" mode="widthFix" />
     <icon-close class="gp-close" src="{{iconClose}}" size="{{64}}" bind:tap="onClose" />
-    <view class="gp-title">奖品</view>
+    <view class="gp-content">
+      <view class="gp-title">奖品</view>
 
-    <scroll-view class="gp-scroll" scroll-y>
+      <scroll-view class="gp-scroll" scroll-y>
       <view class="gp-grid">
         <view
           wx:for="{{items}}"
@@ -21,14 +22,14 @@
               mode="aspectFit"
             />
           </block>
-          <image
-            wx:else
-            class="gp-lock-img"
-            src="{{lockIcon}}"
-            mode="aspectFit"
-          />
+          <block wx:else>
+            <!-- 未收集：框中叠加问号 -->
+            <image class="gp-item-bg" src="{{lockIcon}}" mode="aspectFill" />
+            <view class="gp-q-wrap"><text class="gp-q">?</text></view>
+          </block>
         </view>
       </view>
-    </scroll-view>
+      </scroll-view>
+    </view>
   </view>
 </view>

@@ -1,6 +1,0 @@
-{
-  "desc": "旅行小深",
-  "rules": [
-    { "action": "allow", "page": "*" }
-  ]
-}

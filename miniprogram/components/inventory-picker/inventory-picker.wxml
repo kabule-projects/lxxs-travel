@@ -3,52 +3,54 @@
     <image class="inv-panel-bg" src="{{panelBg}}" mode="scaleToFill" />
     <icon-close class="inv-close" src="{{iconClose}}" size="{{64}}" bind:tap="onClose" />
 
-    <view class="inv-tabs" wx:if="{{!lockTab}}">
-      <image
-        class="inv-tab {{tab === 'food' ? 'inv-tab--on' : ''}}"
-        src="{{tab === 'food' ? tabFoodOn : tabFood}}"
-        mode="heightFix"
-        data-tab="food"
-        catchtap="onTapTab"
-      />
-      <image
-        class="inv-tab {{tab === 'prop' ? 'inv-tab--on' : ''}}"
-        src="{{tab === 'prop' ? tabPropOn : tabProp}}"
-        mode="heightFix"
-        data-tab="prop"
-        catchtap="onTapTab"
-      />
-    </view>
-    <view class="inv-tabs inv-tabs--locked" wx:else>
-      <image
-        class="inv-tab inv-tab--on"
-        src="{{lockTab === 'prop' ? tabPropOn : tabFoodOn}}"
-        mode="heightFix"
-      />
-    </view>
+    <view class="inv-content">
+      <view class="inv-tabs" wx:if="{{!lockTab}}">
+        <image
+          class="inv-tab {{tab === 'food' ? 'inv-tab--on' : ''}}"
+          src="{{tab === 'food' ? tabFoodOn : tabFood}}"
+          mode="heightFix"
+          data-tab="food"
+          catchtap="onTapTab"
+        />
+        <image
+          class="inv-tab {{tab === 'prop' ? 'inv-tab--on' : ''}}"
+          src="{{tab === 'prop' ? tabPropOn : tabProp}}"
+          mode="heightFix"
+          data-tab="prop"
+          catchtap="onTapTab"
+        />
+      </view>
+      <view class="inv-tabs inv-tabs--locked" wx:else>
+        <image
+          class="inv-tab inv-tab--on"
+          src="{{lockTab === 'prop' ? tabPropOn : tabFoodOn}}"
+          mode="heightFix"
+        />
+      </view>
 
-    <scroll-view class="inv-list" scroll-y>
-      <view
-        wx:for="{{items}}"
-        wx:key="id"
-        class="inv-card"
-        data-id="{{item.id}}"
-        catchtap="onTapItem"
-      >
-        <!-- 行背景框 → 其上叠 icon + 文字；点选即返回 -->
-        <image class="inv-card-bg" src="{{itemRowBg}}" mode="scaleToFill" />
-        <view class="inv-card-body">
-          <view class="inv-icon">
-            <image wx:if="{{item.icon}}" src="{{item.icon}}" mode="aspectFit" />
-            <text class="inv-count">{{item.count}}</text>
-          </view>
-          <view class="inv-meta">
-            <text class="inv-name">{{item.name}}</text>
-            <text class="inv-desc">{{item.description}}</text>
+      <scroll-view class="inv-list" scroll-y>
+        <view
+          wx:for="{{items}}"
+          wx:key="id"
+          class="inv-card"
+          data-id="{{item.id}}"
+          catchtap="onTapItem"
+        >
+          <!-- 行背景框 → 其上叠 icon + 文字；点选即返回 -->
+          <image class="inv-card-bg" src="{{itemRowBg}}" mode="scaleToFill" />
+          <view class="inv-card-body">
+            <view class="inv-icon">
+              <image wx:if="{{item.icon}}" src="{{item.icon}}" mode="aspectFit" />
+              <text class="inv-count">{{item.count}}</text>
+            </view>
+            <view class="inv-meta">
+              <text class="inv-name">{{item.name}}</text>
+              <text class="inv-desc">{{item.description}}</text>
+            </view>
           </view>
         </view>
-      </view>
-      <view wx:if="{{!items.length}}" class="inv-empty">暂无此类物品</view>
-    </scroll-view>
+        <view wx:if="{{!items.length}}" class="inv-empty">暂无此类物品</view>
+      </scroll-view>
+    </view>
   </view>
 </view>

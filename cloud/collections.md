@@ -11,7 +11,7 @@
 | destinations | 目的地（baseWeight、地形、距离档、时长、伴手礼池） |
 | postcards | 明信片（baseWeight、groupId、可选绑定 destId） |
 | game_config | 全局概率旋钮（key 唯一，如 `trip`） |
-| gacha_pool | 扭蛋权重 |
+| gacha_pool | 扭蛋奖池配置：`{ itemId, rarity, weight, sortOrder, enabled }`，`itemId` 引用 `items.id`（只出道具 accessory/equipment），名称/图标以 `items` 为准；抽中入 `user_inventory` |
 | copy_pool | 文案（depart_farewell / shop_talk） |
 | user_inventory | `{ userId, itemId, count }` |
 | user_showcase | `{ userId, itemId, name?, icon?, description?, obtainedAt }` 展示柜 |

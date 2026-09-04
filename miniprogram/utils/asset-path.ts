@@ -77,6 +77,7 @@ export const SHOP_ASSETS = {
 export const GACHA_ASSETS = {
   iconBack: 'icons/shop/back',
   iconStar: 'icons/home/star',
+  iconRiceStar: 'roof/star-rice',
   iconGrid: 'icons/common/settings-grid',
   /** 整页背景（含地毯等，勿再单独出地毯） */
   pageBg: 'gacha/page-bg',
@@ -91,6 +92,7 @@ export const GACHA_ASSETS = {
   resultItemBg: 'gacha/result-item-bg',
   btnConfirm: 'gacha/btn-confirm',
   catalogPanel: 'gacha/catalog-panel',
+  /** ⚠️ catalog-panel 文件内容实为物品格星爆底图（与 result-item-bg 同图），勿当弹窗面板用 */
   prizeLocked: 'icons/gacha/prize-locked',
 } as const;
 
@@ -123,10 +125,10 @@ export const LETTER_ASSETS = {
   paper: 'diary/letter-paper',
 } as const;
 
-/** 信箱面板：角饰已画进 panel；列表缩略图用明信片 imageThumb */
+/** 信箱：deco-2 为整板（标题/提示已画进）；panel 棕色条为列表行背景 */
 export const MAILBOX_ASSETS = {
-  panel: 'mailbox/panel',
-  title: 'mailbox/title',
+  panel: 'mailbox/deco-2',
+  rowBg: 'mailbox/panel',
   iconClose: 'mailbox/icon-close',
   /** 信封按钮（含角标） */
   envelope: 'icons/diary/envelope',

@@ -1,6 +1,7 @@
 const cloud = require('wx-server-sdk');
 const { ok, fail } = require('../common/response');
 const { GACHA_COST, GACHA_MULTI, drawBatch } = require('../common/gacha-engine');
+const { addInventory } = require('../common/inventory');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -22,6 +23,7 @@ async function saveIdempotent(key, result) {
   });
 }
 
+/** 奖池配置引用 items 集合：名称/图标以 items 为准；只出背包道具（配饰/装备） */
 async function loadPool() {
   const res = await db
     .collection('gacha_pool')
@@ -29,14 +31,32 @@ async function loadPool() {
     .orderBy('sortOrder', 'asc')
     .limit(200)
     .get();
-  return (res.data || []).map((d) => ({
-    gachaId: d.gachaId || d.itemId || d._id,
-    name: d.name || '',
-    icon: d.icon || '',
-    rarity: d.rarity || 'N',
-    weight: Number(d.weight) || 1,
-    sortOrder: d.sortOrder || 0,
-  }));
+  const docs = res.data || [];
+  if (!docs.length) return [];
+  const ids = docs.map((d) => d.itemId || d.gachaId).filter(Boolean);
+  const itemRes = await db
+    .collection('items')
+    .where({ id: _.in(ids), enabled: true })
+    .limit(200)
+    .get();
+  const itemMap = new Map((itemRes.data || []).map((it) => [it.id, it]));
+  return docs
+    .map((d) => {
+      const itemId = d.itemId || d.gachaId;
+      const item = itemMap.get(itemId);
+      if (!item || (item.type !== 'accessory' && item.type !== 'equipment')) {
+        return null;
+      }
+      return {
+        gachaId: itemId,
+        name: item.name || '',
+        icon: item.icon || '',
+        rarity: d.rarity || 'N',
+        weight: Number(d.weight) || 1,
+        sortOrder: d.sortOrder || 0,
+      };
+    })
+    .filter(Boolean);
 }
 
 async function loadOwnedSet(openid) {
@@ -139,6 +159,8 @@ async function draw(openid, count, requestId) {
         },
       });
     }
+    /** 扭蛋产出即背包道具：非消耗品，入 user_inventory 供背包携带 */
+    await addInventory(db, _, openid, r.gachaId, 1);
   }
 
   const result = {
