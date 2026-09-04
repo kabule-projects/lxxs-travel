@@ -19,6 +19,10 @@ export const ROOF_SCENE_ASSETS = {
 } as const;
 
 export const ROOF_ASSETS = {
+  /** 顶栏星星计数框（含星星 icon 的整张贴图，数字叠加其上） */
+  pillStar: 'roof/pill-star',
+  /** 顶栏米字星计数框（含米字星 icon 的整张贴图） */
+  pillRice: 'roof/pill-rice',
   star: 'roof/star',
   starRice: 'roof/star-rice',
   magicHat: 'roof/magic-hat',

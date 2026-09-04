@@ -50,13 +50,13 @@
   <view class="roof-hud" style="top: {{hudTop}}px">
     <view class="hud-side hud-side--left" aria-hidden="true"></view>
     <view class="hud-center">
-      <view class="currency-pill">
-        <image class="currency-icon" src="{{assets.iconStar}}" mode="aspectFit" />
-        <text class="currency-num">{{stars}}</text>
+      <view class="currency-pill currency-pill--star">
+        <image class="currency-pill__bg" src="{{assets.pillStar}}" mode="widthFix" />
+        <text class="currency-pill__num">{{stars}}</text>
       </view>
-      <view class="currency-pill">
-        <image class="currency-icon" src="{{assets.iconRiceStar}}" mode="aspectFit" />
-        <text class="currency-num">{{riceStars}}</text>
+      <view class="currency-pill currency-pill--rice">
+        <image class="currency-pill__bg" src="{{assets.pillRice}}" mode="widthFix" />
+        <text class="currency-pill__num">{{riceStars}}</text>
       </view>
     </view>
     <view class="hud-side hud-side--right">

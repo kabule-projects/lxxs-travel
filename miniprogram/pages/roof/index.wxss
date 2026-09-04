@@ -94,28 +94,34 @@
   gap: 16rpx;
   flex: 1;
   min-width: 0;
+  padding-right: 40%;
 }
 
+/* 计数框：整张贴图（框 + 星星 icon 已画进图），数字叠加在贴图右侧留白区 */
 .currency-pill {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  min-width: 120rpx;
-  height: 52rpx;
-  padding: 0 18rpx;
-  box-sizing: border-box;
-  border-radius: 26rpx;
-  border: 3rpx solid #5a3a22;
-  background: #fffaf3;
-}
-
-.currency-icon {
-  width: 36rpx;
-  height: 36rpx;
+  position: relative;
   flex-shrink: 0;
 }
 
-.currency-num {
+/* 两个框宽度分别设置（高度由 widthFix 按贴图比例自适应） */
+.currency-pill--star {
+  width: 240rpx;
+}
+
+.currency-pill--rice {
+  width: 180rpx;
+}
+
+.currency-pill__bg {
+  width: 100%;
+  display: block;
+}
+
+.currency-pill__num {
+  position: absolute;
+  top: 50%;
+  right: 20rpx;
+  transform: translateY(-50%);
   font-size: 28rpx;
   font-weight: 700;
   color: #3a2410;
@@ -216,6 +222,8 @@
 }
 
 .btn-prepare-img {
-  width: 280rpx;
+  width: 240rpx;
+  /* 单独调出发键左右位置（在 footer 左边距基础上叠加），不影响右下角商店/小屋 */
+  margin-left: -20rpx;
   display: block;
 }

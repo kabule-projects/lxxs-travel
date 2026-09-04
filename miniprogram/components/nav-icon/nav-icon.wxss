@@ -13,10 +13,11 @@
   display: block;
 }
 
+/* sm：全站顶栏按钮（返回 / 设置 / 背包 / 物品），改这里全局生效 */
 .nav-icon--sm .nav-icon__img,
 .nav-icon--sm .nav-icon__placeholder {
-  width: 72rpx;
-  height: 72rpx;
+  width: 96rpx;
+  height: 96rpx;
 }
 
 .nav-icon--md .nav-icon__img,

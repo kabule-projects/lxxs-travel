@@ -68,7 +68,7 @@ Page({
     const capsule = readCapsuleRect();
     this.setData({
       // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮
-      hudTop: capsule.bottom + 8,
+      hudTop: capsule.bottom + 12,
       // 底栏贴安全区上沿，底部留间距
       footerBottom: Math.max(safe.bottom, 16) + 8,
     });

@@ -46,6 +46,8 @@
 | NEW 提示 | `roof/mail-tip` | 未读 1–4 |
 | 「满」提示 | `roof/mail-tip-full` | 未读 = 5 |
 | 角色·深 / 标 / 米 | `roof/char-shen` `roof/char-biao` `roof/char-mi` | |
+| 顶栏星星计数框 | `roof/pill-star` | 框 + 星星 icon 整张贴图，数字叠加 |
+| 顶栏米字星计数框 | `roof/pill-rice` | 框 + 米字星 icon 整张贴图 |
 | 顶栏星星 | `icons/home/star` | |
 | 顶栏物品 | `icons/roof/items` | → 物品列表 |
 | 顶栏设置 | `icons/common/settings-grid` | |
@@ -296,6 +298,8 @@ roof/mail-tip
 roof/mail-tip-full
 roof/pigeon
 roof/pigeon-mail
+roof/pill-rice
+roof/pill-star
 roof/star
 roof/star-rice
 settings/panel
