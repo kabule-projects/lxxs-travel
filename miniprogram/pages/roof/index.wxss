@@ -181,10 +181,10 @@
 
 .mail-tip-img {
   position: absolute;
-  top: -4rpx;
-  left: 50%;
+  top: -88rpx;
+  left: 86%;
   transform: translateX(-50%);
-  width: 120rpx;
+  width: 80rpx;
 }
 
 .plus-one {
