@@ -53,9 +53,11 @@ export const ROOF_ASSETS = {
 export const HOME_ASSETS = {
   /** 整页静态背景（家具/角色/装饰合一） */
   room: 'home/room',
+  /** 顶栏星星计数框（同 roof，整张贴图含 icon） */
+  pillStar: 'roof/pill-star',
+  /** 顶栏米字星计数框（同 roof） */
+  pillRice: 'roof/pill-rice',
   btnPrepare: 'home/btn-prepare',
-  iconStar: 'icons/home/star',
-  iconRiceStar: 'roof/star-rice',
   iconBag: 'icons/home/bag',
   iconShop: 'icons/home/shop',
   iconGacha: 'icons/shop/utility-gacha',

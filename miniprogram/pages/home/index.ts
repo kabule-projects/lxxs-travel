@@ -1,6 +1,6 @@
 import { HOME_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
-import { readSafeArea } from '../../utils/device';
+import { readSafeArea, readCapsuleRect } from '../../utils/device';
 import { emit, GameEvent, on } from '../../utils/event-bus';
 import { getRiceStars, getStars, isTraveling } from '../../store/user';
 import { playTap } from '../../services/sound';
@@ -24,8 +24,10 @@ Page({
     riceStars: 0,
     showTravelBanner: false,
     travelBannerMode: 'depart' as 'depart' | 'return',
-    safeTop: 0,
-    safeBottom: 0,
+    /** 顶栏 top：胶囊按钮底边 + 间距，避开右上角关闭/菜单 */
+    hudTop: 0,
+    /** 底栏 bottom：安全区上沿 + 间距 */
+    footerBottom: 0,
     assets: {} as HomeAssets,
     showBag: false,
     showSettings: false,
@@ -39,9 +41,12 @@ Page({
 
   onLoad() {
     const safe = readSafeArea();
+    const capsule = readCapsuleRect();
     this.setData({
-      safeTop: safe.top,
-      safeBottom: Math.max(safe.bottom, 16),
+      // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮
+      hudTop: capsule.bottom + 12,
+      // 底栏贴安全区上沿，底部留间距
+      footerBottom: Math.max(safe.bottom, 16) + 8,
       stars: getStars(),
       riceStars: getRiceStars(),
     });

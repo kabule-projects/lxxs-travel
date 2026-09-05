@@ -4,16 +4,17 @@
   min-height: 100vh;
   box-sizing: border-box;
   overflow: hidden;
-  background: #e5d3b3;
+  background: rgb(248, 236, 196);
 }
 
 .home-page-bg {
   position: absolute;
   left: 0;
-  top: 0;
+  top: 57%;
   width: 100%;
-  height: 100%;
   z-index: 0;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
 .home-overlay {
@@ -24,13 +25,17 @@
   flex-direction: column;
 }
 
-/* ── 顶栏（布局同商店） ── */
+/* ── 顶栏（布局同商店）；top 由内联样式给定，避让右上角胶囊 ── */
 .home-hud {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8rpx 20rpx 0;
-  flex-shrink: 0;
+  padding: 0 20rpx;
+  box-sizing: border-box;
 }
 
 .hud-side {
@@ -56,31 +61,38 @@
   gap: 16rpx;
   flex: 1;
   min-width: 0;
+  padding-right: 40%;
 }
 
+/* 计数框：整张贴图（框 + 星星 icon 已画进图），数字叠加在贴图右侧留白区 */
 .currency-pill {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  min-width: 120rpx;
-  height: 52rpx;
-  padding: 0 18rpx;
-  box-sizing: border-box;
-  border-radius: 26rpx;
-  border: 3rpx solid #5a3a22;
-  background: #fffaf3;
-}
-
-.currency-icon {
-  width: 36rpx;
-  height: 36rpx;
+  position: relative;
   flex-shrink: 0;
 }
 
-.currency-num {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #3a2410;
+/* 两个框宽度分别设置（高度由 widthFix 按贴图比例自适应） */
+.currency-pill--star {
+  width: 255rpx;
+  margin-bottom: 5rpx;
+}
+
+.currency-pill--rice {
+  width: 178rpx;
+}
+
+.currency-pill__bg {
+  width: 100%;
+  display: block;
+}
+
+.currency-pill__num {
+  position: absolute;
+  top: 50%;
+  right: 35rpx;
+  transform: translateY(-50%);
+  font-size: 32rpx;
+  font-weight: 900;
+  color: #634f3cff;
   line-height: 1;
 }
 
@@ -115,17 +127,16 @@
   height: 18%;
 }
 
-/* ── 底栏 ── */
+/* ── 底栏；bottom 由内联样式给定（安全区上沿 + 间距） ── */
 .home-footer {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;
   z-index: 20;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  padding: 0 32rpx 40rpx;
+  padding: 0 32rpx;
   box-sizing: border-box;
   pointer-events: none;
 }

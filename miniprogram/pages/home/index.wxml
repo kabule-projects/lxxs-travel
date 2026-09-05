@@ -1,19 +1,19 @@
-<view class="home" style="padding-top: {{safeTop}}px; padding-bottom: {{safeBottom}}px">
-  <!-- 整页静态背景 -->
-  <image class="home-page-bg" src="{{assets.room}}" mode="aspectFill" />
+<view class="home">
+  <!-- 整页静态背景：宽度铺满屏幕，垂直居中（上下溢出裁剪） -->
+  <image class="home-page-bg" src="{{assets.room}}" mode="widthFix" />
 
   <view class="home-overlay">
-    <!-- 顶栏：双货币（同商店）+ 背包 / 设置 -->
-    <view class="home-hud">
+    <!-- 顶栏：双货币（同商店）+ 背包 / 设置；top 内联，避让右上角胶囊 -->
+    <view class="home-hud" style="top: {{hudTop}}px">
       <view class="hud-side hud-side--left" aria-hidden="true"></view>
       <view class="hud-center">
-        <view class="currency-pill">
-          <image class="currency-icon" src="{{assets.iconStar}}" mode="aspectFit" />
-          <text class="currency-num">{{stars}}</text>
+        <view class="currency-pill currency-pill--star">
+          <image class="currency-pill__bg" src="{{assets.pillStar}}" mode="widthFix" />
+          <text class="currency-pill__num">{{stars}}</text>
         </view>
-        <view class="currency-pill">
-          <image class="currency-icon" src="{{assets.iconRiceStar}}" mode="aspectFit" />
-          <text class="currency-num">{{riceStars}}</text>
+        <view class="currency-pill currency-pill--rice">
+          <image class="currency-pill__bg" src="{{assets.pillRice}}" mode="widthFix" />
+          <text class="currency-pill__num">{{riceStars}}</text>
         </view>
       </view>
       <view class="hud-side hud-side--right">
@@ -41,8 +41,8 @@
 
     <trip-banner visible="{{showTravelBanner}}" mode="{{travelBannerMode}}" />
 
-    <!-- 底栏：准备 + 商店 / 扭蛋 -->
-    <view class="home-footer">
+    <!-- 底栏：准备 + 商店 / 扭蛋；bottom 内联，贴安全区上沿 -->
+    <view class="home-footer" style="bottom: {{footerBottom}}px">
       <view class="footer-left">
         <image
           wx:if="{{assets.btnPrepare}}"
