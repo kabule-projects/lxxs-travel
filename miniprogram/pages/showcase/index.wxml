@@ -49,6 +49,26 @@
 
   <view class="page-hint">{{pageIndex + 1}} / {{totalPages}}</view>
 
+  <!-- 物品栏调试层：常态显示的方块网格，复刻 item 排列逻辑（4 行 × 每行 2 格），
+       仅用于对位调整，不响应点击；调完删除此块与对应 wxss -->
+  <view class="inv-tune">
+    <view
+      class="inv-tune__row"
+      wx:for="{{[0, 1, 2, 3]}}"
+      wx:for-item="row"
+      wx:for-index="r"
+      wx:key="*this"
+    >
+      <view
+        class="inv-tune__cell"
+        wx:for="{{[0, 1]}}"
+        wx:for-item="col"
+        wx:for-index="c"
+        wx:key="*this"
+      >{{r * 2 + c + 1}}</view>
+    </view>
+  </view>
+
   <showcase-detail
     visible="{{detailVisible}}"
     title="{{detailTitle}}"
