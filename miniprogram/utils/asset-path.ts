@@ -57,6 +57,10 @@ export const HOME_ASSETS = {
   pillStar: 'roof/pill-star',
   /** 顶栏米字星计数框（同 roof） */
   pillRice: 'roof/pill-rice',
+  /** 窗户贴图：叠在背景上，点击进入屋顶 */
+  window: 'home/window',
+  /** 纯装饰贴图：盖在窗户图层之上，无交互 */
+  biaoBag: 'home/biao-bag',
   btnPrepare: 'home/btn-prepare',
   iconBag: 'icons/home/bag',
   iconShop: 'icons/home/shop',

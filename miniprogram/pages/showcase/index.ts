@@ -1,6 +1,6 @@
 import { SHOWCASE_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
-import { readSafeArea } from '../../utils/device';
+import { readCapsuleRect } from '../../utils/device';
 import { playTap } from '../../services/sound';
 import { navigateBack } from '../../utils/nav';
 import GAME from '../../utils/constants';
@@ -66,7 +66,8 @@ function buildPages(items: ShowcaseItemView[]): {
 
 Page({
   data: {
-    safeTop: 0,
+    /** 顶栏 padding-top：胶囊按钮底边 + 间距，避开右上角关闭/菜单 */
+    hudTop: 0,
     assets: {} as PageAssets,
     pages: [] as ShelfPage[],
     pageIndex: 0,
@@ -81,8 +82,9 @@ Page({
   _items: [] as ShowcaseItemView[],
 
   onLoad() {
-    const safe = readSafeArea();
-    this.setData({ safeTop: Math.max(safe.top, 16) });
+    const capsule = readCapsuleRect();
+    // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮（同 home/roof）
+    this.setData({ hudTop: capsule.bottom + 12 });
     this.loadAssets();
     this.reload();
   },

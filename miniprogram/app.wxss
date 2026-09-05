@@ -1,3 +1,33 @@
 page {
   height: 100%;
 }
+
+/* ── 贴图计数框（roof/home 等页共用）：整张贴图（框+icon 已画进图），数字叠加其上 ──
+   调数字位置/大小只改这里的 .currency-pill__num，所有页面同时生效；
+   各页面用 --star/--rice 等 modifier 自定义宽度 */
+.currency-pill {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.currency-pill__bg {
+  width: 100%;
+  display: block;
+}
+
+.currency-pill__num {
+  position: absolute;
+  top: 50%;
+  right: 35rpx;
+  transform: translateY(-50%);
+  font-size: 32rpx;
+  font-weight: 900;
+  color: #634f3cff;
+  line-height: 1;
+}
+
+/* star 框数字：单独覆盖 star pill 的文字位置（rice 框仍用上面全局值） */
+.currency-pill--star .currency-pill__num {
+  top: 53%;
+  right: 38rpx;
+}

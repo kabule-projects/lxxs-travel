@@ -88,6 +88,18 @@
   align-items: flex-end;
   justify-content: center;
   pointer-events: auto;
+  /* TODO 调试：蓝色底=格子范围(140)，调完删除 */
+  background: rgba(0, 120, 255, 0.12);
+  outline: 1rpx solid rgba(0, 120, 255, 0.45);
+}
+
+/* TODO 调试：红色方块=icon 实际占位(120，底部对齐)，调完删除 */
+.slot::after {
+  content: '';
+  width: 120rpx;
+  height: 120rpx;
+  background: rgba(255, 80, 80, 0.4);
+  border-radius: 8rpx;
 }
 
 .slot--empty {

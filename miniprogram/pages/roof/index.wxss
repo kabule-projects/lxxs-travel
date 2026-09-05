@@ -99,13 +99,7 @@
   padding-right: 40%;
 }
 
-/* 计数框：整张贴图（框 + 星星 icon 已画进图），数字叠加在贴图右侧留白区 */
-.currency-pill {
-  position: relative;
-  flex-shrink: 0;
-}
-
-/* 两个框宽度分别设置（高度由 widthFix 按贴图比例自适应） */
+/* 计数框：基础样式 + 数字定位在 app.wxss 全局定义，此处只管两个框各自的宽度 */
 .currency-pill--star {
   width: 255rpx;
   margin-bottom: 5rpx;
@@ -113,22 +107,6 @@
 
 .currency-pill--rice {
   width: 178rpx;
-}
-
-.currency-pill__bg {
-  width: 100%;
-  display: block;
-}
-
-.currency-pill__num {
-  position: absolute;
-  top: 50%;
-  right: 35rpx;
-  transform: translateY(-50%);
-  font-size: 32rpx;
-  font-weight: 900;
-  color: #634f3cff;
-  line-height: 1;
 }
 
 /* ── 鸽子（屋顶右侧，星星堆在其左下） ──

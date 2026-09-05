@@ -3,6 +3,16 @@
   <image class="home-page-bg" src="{{assets.room}}" mode="widthFix" />
 
   <view class="home-overlay">
+    <!-- 窗户：叠在背景上，点击进入屋顶；位置/大小按屏幕百分比调 -->
+    <image
+      class="home-window"
+      src="{{assets.window}}"
+      mode="widthFix"
+      bindtap="onTapWindow"
+    />
+    <!-- 标包装饰：纯装饰贴图，盖在窗户图层之上，无交互 -->
+    <image class="home-biao-bag" src="{{assets.biaoBag}}" mode="widthFix" />
+
     <!-- 顶栏：双货币（同商店）+ 背包 / 设置；top 内联，避让右上角胶囊 -->
     <view class="home-hud" style="top: {{hudTop}}px">
       <view class="hud-side hud-side--left" aria-hidden="true"></view>

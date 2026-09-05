@@ -210,6 +210,12 @@ Page({
     navigateTo('/pages/showcase/index');
   },
 
+  /** 点击窗户 → 进入屋顶页 */
+  onTapWindow() {
+    playTap();
+    navigateTo('/pages/roof/index');
+  },
+
   /** 衣柜交互 Phase2 再开放 */
   // onTapWardrobe() {}
 

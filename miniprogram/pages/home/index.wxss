@@ -25,6 +25,25 @@
   flex-direction: column;
 }
 
+/* 窗户：叠在背景上，位置/大小按屏幕百分比（相对 .home-overlay 即视口） */
+.home-window {
+  position: absolute;
+  right: 28%;
+  top: 24.5%;
+  width: 16.5%;
+  z-index: 5;
+}
+
+/* 标包装饰：盖在窗户(z5)之上，无交互；位置/大小按屏幕百分比调 */
+.home-biao-bag {
+  position: absolute;
+  left: 42.5%;
+  top: 31.5%;
+  width: 19%;
+  z-index: 6;
+  pointer-events: none;
+}
+
 /* ── 顶栏（布局同商店）；top 由内联样式给定，避让右上角胶囊 ── */
 .home-hud {
   position: absolute;
@@ -64,13 +83,7 @@
   padding-right: 40%;
 }
 
-/* 计数框：整张贴图（框 + 星星 icon 已画进图），数字叠加在贴图右侧留白区 */
-.currency-pill {
-  position: relative;
-  flex-shrink: 0;
-}
-
-/* 两个框宽度分别设置（高度由 widthFix 按贴图比例自适应） */
+/* 计数框：基础样式 + 数字定位在 app.wxss 全局定义，此处只管两个框各自的宽度 */
 .currency-pill--star {
   width: 255rpx;
   margin-bottom: 5rpx;
@@ -78,22 +91,6 @@
 
 .currency-pill--rice {
   width: 178rpx;
-}
-
-.currency-pill__bg {
-  width: 100%;
-  display: block;
-}
-
-.currency-pill__num {
-  position: absolute;
-  top: 50%;
-  right: 35rpx;
-  transform: translateY(-50%);
-  font-size: 32rpx;
-  font-weight: 900;
-  color: #634f3cff;
-  line-height: 1;
 }
 
 /* ── 家具热区 ── */
@@ -107,24 +104,24 @@
 }
 
 .hotspot-showcase {
-  left: 2%;
-  top: 14%;
-  width: 22%;
-  height: 38%;
+  left: 5%;
+  top: 32%;
+  width: 36%;
+  height: 22%;
 }
 
 .hotspot-wardrobe {
   right: 2%;
-  top: 22%;
-  width: 26%;
-  height: 34%;
+  top: 35%;
+  width: 32%;
+  height: 20%;
 }
 
 .hotspot-diary {
-  left: 30%;
-  top: 52%;
-  width: 22%;
-  height: 18%;
+  left: 26%;
+  top: 55.5%;
+  width: 20%;
+  height: 5%;
 }
 
 /* ── 底栏；bottom 由内联样式给定（安全区上沿 + 间距） ── */

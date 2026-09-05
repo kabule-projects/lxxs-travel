@@ -1,7 +1,8 @@
 <view class="showcase">
   <image class="showcase-page-bg" src="{{assets.cabinet}}" mode="aspectFill" />
 
-  <view class="hud" style="padding-top: {{safeTop}}px">
+  <!-- 顶栏：padding-top 内联，整体落到胶囊下方（同 home/roof） -->
+  <view class="hud" style="padding-top: {{hudTop}}px">
     <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
     <nav-icon src="{{assets.iconGrid}}" label="设置" size="sm" bind:tap="onTapSettings" />
   </view>
