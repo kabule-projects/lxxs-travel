@@ -19,27 +19,26 @@
   justify-content: center;
 }
 
+/* 面板由贴图定形（1029×1369 竖版）：widthFix 定高，尺寸/圆角/边框全部来自贴图 */
 .sett-panel {
   position: relative;
   width: 600rpx;
-  min-height: 520rpx;
-  /* 顶部留白给背景内嵌的「设置」标题 */
-  padding: 120rpx 40rpx 40rpx;
-  box-sizing: border-box;
-  overflow: hidden;
-  border-radius: 40rpx;
-  background: #fff4d1;
-  border: 4rpx solid #d4a574;
 }
 
 .sett-panel-bg {
-  position: absolute;
-  left: 0;
-  top: 0;
+  display: block;
   width: 100%;
-  height: 100%;
-  z-index: 0;
-  pointer-events: none;
+}
+
+/* 内容区相对贴图百分比定位；top 需让开贴图内嵌的标题 */
+.sett-content {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 23%;
+  bottom: 6%;
+  display: flex;
+  flex-direction: column;
 }
 
 .sett-row {
@@ -47,48 +46,21 @@
   z-index: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 28rpx;
-  padding: 0 8rpx;
-}
-
-.sett-label {
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #5a3a22;
-  letter-spacing: 2rpx;
+  justify-content: flex-end;
+  margin-bottom: 67rpx;
+  margin-right: 10rpx;
 }
 
 .sett-toggle {
+  /* toggle 大小：width 定宽，高度随切图比例 */
   width: 140rpx;
-  height: 64rpx;
 }
 
-.sett-row--notify .sett-notify-btns {
-  display: flex;
-  gap: 12rpx;
-}
-
-.sett-notify-btn {
-  min-width: 72rpx;
-  padding: 10rpx 20rpx;
-  border-radius: 999rpx;
-  text-align: center;
-  font-size: 26rpx;
-  font-weight: 700;
-  color: #8a6a4a;
-  background: #f0dcc0;
-}
-
-.sett-notify-btn--on {
-  color: #fff8ee;
-  background: #c47a3a;
-}
-
+/* user-bar 起到底部锚点作用：margin-top:auto 把它和 footer 一起压到内容区底部 */
 .sett-user-bar {
   position: relative;
   z-index: 1;
-  margin-top: 12rpx;
+  margin-top: auto;
   height: 72rpx;
   display: flex;
   align-items: center;
@@ -108,7 +80,7 @@
 .sett-user-id {
   position: relative;
   z-index: 1;
-  font-size: 26rpx;
+  font-size: 22rpx;
   font-weight: 600;
   color: #fff8ee;
   letter-spacing: 1rpx;

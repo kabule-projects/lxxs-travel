@@ -1,45 +1,46 @@
 <view class="sett-root" wx:if="{{visible}}">
   <view class="sett-backdrop" catchtap="onClose">
     <view class="sett-panel" catchtap="onStop">
-      <image class="sett-panel-bg" src="{{assets.panel}}" mode="scaleToFill" />
+      <image class="sett-panel-bg" src="{{assets.panel}}" mode="widthFix" />
 
-      <view class="sett-row">
-        <text class="sett-label">音乐</text>
-        <image
-          class="sett-toggle"
-          src="{{musicEnabled ? assets.toggleOn : assets.toggleOff}}"
-          mode="widthFix"
-          catchtap="onToggleMusic"
-        />
-      </view>
-
-      <view class="sett-row">
-        <text class="sett-label">音效</text>
-        <image
-          class="sett-toggle"
-          src="{{sfxEnabled ? assets.toggleOn : assets.toggleOff}}"
-          mode="widthFix"
-          catchtap="onToggleSfx"
-        />
-      </view>
-
-      <!-- 通知：UI 预留，暂不上线 -->
-      <view class="sett-row sett-row--notify" wx:if="{{false}}">
-        <text class="sett-label">通知</text>
-        <view class="sett-notify-btns">
-          <view class="sett-notify-btn sett-notify-btn--on">开</view>
-          <view class="sett-notify-btn">关</view>
+      <view class="sett-content">
+        <view class="sett-row">
+          <image
+            class="sett-toggle"
+            src="{{musicEnabled ? assets.toggleOn : assets.toggleOff}}"
+            mode="widthFix"
+            catchtap="onToggleMusic"
+          />
         </view>
-      </view>
 
-      <view class="sett-user-bar">
-        <image class="sett-user-bar-bg" src="{{assets.userIdBar}}" mode="scaleToFill" />
-        <text class="sett-user-id">用户ID : {{userId || '—'}}</text>
-      </view>
+        <view class="sett-row">
+          <image
+            class="sett-toggle"
+            src="{{sfxEnabled ? assets.toggleOn : assets.toggleOff}}"
+            mode="widthFix"
+            catchtap="onToggleSfx"
+          />
+        </view>
 
-      <view class="sett-footer">
-        <text class="sett-version">版本 : {{appVersion}}</text>
-        <text class="sett-brand">SHENSHEN'S JOURNEYS</text>
+        <!-- 通知：真实逻辑未接（需订阅消息 API），当前仅切换视觉状态 -->
+        <view class="sett-row">
+          <image
+            class="sett-toggle"
+            src="{{notifyEnabled ? assets.toggleOn : assets.toggleOff}}"
+            mode="widthFix"
+            catchtap="onToggleNotify"
+          />
+        </view>
+
+        <view class="sett-user-bar">
+          <image class="sett-user-bar-bg" src="{{assets.userIdBar}}" mode="scaleToFill" />
+          <text class="sett-user-id">用户ID : {{userId || '—'}}</text>
+        </view>
+
+        <view class="sett-footer">
+          <text class="sett-version">版本 : {{appVersion}}</text>
+          <text class="sett-brand">SHENSHEN'S JOURNEYS</text>
+        </view>
       </view>
     </view>
   </view>

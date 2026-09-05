@@ -17,6 +17,8 @@ Component({
   data: {
     musicEnabled: true,
     sfxEnabled: true,
+    /** 通知开关：真实逻辑未接（订阅消息 API），暂仅视觉状态 */
+    notifyEnabled: false,
     userId: '',
     appVersion: GAME.APP_VERSION,
     assets: {
@@ -70,6 +72,12 @@ Component({
       const next = !this.data.sfxEnabled;
       setSfxEnabled(next);
       this.setData({ sfxEnabled: next });
+    },
+
+    /** TODO: 接订阅消息（wx.requestSubscribeMessage）；当前仅切换视觉状态，不持久化 */
+    onToggleNotify() {
+      playTap();
+      this.setData({ notifyEnabled: !this.data.notifyEnabled });
     },
   },
 });
