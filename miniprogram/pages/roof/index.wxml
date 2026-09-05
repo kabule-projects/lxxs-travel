@@ -11,6 +11,7 @@
       type="{{item.type}}"
       src="{{item.type === 'rice' ? assets.starRice : assets.star}}"
       glowSrc="{{assets.starGlow}}"
+      glowDelay="{{-index * 0.4}}"
       left="{{item.displayLeft}}"
       top="{{item.displayTop}}"
       rotate="{{item.status === 'pending' ? 0 : item.rotate}}"
@@ -27,8 +28,8 @@
     <image class="char-biao" src="{{assets.charBiao}}" mode="widthFix" />
   </view>
 
-  <!-- 鸽子 + 魔术帽（静态装饰 + 信箱入口） -->
-  <view class="pigeon-spot" bindtap="onTapPigeon">
+  <!-- 鸽子 + 魔术帽（静态装饰 + 信箱入口）；点击热区独立覆盖在所有图层之上 -->
+  <view class="pigeon-spot">
     <image class="magic-hat-img" src="{{assets.magicHat}}" mode="aspectFit" />
     <image
       wx:if="{{pigeonState !== 'away' && !flyAway}}"
@@ -50,6 +51,8 @@
       mode="widthFix"
     />
     <text class="plus-one" wx:if="{{plusOneVisible}}" wx:key="plusOneSeq">+1</text>
+    <!-- 点击热区：最上层透明覆盖，范围在 .pigeon-hit 调整 -->
+    <view class="pigeon-hit" bindtap="onTapPigeon"></view>
   </view>
 
   <trip-banner visible="{{showTravelBanner}}" mode="{{travelBannerMode}}" />

@@ -5,6 +5,8 @@ Component({
     type: { type: String, value: 'normal' },
     src: { type: String, value: '' },
     glowSrc: { type: String, value: '' },
+    /** 闪烁相位（秒，负值）：由页面按列表序号传入，保证各星首帧即错开 */
+    glowDelay: { type: Number, value: 0 },
     left: { type: Number, value: 0 },
     top: { type: Number, value: 0 },
     rotate: { type: Number, value: 0 },
@@ -14,14 +16,6 @@ Component({
 
   data: {
     failed: false,
-    /** 闪烁动画随机相位（负延迟，初始即处于周期中任意点，避免整屏同步） */
-    glowDelay: 0,
-  },
-
-  lifetimes: {
-    attached() {
-      this.setData({ glowDelay: -Math.random() * 3 });
-    },
   },
 
   methods: {

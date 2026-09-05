@@ -4,6 +4,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* 父层 .sky-layer 关闭了命中，星星本体重新开启（容器空白处不挡鸽子/背景点击） */
+  pointer-events: auto;
 }
 
 .star-item--pending {
