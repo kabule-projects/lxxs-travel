@@ -1,6 +1,6 @@
 <view class="inv-mask" wx:if="{{visible}}" catchtap="onClose">
   <view class="inv-panel" catchtap="onStop">
-    <image class="inv-panel-bg" src="{{panelBg}}" mode="scaleToFill" />
+    <image class="inv-panel-bg" src="{{panelBg}}" mode="widthFix" />
     <icon-close class="inv-close" src="{{iconClose}}" size="{{64}}" bind:tap="onClose" />
 
     <view class="inv-content">
@@ -8,14 +8,14 @@
         <image
           class="inv-tab {{tab === 'food' ? 'inv-tab--on' : ''}}"
           src="{{tab === 'food' ? tabFoodOn : tabFood}}"
-          mode="heightFix"
+          mode="widthFix"
           data-tab="food"
           catchtap="onTapTab"
         />
         <image
           class="inv-tab {{tab === 'prop' ? 'inv-tab--on' : ''}}"
           src="{{tab === 'prop' ? tabPropOn : tabProp}}"
-          mode="heightFix"
+          mode="widthFix"
           data-tab="prop"
           catchtap="onTapTab"
         />
@@ -24,7 +24,7 @@
         <image
           class="inv-tab inv-tab--on"
           src="{{lockTab === 'prop' ? tabPropOn : tabFoodOn}}"
-          mode="heightFix"
+          mode="widthFix"
         />
       </view>
 

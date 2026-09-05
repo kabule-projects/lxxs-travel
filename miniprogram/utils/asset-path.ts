@@ -28,6 +28,8 @@ export const ROOF_ASSETS = {
   magicHat: 'roof/magic-hat',
   pigeon: 'roof/pigeon',
   pigeonMail: 'roof/pigeon-mail',
+  /** 飞行动图（临时：常驻叠在 pigeon 上供调位置大小，调好后改接 flyAway） */
+  pigeonFly: 'roof/pigeon-fly',
   /** 未读提示 NEW（未满） */
   mailTip: 'roof/mail-tip',
   /** 未读已满提示「满」（= PIGEON_MAIL_CAP） */

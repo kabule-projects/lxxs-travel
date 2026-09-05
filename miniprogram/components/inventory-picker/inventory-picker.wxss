@@ -22,60 +22,56 @@
   width: 100%;
 }
 
+/* 内容区仅为定位上下文：tabs 与 list 各自绝对定位，位置互不影响 */
 .inv-content {
   position: absolute;
   left: 5.5%;
   right: 5.5%;
   top: 8.5%;
   bottom: 5.5%;
-  display: flex;
-  flex-direction: column;
 }
 
 .inv-close {
   position: absolute;
-  top: 2%;
-  right: 3%;
+  top: -8%;
+  right: 2%;
   z-index: 2;
 }
 
 .inv-tabs {
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  left: 5%;
+  right: 0;
+  top: -20.6%;
+  z-index: 2;
   display: flex;
   align-items: flex-end;
-  gap: 12rpx;
-  margin-bottom: 16rpx;
-  margin-top: 8rpx;
-  min-height: 80rpx;
+  gap: 20rpx;
 }
 
 .inv-tabs--locked {
   justify-content: flex-start;
 }
 
-/* 未选中较矮；选中增高一截（切图本身也应更高） */
+/* widthFix：宽度直接设定，高度随切图比例；选中态更高由切图本身体现 */
 .inv-tab {
-  height: 56rpx;
-  max-width: 48%;
+  width: 110rpx;
   flex-shrink: 0;
 }
 
-.inv-tab--on {
-  height: 80rpx;
-}
-
+/* 列表：独立的顶部边界，与 tab 高度/位置无关 */
 .inv-list {
-  position: relative;
-  z-index: 1;
-  flex: 1;
-  min-height: 0;
+  position: absolute;
+  left: -5%;
+  right: 0;
+  top: 80rpx;
+  bottom: 0;
 }
 
 .inv-card {
   position: relative;
   margin-bottom: 16rpx;
-  min-height: 140rpx;
+  min-height: 150rpx;
   overflow: hidden;
 }
 

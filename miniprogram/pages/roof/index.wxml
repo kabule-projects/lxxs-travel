@@ -30,10 +30,17 @@
   <view class="pigeon-spot" bindtap="onTapPigeon">
     <image class="magic-hat-img" src="{{assets.magicHat}}" mode="aspectFit" />
     <image
-      wx:if="{{pigeonState !== 'away' || flyAway}}"
-      class="pigeon-img {{pigeonState === 'mail' ? 'pigeon-img--mail' : ''}} {{flyAway ? 'pigeon-img--fly' : ''}}"
-      src="{{pigeonState === 'mail' && !flyAway ? assets.pigeonMail : assets.pigeon}}"
+      wx:if="{{pigeonState !== 'away' && !flyAway}}"
+      class="pigeon-img {{pigeonState === 'mail' ? 'pigeon-img--mail' : ''}}"
+      src="{{pigeonState === 'mail' ? assets.pigeonMail : assets.pigeon}}"
       mode="aspectFit"
+    />
+    <!-- 起飞动图：flyAway 窗口内插入，从调定的起始位（left/top/width）直接播放飞出动画 -->
+    <image
+      wx:if="{{flyAway}}"
+      class="pigeon-fly-img pigeon-fly-img--go"
+      src="{{assets.pigeonFly}}"
+      mode="widthFix"
     />
     <image
       wx:if="{{pigeonState === 'mail' && !flyAway}}"

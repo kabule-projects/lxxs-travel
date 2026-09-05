@@ -150,17 +150,33 @@
   height: 100%;
 }
 
-.pigeon-img {
-  transition: transform 0.9s ease-in, opacity 0.9s ease-in;
-}
-
 .pigeon-img--mail {
   filter: drop-shadow(0 0 8rpx rgba(232, 146, 58, 0.55));
 }
 
-.pigeon-img--fly {
-  transform: translate(120rpx, -220rpx) scale(0.4);
-  opacity: 0;
+/* pigeon-fly 动图
+   left/top/width 即起飞起始位（调定：left 13% / top -25% / width 190rpx） */
+.pigeon-fly-img {
+  position: absolute;
+  left: 13%;
+  top: -25%;
+  width: 190rpx;
+}
+
+/* 飞出：从起始位右上位移 + 缩小 + 淡出；0.9s 与 _flyTimer 950ms 匹配 */
+.pigeon-fly-img--go {
+  animation: pigeon-fly-go 0.9s ease-in forwards;
+}
+
+@keyframes pigeon-fly-go {
+  from {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(120rpx, -220rpx) scale(0.4);
+    opacity: 0;
+  }
 }
 
 .mail-tip-img {
