@@ -26,6 +26,10 @@ Component({
       toggleOn: '',
       toggleOff: '',
       userIdBar: '',
+      notifyOnSel: '',
+      notifyOnUnsel: '',
+      notifyOffSel: '',
+      notifyOffUnsel: '',
     },
   },
 
@@ -75,9 +79,14 @@ Component({
     },
 
     /** TODO: 接订阅消息（wx.requestSubscribeMessage）；当前仅切换视觉状态，不持久化 */
-    onToggleNotify() {
+    onNotifyOn() {
       playTap();
-      this.setData({ notifyEnabled: !this.data.notifyEnabled });
+      if (!this.data.notifyEnabled) this.setData({ notifyEnabled: true });
+    },
+
+    onNotifyOff() {
+      playTap();
+      if (this.data.notifyEnabled) this.setData({ notifyEnabled: false });
     },
   },
 });

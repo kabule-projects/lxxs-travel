@@ -10,6 +10,7 @@
       kind="{{item.status === 'pending' ? 'pending' : 'dropped'}}"
       type="{{item.type}}"
       src="{{item.type === 'rice' ? assets.starRice : assets.star}}"
+      glowSrc="{{assets.starGlow}}"
       left="{{item.displayLeft}}"
       top="{{item.displayTop}}"
       rotate="{{item.status === 'pending' ? 0 : item.rotate}}"

@@ -35,7 +35,7 @@
   position: absolute;
   left: 8%;
   right: 8%;
-  top: 23%;
+  top: 22%;
   bottom: 6%;
   display: flex;
   flex-direction: column;
@@ -47,39 +47,47 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-bottom: 67rpx;
-  margin-right: 10rpx;
+  margin-bottom: 64›rpx;
+  margin-right: 23%;
 }
 
 .sett-toggle {
   /* toggle 大小：width 定宽，高度随切图比例 */
-  width: 140rpx;
+  width: 150rpx;
 }
 
-/* user-bar 起到底部锚点作用：margin-top:auto 把它和 footer 一起压到内容区底部 */
+/* 通知行：开/关两按钮同显居中 */
+.sett-row--notify {
+  justify-content: center;
+  margin-right: -20%;
+  gap: 24rpx;
+}
+
+.sett-notify-btn {
+  /* 单个通知按钮大小：width 定宽，高度随切图比例 */
+  width: 96rpx;
+}
+
+/* user-bar：贴图即整条 bar（widthFix 定形），文字绝对居中叠放 */
 .sett-user-bar {
   position: relative;
   z-index: 1;
   margin-top: auto;
-  height: 72rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
 }
 
 .sett-user-bar-bg {
-  position: absolute;
-  left: 0;
-  top: 0;
+  display: block;
   width: 100%;
-  height: 100%;
-  border-radius: 999rpx;
-  background: #8b5a3c;
 }
 
 .sett-user-id {
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  text-align: center;
   font-size: 22rpx;
   font-weight: 600;
   color: #fff8ee;

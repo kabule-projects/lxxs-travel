@@ -22,18 +22,25 @@
           />
         </view>
 
-        <!-- 通知：真实逻辑未接（需订阅消息 API），当前仅切换视觉状态 -->
-        <view class="sett-row">
+        <!-- 通知：开/关两个按钮常驻同显，各自按状态切 selected/unselected 贴图；真实订阅逻辑未接 -->
+        <view class="sett-row sett-row--notify">
           <image
-            class="sett-toggle"
-            src="{{notifyEnabled ? assets.toggleOn : assets.toggleOff}}"
+            class="sett-notify-btn"
+            src="{{notifyEnabled ? assets.notifyOnSel : assets.notifyOnUnsel}}"
             mode="widthFix"
-            catchtap="onToggleNotify"
+            catchtap="onNotifyOn"
+          />
+          <image
+            class="sett-notify-btn"
+            src="{{!notifyEnabled ? assets.notifyOffSel : assets.notifyOffUnsel}}"
+            mode="widthFix"
+            catchtap="onNotifyOff"
           />
         </view>
 
+        <!-- id bar：贴图即整条 bar，文字叠在贴图居中区 -->
         <view class="sett-user-bar">
-          <image class="sett-user-bar-bg" src="{{assets.userIdBar}}" mode="scaleToFill" />
+          <image class="sett-user-bar-bg" src="{{assets.userIdBar}}" mode="widthFix" />
           <text class="sett-user-id">用户ID : {{userId || '—'}}</text>
         </view>
 

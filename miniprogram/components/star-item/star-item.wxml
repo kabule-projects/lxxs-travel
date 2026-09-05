@@ -3,6 +3,7 @@
   style="left: {{left}}%; top: {{top}}%; transform: rotate({{rotate}}deg); z-index: {{zIndex}};"
   catchtap="onTap"
 >
+  <image wx:if="{{glowSrc}}" class="star-item__glow" src="{{glowSrc}}" mode="aspectFit" style="animation-delay: {{glowDelay}}s;" />
   <image
     wx:if="{{src && !failed}}"
     class="star-item__img"

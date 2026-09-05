@@ -25,6 +25,8 @@ export const ROOF_ASSETS = {
   pillRice: 'roof/pill-rice',
   star: 'roof/star',
   starRice: 'roof/star-rice',
+  /** 星星光晕贴图：垫在星星下层，与 pending 态 CSS 光晕（box-shadow）叠加 */
+  starGlow: 'roof/star-glow',
   magicHat: 'roof/magic-hat',
   pigeon: 'roof/pigeon',
   pigeonMail: 'roof/pigeon-mail',
@@ -187,6 +189,11 @@ export const SETTINGS_ASSETS = {
   toggleOn: 'settings/toggle-on',
   toggleOff: 'settings/toggle-off',
   userIdBar: 'settings/user-id-bar',
+  /** 通知开/关两个按钮常驻同显；-selected 选中态，-us(unselected) 未选中态 */
+  notifyOnSel: 'settings/notification-on-selected',
+  notifyOnUnsel: 'settings/notification-on-us',
+  notifyOffSel: 'settings/notification-off-selected',
+  notifyOffUnsel: 'settings/notification-off-us',
 } as const;
 
 export const HOME_IDLE_ASSETS: Record<(typeof GAME.IDLE_POSES)[number], string> = {

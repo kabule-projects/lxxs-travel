@@ -25,19 +25,51 @@
   pointer-events: none;
 }
 
-.star-item--pending .star-item__img,
-.star-item--pending .star-item__fallback {
-  position: relative;
-  z-index: 1;
-}
-
 .star-item--dropped {
   width: 72rpx;
 }
 
+/* 光晕贴图：以星图中心为锚垫底；box-shadow 光晕保留，两层叠加；不透明度 60%↔100% 循环闪烁 */
+.star-item__glow {
+  position: absolute;
+  left: 50%;
+  top: 36rpx; /* dropped：星图 72rpx 的中心 */
+  width: 130rpx;
+  height: 130rpx;
+  margin-left: -65rpx;
+  margin-top: -65rpx;
+  z-index: 0;
+  pointer-events: none;
+  animation: glow-pulse 3.0s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.star-item--pending .star-item__glow {
+  top: 50rpx;
+  width: 180rpx;
+  height: 180rpx;
+  margin-left: -92rpx;
+  margin-top: -92rpx;
+}
+
+.star-item__img,
+.star-item__fallback {
+  position: relative;
+  z-index: 1;
+}
+
 .star-item__img {
   width: 100%;
-  height: 88rpx;
+  height: 92rpx;
   display: block;
   filter: drop-shadow(0 0 12rpx rgba(255, 255, 255, 0.7));
 }
