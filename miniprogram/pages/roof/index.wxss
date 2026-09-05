@@ -105,11 +105,11 @@
 
 /* 两个框宽度分别设置（高度由 widthFix 按贴图比例自适应） */
 .currency-pill--star {
-  width: 240rpx;
+  width: 250rpx;
 }
 
 .currency-pill--rice {
-  width: 180rpx;
+  width: 178rpx;
 }
 
 .currency-pill__bg {
@@ -128,30 +128,29 @@
   line-height: 1;
 }
 
-/* ── 鸽子（屋顶右侧，星星堆在其左下） ── */
+/* ── 鸽子（屋顶右侧，星星堆在其左下） ──
+   pigeon / pigeon-mail / magic-hat 三张图来自同一画布的图层导出，
+   必须同尺寸同位置叠放才能对齐：统一铺满 .pigeon-spot，对齐由画面内容保证。
+   调整整组大小只改 .pigeon-spot 的 width/height（保持正方形）；位置改 right/bottom。 */
 .pigeon-spot {
   position: absolute;
   right: 5%;
   bottom: 24%;
   z-index: 6;
-  width: 160rpx;
+  width: 180rpx;
   height: 180rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
-.magic-hat-img {
-  width: 108rpx;
-  height: 76rpx;
-  margin-top: auto;
+.magic-hat-img,
+.pigeon-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .pigeon-img {
-  position: absolute;
-  bottom: 62rpx;
-  width: 96rpx;
-  height: 96rpx;
   transition: transform 0.9s ease-in, opacity 0.9s ease-in;
 }
 
