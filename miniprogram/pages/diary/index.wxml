@@ -1,49 +1,50 @@
 <view class="diary">
-  <image class="diary-frame-bg" src="{{assets.frame}}" mode="aspectFill" />
+  <!-- frame 宽撑满屏幕、垂直居中；页内元素均按 frame 边缘百分比定位 -->
   <view class="diary-frame">
-    <view class="diary-hud" style="padding-top: {{safeTop}}px">
+    <image class="diary-frame-bg" src="{{assets.frame}}" mode="scaleToFill" />
+
+    <view class="diary-hud" style="top: {{hudTop}}px">
       <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
       <nav-icon src="{{assets.iconGrid}}" label="设置" size="sm" bind:tap="onTapSettings" />
     </view>
 
-    <view class="notebook">
-      <!-- 笔记本底已含书脊 / 天气 / 吉祥物 -->
-      <image class="notebook-bg" src="{{assets.notebook}}" mode="aspectFill" />
+    <!-- 笔记本底已含书脊 / 天气 / 吉祥物；widthFix 等比 -->
+    <image class="notebook-bg" src="{{assets.notebook}}" mode="widthFix" />
 
-      <view class="notebook-tabs">
-        <image class="tab-img tab-img--active" src="{{assets.tabActive}}" mode="aspectFit" />
-        <image class="tab-img" src="{{assets.tab}}" mode="aspectFit" />
-        <image class="tab-img" src="{{assets.tab}}" mode="aspectFit" />
-        <image class="tab-img" src="{{assets.tab}}" mode="aspectFit" />
-      </view>
-
-      <scroll-view class="grid-scroll" scroll-y>
-        <view class="grid">
-          <view
-            wx:for="{{gridSlots}}"
-            wx:key="key"
-            class="grid-cell"
-            data-index="{{item.entryIndex}}"
-            bindtap="onTapEntry"
-          >
-            <!-- 半透明浅紫底格（对齐设计稿） -->
-            <view class="grid-cell-plate"></view>
-            <image
-              wx:if="{{item.imageThumb}}"
-              class="grid-thumb"
-              src="{{item.imageThumb}}"
-              mode="aspectFill"
-            />
-            <image
-              wx:elif="{{item.imageFull}}"
-              class="grid-thumb"
-              src="{{item.imageFull}}"
-              mode="aspectFill"
-            />
-          </view>
-        </view>
-      </scroll-view>
+    <!-- 标签页：底边贴笔记本顶边，激活标签更高 -->
+    <view class="notebook-tabs">
+      <image class="tab-img tab-img--active" src="{{assets.tabActive}}" mode="widthFix" />
+      <image class="tab-img" src="{{assets.tab}}" mode="widthFix" />
+      <image class="tab-img" src="{{assets.tab}}" mode="widthFix" />
+      <image class="tab-img" src="{{assets.tab}}" mode="widthFix" />
     </view>
+
+    <scroll-view class="grid-scroll" scroll-y>
+      <view class="grid">
+        <view
+          wx:for="{{gridSlots}}"
+          wx:key="key"
+          class="grid-cell"
+          data-index="{{item.entryIndex}}"
+          bindtap="onTapEntry"
+        >
+          <!-- 空格底图（手绘边框方块） -->
+          <image class="grid-cell-bg" src="{{assets.gridCell}}" mode="aspectFill" />
+          <image
+            wx:if="{{item.imageThumb}}"
+            class="grid-thumb"
+            src="{{item.imageThumb}}"
+            mode="aspectFill"
+          />
+          <image
+            wx:elif="{{item.imageFull}}"
+            class="grid-thumb"
+            src="{{item.imageFull}}"
+            mode="aspectFill"
+          />
+        </view>
+      </view>
+    </scroll-view>
   </view>
 
   <view class="zoom-mask" wx:if="{{zoomVisible && !letterVisible}}" catchtap="onCloseZoom">

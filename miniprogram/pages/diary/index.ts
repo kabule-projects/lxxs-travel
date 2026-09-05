@@ -1,6 +1,6 @@
 import { DIARY_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
-import { readSafeArea } from '../../utils/device';
+import { readCapsuleRect } from '../../utils/device';
 import { playTap } from '../../services/sound';
 import { navigateBack } from '../../utils/nav';
 import { listDiary, type DiaryEntry } from '../../services/diary';
@@ -22,7 +22,8 @@ function sortByClaimTime(entries: DiaryEntry[]): DiaryEntry[] {
 
 Page({
   data: {
-    safeTop: 0,
+    /** 顶栏 top（frame 坐标系）：胶囊底边 + 间距，frame 居中溢出时补偿偏移 */
+    hudTop: 0,
     assets: {} as PageAssets,
     entries: [] as DiaryEntry[],
     gridSlots: [] as Array<{
@@ -42,8 +43,14 @@ Page({
   },
 
   onLoad() {
-    const { top } = readSafeArea();
-    this.setData({ safeTop: top });
+    // frame 宽撑满屏幕、垂直居中；hudTop 换算到 frame 坐标系（frame 高于屏幕被裁切时补偿居中偏移）
+    const capsule = readCapsuleRect();
+    const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    const screenW = info.screenWidth || info.windowWidth || 375;
+    const screenH = info.screenHeight || info.windowHeight || 812;
+    const frameH = (screenW * 4330) / 2002;
+    const frameOffsetY = (screenH - frameH) / 2;
+    this.setData({ hudTop: capsule.bottom + 12 - frameOffsetY });
     resolveAssetMap(DIARY_ASSETS).then((assets) => {
       this.setData({ assets });
     });

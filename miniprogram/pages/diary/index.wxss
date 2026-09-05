@@ -1,10 +1,19 @@
+/* frame 宽撑满屏幕、垂直居中；高于屏幕时上下对称裁切 */
 .diary {
   position: relative;
   min-height: 100vh;
-  box-sizing: border-box;
-  padding: 24rpx 20rpx 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
   background: #5a4088;
+}
+
+.diary-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2002 / 4330;
+  flex-shrink: 0;
 }
 
 .diary-frame-bg {
@@ -16,89 +25,79 @@
   z-index: 0;
 }
 
-.diary-frame {
-  position: relative;
-  z-index: 1;
-  min-height: calc(100vh - 56rpx);
-  overflow: hidden;
-}
-
+/* 顶栏：top 由胶囊规避派生（px，内联），左右按 frame 白区边缘百分比 */
 .diary-hud {
-  position: relative;
+  position: absolute;
+  left: 4%;
+  right: 3%;
   z-index: 5;
-  padding: 12rpx 16rpx 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.notebook {
-  position: relative;
-  margin: 16rpx 24rpx 28rpx 32rpx;
-  min-height: calc(100vh - 200rpx);
-  overflow: hidden;
-  border-radius: 16rpx;
-}
-
+/* 笔记本底图：位置/宽度按 frame 边缘百分比，widthFix 等比 */
 .notebook-bg {
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
+  left: 0%;
+  top: 19%;
+  width: 92%;
+  z-index: 1;
 }
 
+/* 标签页：底边贴笔记本顶边（flex-end 对齐），激活标签更高 */
 .notebook-tabs {
-  position: relative;
+  position: absolute;
+  left: 17%;
+  top: 13.5%;
+  width: 50%;
   z-index: 2;
   display: flex;
-  gap: 8rpx;
-  padding: 20rpx 24rpx 0 36rpx;
+  align-items: flex-end;
+  gap: 2%;
 }
 
 .tab-img {
-  width: 120rpx;
-  height: 48rpx;
+  width: 25%;
   flex-shrink: 0;
 }
 
+/* 明信片网格：四边按 frame 边缘百分比 */
 .grid-scroll {
-  position: relative;
+  position: absolute;
+  left: 13%;
+  padding-right: 30%;
+  top: 29%;
+  bottom: 4.5%;
   z-index: 2;
-  height: calc(100vh - 300rpx);
-  padding: 24rpx 20rpx 32rpx 36rpx;
   box-sizing: border-box;
 }
 
+/* 固定每行 3 个：1fr 等宽列，间距从列宽自动扣除，无需手算 */
 .grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20rpx;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 45rpx;
 }
 
 .grid-cell {
   position: relative;
-  width: calc((100% - 40rpx) / 3);
-  aspect-ratio: 1;
+  width: 100%;
+  aspect-ratio: 1/1;
   box-sizing: border-box;
 }
 
-/* 设计稿空格：浅紫半透明底 + 1px / 50% 紫边 */
-.grid-cell-plate {
+/* 空格底图：手绘边框方块切图 */
+.grid-cell-bg {
   position: absolute;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
   z-index: 0;
-  box-sizing: border-box;
-  background: rgba(186, 178, 224, 0.45);
-  border: 1px solid rgba(90, 64, 136, 0.5);
-  border-radius: 4rpx;
 }
 
-/* 明信片切图叠在半透明底上，外围同样 1px / 50% 紫边 */
+/* 明信片切图叠在空格底图上 */
 .grid-thumb {
   position: absolute;
   left: 0;
@@ -106,9 +105,6 @@
   width: 100%;
   height: 100%;
   z-index: 1;
-  box-sizing: border-box;
-  border: 1px solid rgba(90, 64, 136, 0.5);
-  border-radius: 4rpx;
 }
 
 
