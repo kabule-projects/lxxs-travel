@@ -11,49 +11,53 @@
   justify-content: center;
 }
 
+/* 面板复用 gacha/result-panel 切图（1181×1359，同图鉴弹窗）：宽度占屏 85.4%，
+   底图 widthFix 决定面板高度（按原图比例），内容百分比绝对定位叠在图上 */
 .gr-panel {
   position: relative;
   width: 85.4%;
-  padding: 6% 5% 5%;
-  box-sizing: border-box;
-  overflow: hidden;
 }
 
 .gr-panel-bg {
-  position: absolute;
-  left: 0;
-  top: 0;
+  display: block;
   width: 100%;
-  height: 100%;
-  z-index: 0;
 }
 
 .gr-close {
   position: absolute;
-  top: -20rpx;
-  left: -16rpx;
+  top: -9%;
+  right: -2%;
   z-index: 2;
 }
 
 .gr-title {
-  position: relative;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 9%;
   z-index: 1;
   text-align: center;
   font-size: 40rpx;
   font-weight: 700;
   color: #5a3a22;
-  margin-bottom: 28rpx;
 }
 
+/* 奖品格区：top/bottom 对齐底图上的内容区，按需微调 */
 .gr-single {
-  position: relative;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 20%;
   z-index: 1;
   display: flex;
   justify-content: center;
 }
 
 .gr-multi {
-  position: relative;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 20%;
   z-index: 1;
   display: flex;
   flex-direction: column;
@@ -166,9 +170,11 @@
 }
 
 .gr-confirm-img {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  bottom: 7%;
+  transform: translateX(-50%);
   z-index: 1;
   display: block;
-  width: 60%;
-  margin: 5% auto 0;
+  width: 48%;
 }

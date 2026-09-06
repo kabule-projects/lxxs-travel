@@ -87,11 +87,17 @@ export const SHOP_ASSETS = {
 export const GACHA_ASSETS = {
   iconBack: 'icons/shop/back',
   iconStar: 'icons/home/star',
-  iconRiceStar: 'roof/star-rice',
   iconGrid: 'icons/common/settings-grid',
+  /** 双货币贴图框（同 home/roof） */
+  pillStar: 'roof/pill-star',
+  pillRice: 'roof/pill-rice',
   /** 整页背景（含地毯等，勿再单独出地毯） */
   pageBg: 'gacha/page-bg',
-  machine: 'gacha/machine',
+  /** 扭蛋机常态静态图（动图第一帧） */
+  machine: 'gacha/gatcha_full',
+  /** 抽一次 / 抽五次动图（不循环，播完切回静态图并弹结果） */
+  machineOne: 'gacha/get_one',
+  machineFive: 'gacha/get_five',
   btnSpin: 'gacha/btn-spin',
   btnDraw1: 'gacha/btn-draw-1',
   btnDraw5: 'gacha/btn-draw-5',

@@ -1,31 +1,35 @@
-<view
-  class="gacha {{spinning ? 'gacha--spin' : ''}}"
-  style="padding-top: {{safeTop}}px; padding-bottom: {{safeBottom}}px"
->
+<view class="gacha">
   <image class="gacha-page-bg" src="{{assets.pageBg}}" mode="aspectFill" />
 
-  <view class="gacha-hud">
-    <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
+  <!-- 顶栏：双货币贴图框 + 设置（布局同 home）；top 内联，避让右上角胶囊 -->
+  <view class="gacha-hud" style="top: {{hudTop}}px">
+    <view class="hud-side hud-side--left">
+      <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
+    </view>
     <view class="hud-center">
-      <view class="currency-pill">
-        <image class="currency-icon" src="{{assets.iconStar}}" mode="aspectFit" />
-        <text class="currency-num">{{stars}}</text>
+      <view class="currency-pill currency-pill--star">
+        <image class="currency-pill__bg" src="{{assets.pillStar}}" mode="widthFix" />
+        <text class="currency-pill__num">{{stars}}</text>
       </view>
-      <view class="currency-pill">
-        <image class="currency-icon" src="{{assets.iconRiceStar}}" mode="aspectFit" />
-        <text class="currency-num">{{riceStars}}</text>
+      <view class="currency-pill currency-pill--rice">
+        <image class="currency-pill__bg" src="{{assets.pillRice}}" mode="widthFix" />
+        <text class="currency-pill__num">{{riceStars}}</text>
       </view>
     </view>
-    <nav-icon src="{{assets.iconGrid}}" label="设置" size="sm" bind:tap="onTapSettings" />
+    <view class="hud-side hud-side--right">
+      <nav-icon src="{{assets.iconGrid}}" label="设置" size="sm" bind:tap="onTapSettings" />
+    </view>
   </view>
 
+  <!-- 扭蛋机：宽度铺满屏幕、垂直居中；常态静态图，抽奖时切 get_one/get_five 动图；抽1次/抽5次为热区 -->
   <view class="machine-wrap">
-    <image class="machine-img" src="{{assets.machine}}" mode="aspectFit" />
+    <image class="machine-img" src="{{machineSrc}}" mode="widthFix" />
     <view class="machine-btn machine-btn--1" data-count="1" catchtap="onTapDraw" />
     <view class="machine-btn machine-btn--5" data-count="5" catchtap="onTapDraw" />
   </view>
 
-  <view class="gacha-foot">
+  <!-- 底栏：兑换横幅 + 奖品图鉴按钮；bottom 内联，贴安全区上沿 -->
+  <view class="gacha-foot" style="bottom: {{footBottom}}px">
     <image class="exchange-banner-img" src="{{assets.exchangeBanner}}" mode="widthFix" />
     <image
       class="prizes-btn-img"

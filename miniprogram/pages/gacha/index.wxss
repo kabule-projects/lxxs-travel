@@ -20,13 +20,33 @@
   z-index: 0;
 }
 
+/* ── 顶栏（布局同 home）；top 由内联样式给定，避让右上角胶囊 ── */
 .gacha-hud {
-  position: relative;
-  z-index: 2;
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 12rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+}
+
+/* 左右两侧等宽，保证中间货币框水平居中；返回与设置同为 nav-icon size="sm"，高度一致 */
+.hud-side {
+  width: 168rpx;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.hud-side--left {
+  justify-content: flex-start;
+}
+
+.hud-side--right {
+  justify-content: flex-end;
 }
 
 .hud-center {
@@ -38,96 +58,73 @@
   min-width: 0;
 }
 
-.currency-pill {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  min-width: 120rpx;
-  height: 52rpx;
-  padding: 0 18rpx;
-  box-sizing: border-box;
-  border-radius: 26rpx;
-  border: 3rpx solid #5a3a22;
-  background: #fffaf3;
+/* 计数框：基础样式 + 数字定位在 app.wxss 全局定义，此处只管两个框各自的宽度 */
+.currency-pill--star {
+  width: 255rpx;
+  margin-bottom: 5rpx;
 }
 
-.currency-icon {
-  width: 36rpx;
-  height: 36rpx;
-  flex-shrink: 0;
+.currency-pill--rice {
+  width: 178rpx;
 }
 
-.currency-num {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #3a2410;
-  line-height: 1;
-}
-
+/* 扭蛋机：宽度铺满屏幕，垂直居中；热区百分比相对机器图自身 */
 .machine-wrap {
-  position: relative;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 1;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 0;
-  width: 66%;
-  margin: 0 auto;
 }
 
 .machine-img {
   width: 100%;
+  display: block;
 }
 
 /* 机器图上画着的"抽1次/抽五次"按钮 → 透明热区 */
 .machine-btn {
   position: absolute;
-  width: 22%;
-  height: 10%;
+  width: 15%;
+  height: 11%;
   z-index: 3;
 }
 
 .machine-btn--1 {
-  left: 43.8%;
-  top: 60.6%;
+  left: 47%;
+  top: 57%;
 }
 
 .machine-btn--5 {
-  left: 62.9%;
-  top: 60.6%;
+  left: 66%;
+  top: 57%;
 }
 
-.gacha--spin .machine-img {
-  animation: dome-shake 0.35s ease-in-out infinite alternate;
-}
-
-@keyframes dome-shake {
-  from {
-    transform: rotate(-1deg);
-  }
-  to {
-    transform: rotate(1deg);
-  }
-}
-
+/* 底栏；bottom 由内联样式给定（安全区上沿 + 间距） */
 .gacha-foot {
-  position: relative;
-  z-index: 2;
-  padding: 16rpx 0 24rpx;
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 20;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16rpx;
+  gap: 78rpx;
+  padding: 0 24rpx;
+  box-sizing: border-box;
 }
 
 .exchange-banner-img {
   width: 82.7%;
 }
 
+/* 奖品图鉴按钮：右对齐；大小改 width，水平位置改 margin-right，
+   与横幅间距改 .gacha-foot 的 gap，整体高低改内联 bottom（footBottom） */
 .prizes-btn-img {
-  width: 36%;
+  width: 30%;
+  align-self: flex-end;
+  margin-right: 1%;
 }
 
 .spin-overlay {
