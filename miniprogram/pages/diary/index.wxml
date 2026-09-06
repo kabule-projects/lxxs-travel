@@ -1,15 +1,12 @@
 <view class="diary">
-  <!-- frame 宽撑满屏幕、垂直居中；页内元素均按 frame 边缘百分比定位 -->
+  <!-- diary-bg（frame+notebook 合并图层）宽撑满屏幕、垂直居中；页内元素均按其边缘百分比定位 -->
   <view class="diary-frame">
-    <image class="diary-frame-bg" src="{{assets.frame}}" mode="scaleToFill" />
+    <image class="diary-frame-bg" src="{{assets.diaryBg}}" mode="scaleToFill" />
 
     <view class="diary-hud" style="top: {{hudTop}}px">
       <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
       <nav-icon src="{{assets.iconGrid}}" label="设置" size="sm" bind:tap="onTapSettings" />
     </view>
-
-    <!-- 笔记本底已含书脊 / 天气 / 吉祥物；widthFix 等比 -->
-    <image class="notebook-bg" src="{{assets.notebook}}" mode="widthFix" />
 
     <!-- 标签页：底边贴笔记本顶边，激活标签更高 -->
     <view class="notebook-tabs">

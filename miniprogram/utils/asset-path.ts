@@ -116,12 +116,11 @@ export const SHOWCASE_ASSETS = {
   detailItemBg: 'showcase/detail-item-bg',
 } as const;
 
-/** 日记：书脊/天气/吉祥物已画进 notebook */
+/** 日记：书脊/天气/吉祥物/笔记本均画进 diary-bg（frame+notebook 合并图层） */
 export const DIARY_ASSETS = {
   iconBack: 'icons/shop/back',
   iconGrid: 'icons/common/settings-grid',
-  frame: 'diary/frame',
-  notebook: 'diary/notebook',
+  diaryBg: 'diary/diary-bg',
   tab: 'diary/tab',
   tabActive: 'diary/tab-active',
   /** 格子半透明底图；明信片切图叠其上 */

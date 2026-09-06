@@ -36,20 +36,11 @@
   justify-content: space-between;
 }
 
-/* 笔记本底图：位置/宽度按 frame 边缘百分比，widthFix 等比 */
-.notebook-bg {
-  position: absolute;
-  left: 0%;
-  top: 19%;
-  width: 92%;
-  z-index: 1;
-}
-
 /* 标签页：底边贴笔记本顶边（flex-end 对齐），激活标签更高 */
 .notebook-tabs {
   position: absolute;
-  left: 17%;
-  top: 13.5%;
+  left: 18%;
+  top: 11.7%;
   width: 50%;
   z-index: 2;
   display: flex;
@@ -65,8 +56,8 @@
 /* 明信片网格：四边按 frame 边缘百分比 */
 .grid-scroll {
   position: absolute;
-  left: 13%;
-  padding-right: 30%;
+  left: 14%;
+  padding-right: 29%;
   top: 29%;
   bottom: 4.5%;
   z-index: 2;
@@ -77,7 +68,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 45rpx;
+  gap: 48rpx;
 }
 
 .grid-cell {
