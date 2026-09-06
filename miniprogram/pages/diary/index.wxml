@@ -5,7 +5,6 @@
 
     <view class="diary-hud" style="top: {{hudTop}}px">
       <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
-      <nav-icon src="{{assets.iconGrid}}" label="设置" size="sm" bind:tap="onTapSettings" />
     </view>
 
     <!-- 标签页：底边贴笔记本顶边，激活标签更高 -->
@@ -66,6 +65,4 @@
     title="{{zoomTitle}}"
     bind:close="onCloseLetter"
   />
-
-  <settings-modal visible="{{showSettings}}" bind:close="onCloseSettings" />
 </view>

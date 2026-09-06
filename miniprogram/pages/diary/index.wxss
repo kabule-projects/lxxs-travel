@@ -39,9 +39,9 @@
 /* 标签页：底边贴笔记本顶边（flex-end 对齐），激活标签更高 */
 .notebook-tabs {
   position: absolute;
-  left: 18%;
-  top: 11.7%;
-  width: 50%;
+  left: 11%;
+  top: 11.4%;
+  width: 53%;
   z-index: 2;
   display: flex;
   align-items: flex-end;

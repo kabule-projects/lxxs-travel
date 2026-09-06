@@ -39,7 +39,6 @@ Page({
     zoomTitle: '',
     letterDate: '',
     letterStory: '',
-    showSettings: false,
   },
 
   onLoad() {
@@ -50,7 +49,9 @@ Page({
     const screenH = info.screenHeight || info.windowHeight || 812;
     const frameH = (screenW * 4330) / 2002;
     const frameOffsetY = (screenH - frameH) / 2;
-    this.setData({ hudTop: capsule.bottom + 12 - frameOffsetY });
+    // 返回键与胶囊垂直居中对齐：nav-icon sm 高 96rpx
+    const btnH = (screenW * 96) / 750;
+    this.setData({ hudTop: capsule.top + (capsule.height - btnH) / 2 - frameOffsetY });
     resolveAssetMap(DIARY_ASSETS).then((assets) => {
       this.setData({ assets });
     });
@@ -83,15 +84,6 @@ Page({
   onTapBack() {
     playTap();
     navigateBack('/pages/home/index');
-  },
-
-  onTapSettings() {
-    playTap();
-    this.setData({ showSettings: true });
-  },
-
-  onCloseSettings() {
-    this.setData({ showSettings: false });
   },
 
   onTapEntry(e: WechatMiniprogram.TouchEvent) {
