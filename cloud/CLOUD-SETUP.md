@@ -302,8 +302,9 @@ cloud/functions/
 ### 7.2 部署步骤（微信开发者工具）
 
 1. 确认 `project.config.json` 中 `cloudfunctionRoot` 为 `cloud/functions/`
-2. 左侧 **云开发** → **云函数**
-3. 对每个函数目录 **右键 → 上传并部署：云端安装依赖**
+2. **先在项目根目录运行 `node scripts/sync-cloud-common.js`**（把公共模块复制进各函数目录，每次改完 common 都要重新运行）
+3. 左侧 **云开发** → **云函数**
+4. 对每个函数目录 **右键 → 上传并部署：云端安装依赖**
 4. **必须部署的函数**（MVP）：
 
 | 函数 | 必须 | 说明 |
@@ -323,7 +324,7 @@ cloud/functions/
 | manifest | 可选 | 云存储资源 |
 | stub* | 可选 | V2 占位 |
 
-5. `common` 不需单独上传，但各函数 `require('../common/...')` 时须保证上传包内含 common 目录（整包上传默认包含）
+5. `common` 不是云函数（无入口文件），**禁止单独上传**（会卡在 CreateFailed 状态）；各函数通过 `require('./common/...')` 引用由同步脚本复制进本函数目录的副本
 
 ### 7.3 部署后冒烟测试
 
@@ -469,7 +470,7 @@ npm run dev
 
 ### 11.1 seedTripCatalog
 
-**前置：** 已建集合 + 已部署 `admin` + `common` + 已设 `ADMIN_SECRET`
+**前置：** 已建集合 + 已部署 `admin`（先跑 `node scripts/sync-cloud-common.js`）+ 已设 `ADMIN_SECRET`
 
 **云函数测试调用：**
 

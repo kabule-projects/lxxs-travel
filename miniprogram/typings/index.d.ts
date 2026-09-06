@@ -62,6 +62,13 @@ declare namespace WechatMiniprogram {
     }): void;
     navigateBack(options?: { fail?: (err: unknown) => void }): void;
     showToast(options: { title: string; icon?: string }): void;
+    /** 订阅消息授权结果：各模板 id → accept / reject / ban 等 */
+    requestSubscribeMessage(options: {
+      tmplIds: string[];
+      success?: (res: Record<string, 'accept' | 'reject' | 'ban' | string>) => void;
+      fail?: (err: unknown) => void;
+      complete?: (res: Record<string, 'accept' | 'reject' | 'ban' | string>) => void;
+    }): void;
     nextTick(cb: () => void): void;
     createInnerAudioContext?(): {
       src: string;

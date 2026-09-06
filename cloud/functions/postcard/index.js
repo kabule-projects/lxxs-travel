@@ -1,11 +1,11 @@
 const cloud = require('wx-server-sdk');
-const { ok, fail } = require('../common/response');
-const { collectAndTrimUnread, resolvePigeonState } = require('../common/mail-box');
-const { advanceTrip } = require('../common/trip-lifecycle');
+const { ok, fail } = require('./common/response');
+const { collectAndTrimUnread, resolvePigeonState } = require('./common/mail-box');
+const { advanceTrip } = require('./common/trip-lifecycle');
 const {
   normalizePostcardSnapshot,
   hydratePostcardSnapshotList,
-} = require('../common/postcard-images');
+} = require('./common/postcard-images');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();

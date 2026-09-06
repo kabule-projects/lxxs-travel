@@ -22,3 +22,6 @@ Thumbs.db
 .env
 .env.local
 *.pem
+
+# 云函数 common 共享模块副本（由 scripts/sync-cloud-common.js 生成）
+cloud/functions/*/common/

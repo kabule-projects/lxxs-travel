@@ -1,7 +1,7 @@
 const cloud = require('wx-server-sdk');
-const { ok, fail } = require('../common/response');
-const { GACHA_COST, GACHA_MULTI, drawBatch } = require('../common/gacha-engine');
-const { addInventory } = require('../common/inventory');
+const { ok, fail } = require('./common/response');
+const { GACHA_COST, GACHA_MULTI, drawBatch } = require('./common/gacha-engine');
+const { addInventory } = require('./common/inventory');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();

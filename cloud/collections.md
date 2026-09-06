@@ -6,7 +6,7 @@
 
 | 集合 | 用途 |
 |------|------|
-| users | 玩家资源、pity、nextSpawnAt、gm、currentTripId、riceStars |
+| users | 玩家资源、pity、nextSpawnAt、gm、currentTripId、riceStars、notifyEnabled/notifyPending/notifyTmplId（归来订阅通知） |
 | items | 物品（含出行距离/时长范围、地形与明信片权重） |
 | destinations | 目的地（baseWeight、地形、距离档、时长、伴手礼池） |
 | postcards | 明信片（baseWeight、groupId、可选绑定 destId） |

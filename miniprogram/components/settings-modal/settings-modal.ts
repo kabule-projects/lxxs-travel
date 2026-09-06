@@ -3,6 +3,13 @@ import {
   setMusicEnabled,
   setSfxEnabled,
 } from '../../services/audio-prefs';
+import {
+  getNotifyEnabled,
+  requestNotifyAuth,
+  setNotifyEnabled,
+  syncNotifySubscribe,
+  syncNotifyUnsubscribe,
+} from '../../services/notify';
 import { playTap } from '../../services/sound';
 import { getUserId } from '../../store/user';
 import GAME from '../../utils/constants';
@@ -17,8 +24,8 @@ Component({
   data: {
     musicEnabled: true,
     sfxEnabled: true,
-    /** 通知开关：真实逻辑未接（订阅消息 API），暂仅视觉状态 */
-    notifyEnabled: false,
+    /** 通知开关：本地持久化 + 订阅消息授权（见 services/notify） */
+    notifyEnabled: getNotifyEnabled(),
     userId: '',
     appVersion: GAME.APP_VERSION,
     assets: {
@@ -78,15 +85,24 @@ Component({
       this.setData({ sfxEnabled: next });
     },
 
-    /** TODO: 接订阅消息（wx.requestSubscribeMessage）；当前仅切换视觉状态，不持久化 */
-    onNotifyOn() {
+    /** 开：先向微信请求订阅授权，允许后才打开并持久化；拒绝则保持关闭 */
+    async onNotifyOn() {
       playTap();
-      if (!this.data.notifyEnabled) this.setData({ notifyEnabled: true });
+      if (this.data.notifyEnabled) return;
+      const granted = await requestNotifyAuth();
+      if (!granted) return;
+      setNotifyEnabled(true);
+      this.setData({ notifyEnabled: true });
+      syncNotifySubscribe();
     },
 
+    /** 关：直接关闭并持久化，同步云端清除订阅 */
     onNotifyOff() {
       playTap();
-      if (this.data.notifyEnabled) this.setData({ notifyEnabled: false });
+      if (!this.data.notifyEnabled) return;
+      setNotifyEnabled(false);
+      this.setData({ notifyEnabled: false });
+      syncNotifyUnsubscribe();
     },
   },
 });

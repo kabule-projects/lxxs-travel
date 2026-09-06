@@ -1,6 +1,6 @@
 const cloud = require('wx-server-sdk');
-const { ok, fail } = require('../common/response');
-const { assertGm } = require('../common/auth');
+const { ok, fail } = require('./common/response');
+const { assertGm } = require('./common/auth');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();

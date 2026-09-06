@@ -1,8 +1,8 @@
 const cloud = require('wx-server-sdk');
-const { ok, fail } = require('../common/response');
-const { BAG_PROP_SLOTS } = require('../common/game');
-const { loadTripConfig, planTrip } = require('../common/trip-engine');
-const { advanceTrip, claimHome } = require('../common/trip-lifecycle');
+const { ok, fail } = require('./common/response');
+const { BAG_PROP_SLOTS } = require('./common/game');
+const { loadTripConfig, planTrip } = require('./common/trip-engine');
+const { advanceTrip, claimHome } = require('./common/trip-lifecycle');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();

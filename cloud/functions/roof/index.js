@@ -1,5 +1,5 @@
 const cloud = require('wx-server-sdk');
-const { ok, fail } = require('../common/response');
+const { ok, fail } = require('./common/response');
 const {
   STAR_INTERVAL_MIN_MS,
   STAR_INTERVAL_MAX_MS,
@@ -9,7 +9,7 @@ const {
   randomSkyPos,
   randomPilePos,
   isRice,
-} = require('../common/game');
+} = require('./common/game');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();

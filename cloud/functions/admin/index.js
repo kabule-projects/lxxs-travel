@@ -1,7 +1,7 @@
 const cloud = require('wx-server-sdk');
-const { ok, fail } = require('../common/response');
-const { assertAdmin } = require('../common/auth');
-const { validateItem, validateDestination } = require('../common/validate');
+const { ok, fail } = require('./common/response');
+const { assertAdmin } = require('./common/auth');
+const { validateItem, validateDestination } = require('./common/validate');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -141,7 +141,7 @@ async function seedTripCatalog(payload) {
   let catalog = payload && payload.catalog;
   if (!catalog) {
     try {
-      catalog = require('../common/seed/trip-catalog.json');
+      catalog = require('./common/seed/trip-catalog.json');
     } catch (e) {
       return fail('缺少 seed 目录 JSON', 'NO_SEED');
     }
@@ -202,7 +202,7 @@ async function seedTripCatalog(payload) {
 
 /** 给指定玩家写入展示柜（幂等），便于云端联调 */
 async function grantShowcase(payload) {
-  const { unlockShowcase } = require('../common/showcase');
+  const { unlockShowcase } = require('./common/showcase');
   const openid = payload.openid;
   const itemIds = payload.itemIds || [];
   if (!openid) return fail('缺少 openid', 'VALIDATION');

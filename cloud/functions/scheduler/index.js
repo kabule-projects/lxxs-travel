@@ -1,6 +1,6 @@
 const cloud = require('wx-server-sdk');
-const { ok, fail } = require('../common/response');
-const { advanceTrip } = require('../common/trip-lifecycle');
+const { ok, fail } = require('./common/response');
+const { advanceTrip } = require('./common/trip-lifecycle');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();

@@ -1,10 +1,10 @@
 const cloud = require('wx-server-sdk');
-const { ok, fail } = require('../common/response');
+const { ok, fail } = require('./common/response');
 const {
   SHOP_PAGE_SIZE,
   DAILY_BUY_LIMIT,
   businessDayKey,
-} = require('../common/game');
+} = require('./common/game');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();

@@ -25,10 +25,12 @@ async function advanceTrip(db, _, trip, userDoc) {
   let status = trip.status;
   let souvenirs = Array.isArray(trip.souvenirs) ? [...trip.souvenirs] : [];
   let souvenirGranted = null;
+  let returnedNow = false;
 
   if (status === 'traveling' && now >= trip.endAt) {
     status = 'returned';
     changed = true;
+    returnedNow = true;
 
     if (!souvenirs.length) {
       let pool = [];
@@ -62,6 +64,17 @@ async function advanceTrip(db, _, trip, userDoc) {
         updatedAt: now,
       },
     });
+  }
+
+  // 归来瞬间：异步发订阅通知（不 await，失败不影响行程推进）
+  // openid 优先取 userDoc；postcard 等调用方传 null 时 trip.userId 即 openid
+  if (returnedNow) {
+    const openid = (userDoc && userDoc.openid) || trip.userId;
+    if (openid) {
+      Promise.resolve()
+        .then(() => require('./notify').sendTripReturnNotice(openid))
+        .catch((e) => console.warn('sendTripReturnNotice fail', e));
+    }
   }
 
   return {

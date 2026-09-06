@@ -23,8 +23,18 @@ cloud/functions/
 
 ## 公共模块引用
 
-各云函数通过 `require('../common/xxx')` 引用。  
-在微信开发者工具中上传云函数时，请**整包上传** `cloud/functions` 根目录，或分别为每个函数安装公共模块。
+各云函数通过 `require('./common/xxx')` 引用（common 被物理复制进每个函数目录）。
+
+**上传任何云函数前，先在项目根目录运行：**
+
+```bash
+node scripts/sync-cloud-common.js
+```
+
+原因：微信开发者工具上传云函数时只打包该函数自己的目录，`../common` 形式的引用
+在云端会报 `Cannot find module`。common 副本由脚本生成、已 gitignore，不要手改。
+
+`common` 目录本身**不是云函数**（无入口文件），不要上传——上传会卡在 CreateFailed 状态。
 
 推荐：云开发控制台 → 云函数 → 开启「云端安装依赖」。
 

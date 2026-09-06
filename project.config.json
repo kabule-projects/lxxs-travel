@@ -11,7 +11,7 @@
     "minifyWXSS": true,
     "minifyWXML": true,
     "coverView": true,
-    "cloudEnv": "lxxs-cloud-env-placeholder",
+    "cloudEnv": "cloud1-d9ghjbijh5aa24e10",
     "packNpmRelationList": [],
     "babelSetting": {
       "ignore": [],
