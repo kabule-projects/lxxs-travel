@@ -4,12 +4,36 @@ const { collectAndTrimUnread, resolvePigeonState } = require('./common/mail-box'
 const { advanceTrip } = require('./common/trip-lifecycle');
 const {
   normalizePostcardSnapshot,
-  hydratePostcardSnapshotList,
 } = require('./common/postcard-images');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
+
+/** 批量回查 postcards 主表（batch 20，_.in），返回 id -> 完整文档 Map */
+async function loadPostcardDocMap(postcardIds) {
+  const map = new Map();
+  const uniq = [...new Set((postcardIds || []).filter(Boolean))];
+  if (!uniq.length) return map;
+
+  const batchSize = 20;
+  for (let i = 0; i < uniq.length; i += batchSize) {
+    const chunk = uniq.slice(i, i + batchSize);
+    try {
+      const res = await db
+        .collection('postcards')
+        .where({ id: _.in(chunk) })
+        .limit(batchSize)
+        .get();
+      for (const doc of res.data || []) {
+        if (doc && doc.id) map.set(doc.id, doc);
+      }
+    } catch (e) {
+      /* ignore batch failure */
+    }
+  }
+  return map;
+}
 
 async function getUser(openid) {
   const found = await db.collection('users').where({ openid }).limit(1).get();
@@ -54,7 +78,24 @@ async function mailboxSync(openid) {
 
   const trips = await loadActiveTrips(openid);
   const { items } = await collectAndTrimUnread(db, _, openid, trips);
-  const newestDeliverAt = items.reduce(
+  // 展示字段（type/title/rarity/imageThumb/imageFull/story）覆盖为 postcards 主表现值；
+  // tripId/instanceId/deliverAt/status 等行程字段仍保留 trips 内嵌快照
+  const catalog = await loadPostcardDocMap(items.map((i) => i.postcardId));
+  const displayItems = items.map((i) => {
+    const doc = catalog.get(i.postcardId);
+    if (!doc) return i;
+    const snap = normalizePostcardSnapshot(doc);
+    return {
+      ...i,
+      type: snap.type,
+      title: doc.title || i.title,
+      rarity: doc.rarity || i.rarity,
+      imageThumb: snap.imageThumb || i.imageThumb,
+      imageFull: snap.imageFull || i.imageFull,
+      story: doc.story || i.story,
+    };
+  });
+  const newestDeliverAt = displayItems.reduce(
     (m, i) => Math.max(m, i.deliverAt || 0),
     0,
   );
@@ -71,8 +112,8 @@ async function mailboxSync(openid) {
   });
 
   return ok({
-    items,
-    unreadCount: items.length,
+    items: displayItems,
+    unreadCount: displayItems.length,
     pigeonState,
     traveling,
     lastMailboxOpenAt: user.lastMailboxOpenAt || 0,
@@ -155,19 +196,12 @@ async function claim(openid, tripId, instanceId) {
     .get();
 
   let firstUnlock = false;
-  const snapshot = normalizePostcardSnapshot(card);
   if (!album.data.length) {
     firstUnlock = true;
     await db.collection('user_postcards').add({
       data: {
         userId: openid,
         postcardId: card.postcardId,
-        type: snapshot.type,
-        title: card.title,
-        rarity: card.rarity,
-        imageThumb: snapshot.imageThumb,
-        imageFull: snapshot.imageFull,
-        story: card.story,
         firstClaimedAt: Date.now(),
         claimCount: 1,
       },
@@ -180,12 +214,12 @@ async function claim(openid, tripId, instanceId) {
 
   return ok({
     postcardId: card.postcardId,
-    type: snapshot.type,
+    type: snap.type,
     firstUnlock,
     title: card.title,
     rarity: card.rarity,
-    imageThumb: snapshot.imageThumb,
-    imageFull: snapshot.imageFull,
+    imageThumb: snap.imageThumb,
+    imageFull: snap.imageFull,
     story: card.story,
   });
 }
@@ -197,20 +231,27 @@ async function diaryList(openid) {
     .orderBy('firstClaimedAt', 'asc')
     .limit(200)
     .get();
-  const rows = await hydratePostcardSnapshotList(db, res.data || []);
-  return ok({
-    items: rows.map((d) => ({
+  const rows = res.data || [];
+  // 展示字段一律取 postcards 主表现值；主表缺失的 postcardId 跳过
+  const catalog = await loadPostcardDocMap(rows.map((d) => d.postcardId));
+  const items = [];
+  for (const d of rows) {
+    const doc = catalog.get(d.postcardId);
+    if (!doc) continue;
+    const snap = normalizePostcardSnapshot(doc);
+    items.push({
       postcardId: d.postcardId,
-      type: d.type || 'postcard',
-      title: d.title,
-      rarity: d.rarity,
-      imageThumb: d.imageThumb,
-      imageFull: d.imageFull,
-      story: d.story,
+      type: snap.type,
+      title: doc.title,
+      rarity: doc.rarity,
+      imageThumb: snap.imageThumb,
+      imageFull: snap.imageFull,
+      story: doc.story,
       firstClaimedAt: d.firstClaimedAt,
       claimCount: d.claimCount || 1,
-    })),
-  });
+    });
+  }
+  return ok({ items });
 }
 
 exports.main = async (event) => {

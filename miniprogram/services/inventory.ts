@@ -1,5 +1,6 @@
 import { call } from './api';
 import { setRiceStars, setStars } from '../store/user';
+import { resolveDynamicAsset } from '../utils/resolve-dynamic-asset';
 
 export type InvCategory = 'food' | 'prop';
 
@@ -182,7 +183,11 @@ export async function fetchOwned(
         });
         writeInventoryCounts(map);
       }
-      return res.items.map((i) => ({
+      // icon 是相对素材路径，需解析为本地 WebP 地址
+      const items = await Promise.all(
+        res.items.map(async (i) => ({ ...i, icon: await resolveDynamicAsset(i.icon) })),
+      );
+      return items.map((i) => ({
         ...i,
         category:
           i.category ||

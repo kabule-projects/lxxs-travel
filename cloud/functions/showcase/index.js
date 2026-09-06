@@ -4,6 +4,7 @@ const { unlockShowcase } = require('./common/showcase');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
+const _ = db.command;
 
 const PAGE_SIZE = 8;
 
@@ -12,40 +13,29 @@ async function getUser(openid) {
   return found.data[0] || null;
 }
 
-function mapRow(row) {
-  return {
-    id: row.itemId || row._id,
-    itemId: row.itemId || row._id,
-    name: row.name || '',
-    icon: row.icon || '',
-    description: row.description || '',
-    obtainedAt: row.obtainedAt || row.createdAt || 0,
-    source: row.source || '',
-  };
-}
+/** 批量回查 items 主表（batch 20，_.in），返回 id -> 文档 Map */
+async function loadItemMap(itemIds) {
+  const map = new Map();
+  const uniq = [...new Set((itemIds || []).filter(Boolean))];
+  if (!uniq.length) return map;
 
-async function hydrate(row) {
-  const base = mapRow(row);
-  if (base.name && base.description) return base;
-  try {
-    const itemRes = await db
-      .collection('items')
-      .where({ id: base.itemId })
-      .limit(1)
-      .get();
-    const item = itemRes.data[0];
-    if (item) {
-      return {
-        ...base,
-        name: base.name || item.name || base.itemId,
-        icon: base.icon || item.icon || '',
-        description: base.description || item.description || '',
-      };
+  const batchSize = 20;
+  for (let i = 0; i < uniq.length; i += batchSize) {
+    const chunk = uniq.slice(i, i + batchSize);
+    try {
+      const res = await db
+        .collection('items')
+        .where({ id: _.in(chunk) })
+        .limit(batchSize)
+        .get();
+      for (const doc of res.data || []) {
+        if (doc && doc.id) map.set(doc.id, doc);
+      }
+    } catch (e) {
+      /* ignore batch failure */
     }
-  } catch (e) {
-    /* ignore */
   }
-  return base;
+  return map;
 }
 
 /** 全部展品；前端 4×2=8/页滑动 */
@@ -74,9 +64,22 @@ async function listAll(openid) {
     );
   }
 
+  // 展示字段一律取 items 主表现值；主表缺失或已下架（enabled===false）的条目跳过
+  const itemMap = await loadItemMap(rows.map((r) => r.itemId || r._id));
   const items = [];
   for (const row of rows) {
-    items.push(await hydrate(row));
+    const itemId = row.itemId || row._id;
+    const item = itemMap.get(itemId);
+    if (!item || item.enabled === false) continue;
+    items.push({
+      id: itemId,
+      itemId,
+      name: item.name || '',
+      icon: item.icon || '',
+      description: item.description || '',
+      obtainedAt: row.obtainedAt || row.createdAt || 0,
+      source: row.source || '',
+    });
   }
 
   return ok({
@@ -111,9 +114,6 @@ async function unlock(openid, itemId, source) {
 
   const res = await unlockShowcase(db, openid, itemId, {
     source: source || 'client',
-    name: item.name,
-    icon: item.icon,
-    description: item.description,
   });
   return ok(res);
 }

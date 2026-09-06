@@ -1,6 +1,6 @@
 /**
  * 明信片快照：图片对 + type 等字段归一化。
- * 约定：postcards 配置表为权威来源；user_postcards / trips 内为快照。
+ * 约定：postcards 配置表为权威来源；trips.postcards[] 内为快照（user_postcards 只存归属，展示字段读时联查）。
  */
 
 const DEFAULT_POSTCARD_TYPE = 'postcard';

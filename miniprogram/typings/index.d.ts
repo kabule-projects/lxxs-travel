@@ -6,6 +6,17 @@ declare namespace WechatMiniprogram {
         name: string;
         data?: Record<string, unknown>;
       }): Promise<{ result: unknown }>;
+      /** 换取云文件临时访问链接（<image> 不认 cloud://，必须用 https 临时链接） */
+      getTempFileURL(options: {
+        fileList: string[];
+      }): Promise<{
+        fileList: Array<{
+          fileID: string;
+          tempFileURL?: string;
+          status?: number;
+          errMsg?: string;
+        }>;
+      }>;
     };
     getWindowInfo?(): {
       windowWidth: number;

@@ -210,14 +210,7 @@ async function grantShowcase(payload) {
 
   const results = [];
   for (const itemId of itemIds) {
-    const itemRes = await db.collection('items').where({ id: itemId }).limit(1).get();
-    const item = itemRes.data[0];
-    const res = await unlockShowcase(db, openid, itemId, {
-      source: 'gm',
-      name: item?.name,
-      icon: item?.icon,
-      description: item?.description,
-    });
+    const res = await unlockShowcase(db, openid, itemId, { source: 'gm' });
     results.push(res);
   }
   return ok({ results });

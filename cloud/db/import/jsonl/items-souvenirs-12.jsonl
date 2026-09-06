@@ -1,0 +1,12 @@
+{"id":"souvenir_biaobiao_s","type":"souvenir","name":"嫑嫑","icon":"items/souvenir/biaobiao_s","description":"或许你需要一只嫑嫑？吃不完的鸡蛋和香肠可以送给它。","showcase":true,"enabled":true,"shopSort":950,"dailyLimit":1}
+{"id":"souvenir_album2","type":"souvenir","name":"反深代词","icon":"items/souvenir/album2","description":"一块银色大砖头，沉甸甸的都是爱噢！","showcase":true,"enabled":true,"shopSort":951,"dailyLimit":1}
+{"id":"souvenir_rose_red","type":"souvenir","name":"红玫瑰","icon":"items/souvenir/rose_red","description":"我找到我的玫瑰啦，希望你也找到了你的。","showcase":true,"enabled":true,"shopSort":952,"dailyLimit":1}
+{"id":"souvenir_frame_1","type":"souvenir","name":"画框1","icon":"items/souvenir/frame_1","description":"你是说我画得太好导致米子们都认领了这个形象吗？","showcase":true,"enabled":true,"shopSort":953,"dailyLimit":1}
+{"id":"souvenir_frame_2","type":"souvenir","name":"画框2","icon":"items/souvenir/frame_2","description":"周芬奇的又一佳作。等我回家要看到它在墙上C位！","showcase":true,"enabled":true,"shopSort":954,"dailyLimit":1}
+{"id":"souvenir_frame_3","type":"souvenir","name":"画框3","icon":"items/souvenir/frame_3","description":"路边斥两元巨资定制的签名，裱起来！","showcase":true,"enabled":true,"shopSort":955,"dailyLimit":1}
+{"id":"souvenir_rose_blue","type":"souvenir","name":"蓝玫瑰","icon":"items/souvenir/rose_blue","description":"找到属于你的玫瑰了吗？","showcase":true,"enabled":true,"shopSort":956,"dailyLimit":1}
+{"id":"souvenir_glasses","type":"souvenir","name":"眼镜","icon":"items/souvenir/glasses","description":"祝任何时候生日的你，生日快乐！","showcase":true,"enabled":true,"shopSort":957,"dailyLimit":1}
+{"id":"souvenir_album1","type":"souvenir","name":"周深深de","icon":"items/souvenir/album1","description":"听说你喜欢这个，真的吗真的吗真的吗好开心哦送你一张！","showcase":true,"enabled":true,"shopSort":958,"dailyLimit":1}
+{"id":"souvenir_youtiao","type":"souvenir","name":"油条","icon":"items/souvenir/youtiao","description":"我爱你独一无二的形状——变成油条也没关系。","showcase":true,"enabled":true,"shopSort":959,"dailyLimit":1}
+{"id":"souvenir_cake_knife","type":"souvenir","name":"蛋糕刀","icon":"items/souvenir/cake_knife","description":"买蛋糕送的，这有啥用？你看看？","showcase":true,"enabled":true,"shopSort":960,"dailyLimit":1}
+{"id":"souvenir_kitchen_knife","type":"souvenir","name":"菜刀","icon":"items/souvenir/kitchen_knife","description":"切蛋糕神器。注意切之前不要切生食不要拍姜蒜哈！","showcase":true,"enabled":true,"shopSort":961,"dailyLimit":1}

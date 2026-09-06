@@ -2,6 +2,7 @@ import GAME from '../utils/constants';
 import { call } from './api';
 import { getStars, setStars } from '../store/user';
 import { readInventoryCounts, writeInventoryCounts } from './inventory';
+import { resolveDynamicAsset } from '../utils/resolve-dynamic-asset';
 
 export interface GachaCatalogItem {
   gachaId: string;
@@ -190,7 +191,11 @@ export async function listGachaCatalog(): Promise<GachaCatalogItem[]> {
     const res = await call<{ items: GachaCatalogItem[] }>('gacha', {
       action: 'catalog',
     });
-    return res.items || [];
+    // icon 是相对素材路径，需解析为本地 WebP 地址
+    const items = await Promise.all(
+      (res.items || []).map(async (i) => ({ ...i, icon: await resolveDynamicAsset(i.icon) })),
+    );
+    return items;
   } catch {
     const owned = readOwned();
     return SEED_POOL.map((p) => ({
@@ -209,6 +214,10 @@ export async function drawGacha(count: 1 | 5): Promise<GachaDrawResult> {
       requestId,
     });
     setStars(res.stars);
+    // 中奖道具 icon 同样是相对素材路径
+    res.results = await Promise.all(
+      (res.results || []).map(async (i) => ({ ...i, icon: await resolveDynamicAsset(i.icon) })),
+    );
     return res;
   } catch (e) {
     if ((e as Error & { code?: string }).code === 'INSUFFICIENT_STARS') throw e;

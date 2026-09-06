@@ -21,16 +21,6 @@
       </view>
     </view>
 
-    <scroll-view class="tabs" scroll-x enable-flex>
-      <view
-        wx:for="{{tabs}}"
-        wx:key="id"
-        class="tab {{activeTab === item.id ? 'tab--on' : ''}}"
-        data-tab="{{item.id}}"
-        bindtap="onTapTab"
-      >{{item.label}}</view>
-    </scroll-view>
-
     <!-- 展示柜：仅物品 icon + 价签 -->
     <view class="cabinet-layer">
       <swiper

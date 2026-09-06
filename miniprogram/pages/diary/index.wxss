@@ -48,9 +48,27 @@
   gap: 2%;
 }
 
-.tab-img {
+.tab-item {
+  position: relative;
   width: 25%;
   flex-shrink: 0;
+}
+
+.tab-img {
+  width: 100%;
+  display: block;
+}
+
+/* 类型名叠加在贴图标签上 */
+.tab-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10%;
+  text-align: center;
+  font-size: 20rpx;
+  color: #6b5136;
+  pointer-events: none;
 }
 
 /* 明信片网格：四边按 frame 边缘百分比 */

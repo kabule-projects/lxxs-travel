@@ -1,9 +1,8 @@
-import GAME, { SHOP_TABS } from '../utils/constants';
+import GAME from '../utils/constants';
 import { call } from './api';
 import { getStars, setStars } from '../store/user';
 import { emit, GameEvent } from '../utils/event-bus';
-
-export type ShopTab = (typeof SHOP_TABS)[number];
+import { resolveDynamicAsset } from '../utils/resolve-dynamic-asset';
 
 export interface ShopItemView {
   id: string;
@@ -11,18 +10,18 @@ export interface ShopItemView {
   price: number;
   name: string;
   description: string;
-  shopCategory: Exclude<ShopTab, 'all'> | string;
+  shopCategory: string;
   boughtToday: boolean;
 }
 
 export interface ShopListResult {
   stars: number;
-  tab: ShopTab;
+  tab: string;
   pageSize: number;
   total: number;
   totalPages: number;
   dayKey: string;
-  /** 当前 tab 下全部商品；前端按 pageSize 分页 */
+  /** 全部在售商品（仅食物）；前端按 pageSize 分页 */
   items: ShopItemView[];
 }
 
@@ -208,14 +207,11 @@ function bumpInventory(itemId: string) {
   }
 }
 
-function localList(tab: ShopTab): ShopListResult {
-  const safeTab = (SHOP_TABS as readonly string[]).includes(tab) ? tab : 'all';
+function localList(): ShopListResult {
   const local = readLocal();
   const bought = new Set(local.boughtIds);
-  const filtered =
-    safeTab === 'all'
-      ? SEED_CATALOG
-      : SEED_CATALOG.filter((i) => i.shopCategory === safeTab);
+  /** 商店只卖食物；本地兜底与云端口径一致 */
+  const filtered = SEED_CATALOG.filter((i) => i.shopCategory === 'food');
   const pageSize = GAME.SHOP_PAGE_SIZE;
   const total = filtered.length;
   const items = filtered.map((i) => ({
@@ -224,7 +220,7 @@ function localList(tab: ShopTab): ShopListResult {
   }));
   return {
     stars: getStars(),
-    tab: safeTab as ShopTab,
+    tab: 'food',
     pageSize,
     total,
     totalPages: Math.max(1, Math.ceil(total / pageSize) || 1),
@@ -266,20 +262,25 @@ function localPurchase(itemId: string): ShopPurchaseResult {
   };
 }
 
-export async function listShop(tab: ShopTab = 'all'): Promise<ShopListResult> {
+export async function listShop(): Promise<ShopListResult> {
   try {
     const res = await call<ShopListResult>('shop', {
       action: 'list',
-      tab,
     });
     if (res && Array.isArray(res.items)) {
       if (typeof res.stars === 'number') setStars(res.stars);
-      if (res.items.length) return res;
+      if (res.items.length) {
+        // icon 为素材路径：相对路径解析为本地 WebP，cloud:// 云存储路径原样透传
+        res.items = await Promise.all(
+          res.items.map(async (i) => ({ ...i, icon: await resolveDynamicAsset(i.icon) })),
+        );
+        return res;
+      }
     }
     /** 云端货架为空时用本地种子，方便无后台配置时联调 */
-    return localList(tab);
+    return localList();
   } catch {
-    return localList(tab);
+    return localList();
   }
 }
 

@@ -1,5 +1,8 @@
 {
   "name": "login",
+  "version": "1.0.0",
+  "main": "index.js",
   "description": "微信登录并初始化 users",
+  "dependencies": { "wx-server-sdk": "~2.6.3" },
   "permissions": { "openapi": [] }
 }

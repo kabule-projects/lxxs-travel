@@ -59,6 +59,31 @@ async function loadPool() {
     .filter(Boolean);
 }
 
+/** 批量回查 items 主表（batch 20，_.in），返回 id -> 文档 Map */
+async function loadItemMap(itemIds) {
+  const map = new Map();
+  const uniq = [...new Set((itemIds || []).filter(Boolean))];
+  if (!uniq.length) return map;
+
+  const batchSize = 20;
+  for (let i = 0; i < uniq.length; i += batchSize) {
+    const chunk = uniq.slice(i, i + batchSize);
+    try {
+      const res = await db
+        .collection('items')
+        .where({ id: _.in(chunk) })
+        .limit(batchSize)
+        .get();
+      for (const doc of res.data || []) {
+        if (doc && doc.id) map.set(doc.id, doc);
+      }
+    } catch (e) {
+      /* ignore batch failure */
+    }
+  }
+  return map;
+}
+
 async function loadOwnedSet(openid) {
   const res = await db
     .collection('user_gacha')
@@ -87,8 +112,31 @@ async function catalog(openid) {
   });
 }
 
+/** 我的收藏：读 user_gacha；name/icon 以 items 主表为准，rarity 保留 user_gacha 记录值 */
 async function collection(openid) {
-  return catalog(openid);
+  const res = await db
+    .collection('user_gacha')
+    .where({ userId: openid })
+    .limit(500)
+    .get();
+  const rows = res.data || [];
+  const itemMap = await loadItemMap(rows.map((d) => d.gachaId));
+  const items = [];
+  for (const d of rows) {
+    const item = itemMap.get(d.gachaId);
+    if (!item) continue; // items 主表缺失的条目跳过
+    items.push({
+      gachaId: d.gachaId,
+      name: item.name || '',
+      icon: item.icon || '',
+      rarity: d.rarity || 'N',
+      firstObtainedAt: d.firstObtainedAt || 0,
+      count: d.count || 1,
+      obtained: true,
+    });
+  }
+  items.sort((a, b) => (a.firstObtainedAt || 0) - (b.firstObtainedAt || 0));
+  return ok({ items, total: items.length });
 }
 
 async function draw(openid, count, requestId) {

@@ -4,21 +4,15 @@ import { readSafeArea } from '../../utils/device';
 import { playTap } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
 import { getRiceStars, getStars, setStars } from '../../store/user';
-import GAME, { SHOP_TABS, SHOP_TAB_LABELS } from '../../utils/constants';
+import GAME from '../../utils/constants';
 import {
   canBuyItem,
   listShop,
   purchaseShop,
   type ShopItemView,
-  type ShopTab,
 } from '../../services/shop';
 
 type ShopAssets = Record<keyof typeof SHOP_ASSETS, string>;
-
-interface TabView {
-  id: ShopTab;
-  label: string;
-}
 
 interface ShelfSlotView extends ShopItemView {
   empty?: boolean;
@@ -40,11 +34,6 @@ Page({
     safeBottom: 0,
     assets: {} as ShopAssets,
     showSettings: false,
-    tabs: SHOP_TABS.map((id) => ({
-      id,
-      label: SHOP_TAB_LABELS[id],
-    })) as TabView[],
-    activeTab: 'all' as ShopTab,
     pageIndex: 0,
     totalPages: 1,
     pages: [] as PageSlot[],
@@ -66,7 +55,7 @@ Page({
       riceStars: getRiceStars(),
     });
     this.loadAssets();
-    this.reloadList('all');
+    this.reloadList();
   },
 
   onShow() {
@@ -124,15 +113,14 @@ Page({
     });
   },
 
-  async reloadList(tab: ShopTab, preferPage = 0) {
+  async reloadList(preferPage = 0) {
     try {
-      const res = await listShop(tab);
+      const res = await listShop();
       setStars(res.stars);
       this._allItems = res.items || [];
       const built = this.buildPages(this._allItems, preferPage);
       this.setData({
         stars: res.stars,
-        activeTab: tab,
         pages: built.pages,
         totalPages: built.totalPages,
         pageIndex: built.pageIndex,
@@ -170,14 +158,6 @@ Page({
   onTapBag() {
     playTap();
     wx.showToast({ title: '背包 · 请从主页准备', icon: 'none' });
-  },
-
-  onTapTab(e: WechatMiniprogram.TouchEvent) {
-    playTap();
-    const tab = e.currentTarget.dataset.tab as ShopTab;
-    if (!tab || tab === this.data.activeTab) return;
-    this.applySelection(null);
-    this.reloadList(tab, 0);
   },
 
   onSwiperChange(e: WechatMiniprogram.CustomEvent) {

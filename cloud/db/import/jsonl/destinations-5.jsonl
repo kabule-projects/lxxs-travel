@@ -1,0 +1,5 @@
+{"id":"dest_croissant","name":"可颂大陆","terrainTags":["sunny","city"],"distanceTier":2,"baseWeight":3,"durationMinH":3,"durationMaxH":6,"souvenirPool":["souvenir_cake_knife","souvenir_youtiao"],"enabled":true}
+{"id":"dest_biaoguo","name":"嫑锅半岛","terrainTags":["scenic","nature"],"distanceTier":3,"baseWeight":5,"durationMinH":5,"durationMaxH":9,"souvenirPool":["souvenir_biaobiao_s"],"enabled":true}
+{"id":"dest_deep","name":"深深的","terrainTags":["cold","scenic"],"distanceTier":2,"baseWeight":8,"durationMinH":3,"durationMaxH":7,"souvenirPool":["souvenir_rose_red","souvenir_rose_blue","souvenir_frame_1","souvenir_frame_2","souvenir_frame_3"],"enabled":true}
+{"id":"dest_hz929","name":"9.29HZ","terrainTags":["city","sunny"],"distanceTier":1,"baseWeight":4,"durationMinH":2,"durationMaxH":4,"souvenirPool":["souvenir_album1","souvenir_album2"],"enabled":true}
+{"id":"dest_music_fest","name":"音乐节","terrainTags":["city","wild"],"distanceTier":2,"baseWeight":12,"durationMinH":4,"durationMaxH":8,"souvenirPool":["souvenir_glasses"],"enabled":true}

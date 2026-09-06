@@ -10,8 +10,6 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
 
-const SHOP_TABS = new Set(['all', 'food', 'accessory', 'equipment']);
-
 const DEFAULT_SHOP_LINES = [
   '今天也要好好挑选行李呀～',
   '这件很适合深深出门用！',
@@ -45,23 +43,20 @@ async function loadBoughtTodaySet(openid, dayKey) {
   return new Set(res.data.map((d) => d.itemId));
 }
 
-async function listItems(openid, tab) {
+async function listItems(openid) {
   const user = await getUser(openid);
   if (!user) return fail('用户不存在', 'NOT_FOUND');
 
-  const safeTab = SHOP_TABS.has(tab) ? tab : 'all';
   const dayKey = businessDayKey();
   const boughtSet = await loadBoughtTodaySet(openid, dayKey);
 
-  let query = db.collection('items').where({ enabled: true });
-  if (safeTab !== 'all') {
-    query = db.collection('items').where({
-      enabled: true,
-      shopCategory: safeTab,
-    });
-  }
-
-  const res = await query.orderBy('shopSort', 'asc').limit(200).get();
+  // 商店只卖食物；道具（配饰/装备）仅通过扭蛋获得
+  const res = await db
+    .collection('items')
+    .where({ enabled: true, type: 'food' })
+    .orderBy('shopSort', 'asc')
+    .limit(200)
+    .get();
   const all = (res.data || []).filter((d) => d.price != null && d.price >= 0);
   const pageSize = SHOP_PAGE_SIZE;
   const total = all.length;
@@ -69,7 +64,7 @@ async function listItems(openid, tab) {
 
   return ok({
     stars: user.stars || 0,
-    tab: safeTab,
+    tab: 'food',
     pageSize,
     total,
     totalPages: Math.max(1, Math.ceil(total / pageSize) || 1),
@@ -115,6 +110,7 @@ async function purchase(openid, itemId, requestId) {
     .get();
   if (!itemRes.data.length) return fail('物品不存在', 'NOT_FOUND');
   const item = itemRes.data[0];
+  if (item.type !== 'food') return fail('该物品不在商店出售', 'NOT_FOR_SALE');
   const price = Number(item.price);
   if (!(price >= 0)) return fail('价格无效', 'VALIDATION');
 
@@ -211,7 +207,7 @@ exports.main = async (event) => {
       case 'ping':
         return ok({ service: 'shop', ts: Date.now() });
       case 'list':
-        return await listItems(OPENID, event.tab || 'all');
+        return await listItems(OPENID);
       case 'purchase':
         return await purchase(OPENID, event.itemId, event.requestId);
       case 'talk':

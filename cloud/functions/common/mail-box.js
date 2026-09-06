@@ -3,8 +3,8 @@ const { normalizePostcardSnapshot } = require('./postcard-images');
 
 const CAP = PIGEON_MAIL_CAP || 5;
 
+/** 写入/更新日记图鉴；只记录归属与领取次数，展示字段读取时联查 postcards 主表 */
 async function upsertDiaryEntry(db, _, openid, card) {
-  const snap = normalizePostcardSnapshot(card);
   const album = await db
     .collection('user_postcards')
     .where({ userId: openid, postcardId: card.postcardId })
@@ -16,12 +16,6 @@ async function upsertDiaryEntry(db, _, openid, card) {
       data: {
         userId: openid,
         postcardId: card.postcardId,
-        type: snap.type,
-        title: card.title || '明信片',
-        rarity: card.rarity || 'N',
-        imageThumb: snap.imageThumb,
-        imageFull: snap.imageFull,
-        story: card.story || '',
         firstClaimedAt: Date.now(),
         claimCount: 1,
       },

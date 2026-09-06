@@ -107,7 +107,7 @@ API：`showcase/list`、`showcase/unlock`；Admin：`grantShowcase`。
 | story | 翻面故事 |
 | baseWeight | 抽样基础权重（>0） |
 
-成对规则：`imageThumb` 与 `imageFull` 在 `postcards` 配置表定义；写入 `trips.postcards[]` / `user_postcards` 时**快照两份**。  
+成对规则：`imageThumb` 与 `imageFull` 在 `postcards` 配置表定义；写入 `trips.postcards[]` 时**快照两份**（`user_postcards` 只存 `userId + postcardId + 领取信息`，展示字段读取时联查主表）。  
 缺省推导：仅配 `imageFull` 时，缩略图默认为 `{imageFull}-thumb`。
 
 `game_config.trip.destMatchMul`：明信片绑定目的地命中时乘数，默认 1.5。

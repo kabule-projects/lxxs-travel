@@ -20,14 +20,157 @@
   ],
   "items": [
     {
-      "id": "food_bento_a",
+      "id": "souvenir_biaobiao_s",
+      "type": "souvenir",
+      "name": "嫑嫑",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/biaobiao_s.webp",
+      "description": "或许你需要一只嫑嫑？吃不完的鸡蛋和香肠可以送给它。",
+      "showcase": true,
+      "enabled": true,
+      "shopSort": 950
+    },
+    {
+      "id": "souvenir_album2",
+      "type": "souvenir",
+      "name": "反深代词",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/album2.webp",
+      "description": "一块银色大砖头，沉甸甸的都是爱噢！",
+      "showcase": true,
+      "enabled": true,
+      "shopSort": 951
+    },
+    {
+      "id": "souvenir_rose_red",
+      "type": "souvenir",
+      "name": "红玫瑰",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/rose_red.webp",
+      "description": "我找到我的玫瑰啦，希望你也找到了你的。",
+      "showcase": true,
+      "enabled": true,
+      "shopSort": 952
+    },
+    {
+      "id": "souvenir_frame_1",
+      "type": "souvenir",
+      "name": "画框1",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/frame_1.webp",
+      "description": "你是说我画得太好导致米子们都认领了这个形象吗？",
+      "showcase": true,
+      "enabled": true,
+      "shopSort": 953
+    },
+    {
+      "id": "souvenir_frame_2",
+      "type": "souvenir",
+      "name": "画框2",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/frame_2.webp",
+      "description": "周芬奇的又一佳作。等我回家要看到它在墙上C位！",
+      "showcase": true,
+      "enabled": true,
+      "shopSort": 954
+    },
+    {
+      "id": "souvenir_frame_3",
+      "type": "souvenir",
+      "name": "画框3",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/frame_3.webp",
+      "description": "路边斥两元巨资定制的签名，裱起来！",
+      "showcase": true,
+      "enabled": true,
+      "shopSort": 955
+    },
+    {
+      "id": "souvenir_rose_blue",
+      "type": "souvenir",
+      "name": "蓝玫瑰",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/rose_blue.webp",
+      "description": "找到属于你的玫瑰了吗？",
+      "showcase": true,
+      "enabled": true,
+      "shopSort": 956
+    },
+    {
+      "id": "souvenir_glasses",
+      "type": "souvenir",
+      "name": "眼镜",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/glasses.webp",
+      "description": "祝任何时候生日的你，生日快乐！",
+      "showcase": true,
+      "enabled": true,
+      "shopSort": 957
+    },
+    {
+      "id": "souvenir_album1",
+      "type": "souvenir",
+      "name": "周深深de",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/album1.webp",
+      "description": "听说你喜欢这个，真的吗真的吗真的吗好开心哦送你一张！",
+      "showcase": true,
+      "enabled": true,
+      "shopSort": 958
+    },
+    {
+      "id": "souvenir_youtiao",
+      "type": "souvenir",
+      "name": "油条",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/youtiao.webp",
+      "description": "我爱你独一无二的形状——变成油条也没关系。",
+      "showcase": true,
+      "enabled": true,
+      "shopSort": 959
+    },
+    {
+      "id": "souvenir_cake_knife",
+      "type": "souvenir",
+      "name": "蛋糕刀",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/cake_knife.webp",
+      "description": "买蛋糕送的，这有啥用？你看看？",
+      "showcase": true,
+      "enabled": true,
+      "shopSort": 960
+    },
+    {
+      "id": "souvenir_kitchen_knife",
+      "type": "souvenir",
+      "name": "菜刀",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/kitchen_knife.webp",
+      "description": "切蛋糕神器。注意切之前不要切生食不要拍姜蒜哈！",
+      "showcase": true,
+      "enabled": true,
+      "shopSort": 961
+    },
+    {
+      "id": "food_potato",
       "type": "food",
-      "name": "普通便当",
-      "icon": "items/food/mifan",
-      "description": "简单的家常便当，出行必带。",
+      "name": "土豆",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/potato.webp",
+      "description": "任何形态都超绝美味的顶级食材。",
       "price": 3,
       "shopCategory": "food",
       "shopSort": 10,
+      "dailyLimit": 1,
+      "durationMinH": 2,
+      "durationMaxH": 5,
+      "distanceMin": 1,
+      "distanceMax": 2,
+      "postcardBias": [
+        {
+          "groupId": "daily",
+          "weight": 1.2
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "food_rice",
+      "type": "food",
+      "name": "米饭",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/rice.webp",
+      "description": "人是铁饭是钢，合成钢铁小百灵！",
+      "price": 3,
+      "shopCategory": "food",
+      "shopSort": 11,
+      "dailyLimit": 1,
       "durationMinH": 2,
       "durationMaxH": 6,
       "distanceMin": 1,
@@ -35,298 +178,186 @@
       "postcardBias": [
         {
           "groupId": "daily",
-          "weight": 1.2
-        },
-        {
-          "groupId": "nature",
-          "weight": 1
-        }
-      ],
-      "enabled": true,
-      "dailyLimit": 1
-    },
-    {
-      "id": "food_bento_b",
-      "type": "food",
-      "name": "豪华便当",
-      "icon": "items/food/dangao",
-      "description": "丰盛一些，旅途更安心。",
-      "price": 5,
-      "shopCategory": "food",
-      "shopSort": 20,
-      "durationMinH": 4,
-      "durationMaxH": 10,
-      "distanceMin": 2,
-      "distanceMax": 4,
-      "postcardBias": [
-        {
-          "groupId": "scenic",
-          "weight": 1.4
-        },
-        {
-          "groupId": "city",
           "weight": 1.1
         }
-      ],
-      "enabled": true,
-      "dailyLimit": 1
-    },
-    {
-      "id": "food_tea",
-      "type": "food",
-      "name": "保温壶茶",
-      "icon": "items/food/zhou",
-      "description": "路上喝一口暖暖的。",
-      "price": 3,
-      "shopCategory": "food",
-      "shopSort": 30,
-      "durationMinH": 3,
-      "durationMaxH": 8,
-      "distanceMin": 1,
-      "distanceMax": 3,
-      "postcardBias": [
-        {
-          "groupId": "nature",
-          "weight": 1.3
-        }
-      ],
-      "enabled": true,
-      "dailyLimit": 1
-    },
-    {
-      "id": "acc_scarf",
-      "type": "accessory",
-      "name": "小围巾",
-      "icon": "items/accessory/hat",
-      "description": "暖暖的，适合微凉天气。",
-      "price": 4,
-      "shopCategory": "accessory",
-      "shopSort": 10,
-      "terrainBias": [
-        {
-          "tag": "cold",
-          "weightMul": 1.35
-        }
-      ],
-      "postcardBias": [
-        {
-          "groupId": "nature",
-          "weight": 1.15
-        }
-      ],
-      "secondPostcardRateBonus": 0.02,
-      "destWeightMul": 1,
-      "enabled": true,
-      "dailyLimit": 1
-    },
-    {
-      "id": "acc_hat",
-      "type": "accessory",
-      "name": "旅行帽",
-      "icon": "items/accessory/bear",
-      "description": "遮阳又好看。",
-      "price": 4,
-      "shopCategory": "accessory",
-      "shopSort": 20,
-      "terrainBias": [
-        {
-          "tag": "sunny",
-          "weightMul": 1.3
-        }
-      ],
-      "postcardBias": [
-        {
-          "groupId": "scenic",
-          "weight": 1.2
-        }
-      ],
-      "secondPostcardRateBonus": 0,
-      "enabled": true,
-      "dailyLimit": 1
-    },
-    {
-      "id": "acc_glasses",
-      "type": "accessory",
-      "name": "圆框眼镜",
-      "icon": "items/accessory/hat",
-      "description": "看起来更机灵一点。",
-      "price": 5,
-      "shopCategory": "accessory",
-      "shopSort": 25,
-      "showcase": true,
-      "enabled": true,
-      "dailyLimit": 1
-    },
-    {
-      "id": "eq_map",
-      "type": "equipment",
-      "name": "旧地图",
-      "icon": "items/equipment/laobiao",
-      "description": "好像能走到更远的地方。",
-      "price": 6,
-      "shopCategory": "equipment",
-      "shopSort": 10,
-      "terrainBias": [
-        {
-          "tag": "far",
-          "weightMul": 1.5
-        },
-        {
-          "tag": "city",
-          "weightMul": 1.1
-        }
-      ],
-      "postcardBias": [
-        {
-          "groupId": "city",
-          "weight": 1.25
-        }
-      ],
-      "destWeightMul": 1.05,
-      "secondPostcardRateBonus": 0.04,
-      "enabled": true,
-      "dailyLimit": 1
-    },
-    {
-      "id": "eq_cam",
-      "type": "equipment",
-      "name": "拍立得",
-      "icon": "items/equipment/mic",
-      "description": "旅途风景更容易留下。",
-      "price": 8,
-      "shopCategory": "equipment",
-      "shopSort": 20,
-      "terrainBias": [
-        {
-          "tag": "scenic",
-          "weightMul": 1.4
-        }
-      ],
-      "postcardBias": [
-        {
-          "groupId": "scenic",
-          "weight": 1.5
-        },
-        {
-          "groupId": "daily",
-          "weight": 0.9
-        }
-      ],
-      "secondPostcardRateBonus": 0.08,
-      "enabled": true,
-      "dailyLimit": 1
-    },
-    {
-      "id": "eq_compass",
-      "type": "equipment",
-      "name": "小指南针",
-      "icon": "items/equipment/laobiao",
-      "description": "迷路时派得上用场。",
-      "price": 6,
-      "shopCategory": "equipment",
-      "shopSort": 30,
-      "terrainBias": [
-        {
-          "tag": "wild",
-          "weightMul": 1.45
-        }
-      ],
-      "postcardBias": [
-        {
-          "groupId": "nature",
-          "weight": 1.3
-        }
-      ],
-      "enabled": true,
-      "dailyLimit": 1
-    },
-    {
-      "id": "souvenir_potato",
-      "type": "souvenir",
-      "name": "贵阳六中门口的狼牙土豆",
-      "icon": "items/souvenir/yizhuan",
-      "description": "放学时间在贵阳六中门口小摊前\n随机刷新一名周姓学子",
-      "showcase": true,
-      "enabled": true,
-      "shopSort": 900
-    },
-    {
-      "id": "souvenir_leaf",
-      "type": "souvenir",
-      "name": "一片会说话的叶子",
-      "icon": "items/souvenir/erzhuan",
-      "description": "叶子上写着：记得喝水。",
-      "showcase": true,
-      "enabled": true,
-      "shopSort": 910
-    },
-    {
-      "id": "souvenir_badge",
-      "type": "souvenir",
-      "name": "旧街纪念章",
-      "icon": "items/souvenir/biao",
-      "description": "市集摊子上淘来的小徽章。",
-      "showcase": true,
-      "enabled": true,
-      "shopSort": 920
-    },
-    {
-      "id": "souvenir_shell",
-      "type": "souvenir",
-      "name": "灯塔旁的贝壳",
-      "icon": "items/souvenir/youtiao",
-      "description": "贴耳能听见一点点潮声。",
-      "showcase": true,
-      "enabled": true,
-      "shopSort": 930
-    },
-    {
-      "id": "souvenir_pebble",
-      "type": "souvenir",
-      "name": "山顶圆石",
-      "icon": "items/souvenir/frame-1",
-      "description": "风很大，石头却很安静。",
-      "showcase": true,
-      "enabled": true,
-      "shopSort": 940
-    },
-    {
-      "id": "acc_badge",
-      "type": "accessory",
-      "name": "纪念徽章",
-      "icon": "items/souvenir/glasses",
-      "description": "别在衣服上更有精神。",
-      "price": 2,
-      "shopCategory": "accessory",
-      "shopSort": 30,
-      "showcase": true,
-      "enabled": true,
-      "dailyLimit": 1
-    }
-  ],
-  "destinations": [
-    {
-      "id": "dest_park",
-      "name": "附近的小公园",
-      "terrainTags": [
-        "sunny",
-        "nature"
-      ],
-      "distanceTier": 1,
-      "baseWeight": 10,
-      "durationMinH": 2,
-      "durationMaxH": 5,
-      "souvenirPool": [
-        "souvenir_potato",
-        "souvenir_leaf"
       ],
       "enabled": true
     },
     {
-      "id": "dest_lakeside",
-      "name": "湖心步道",
+      "id": "food_congee",
+      "type": "food",
+      "name": "甜甜蜜蜜小白粥",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/congee.webp",
+      "description": "平平无奇却可甜可……理论可咸的百搭白粥。",
+      "price": 3,
+      "shopCategory": "food",
+      "shopSort": 12,
+      "dailyLimit": 1,
+      "durationMinH": 2,
+      "durationMaxH": 4,
+      "distanceMin": 1,
+      "distanceMax": 2,
+      "postcardBias": [
+        {
+          "groupId": "daily",
+          "weight": 1
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "food_tusundong",
+      "type": "food",
+      "name": "土笋冻",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/tusundong.webp",
+      "description": "不想吃也没关系，真的，人要懂得放过自己。",
+      "price": 4,
+      "shopCategory": "food",
+      "shopSort": 13,
+      "dailyLimit": 1,
+      "durationMinH": 3,
+      "durationMaxH": 5,
+      "distanceMin": 1,
+      "distanceMax": 2,
+      "postcardBias": [
+        {
+          "groupId": "nature",
+          "weight": 1.1
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "food_chocolate",
+      "type": "food",
+      "name": "巧克力",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/chocolate.webp",
+      "description": "生活的甜蜜小魔法～",
+      "price": 5,
+      "shopCategory": "food",
+      "shopSort": 14,
+      "dailyLimit": 1,
+      "durationMinH": 3,
+      "durationMaxH": 6,
+      "distanceMin": 1,
+      "distanceMax": 3,
+      "postcardBias": [
+        {
+          "groupId": "daily",
+          "weight": 1.1
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "food_cake",
+      "type": "food",
+      "name": "蛋糕",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/cake.webp",
+      "description": "蓬松绵软，用菜刀切很顺手。",
+      "price": 6,
+      "shopCategory": "food",
+      "shopSort": 15,
+      "dailyLimit": 1,
+      "durationMinH": 4,
+      "durationMaxH": 8,
+      "distanceMin": 2,
+      "distanceMax": 3,
+      "postcardBias": [
+        {
+          "groupId": "daily",
+          "weight": 1
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "acc_top_hat",
+      "type": "accessory",
+      "name": "帽子",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/top_hat.webp",
+      "description": "不能一直戴在头上，因为会有鸽子和彩带飞出来。",
+      "price": 10,
+      "shopCategory": "accessory",
+      "shopSort": 20,
+      "dailyLimit": 1,
+      "enabled": true
+    },
+    {
+      "id": "acc_teddy",
+      "type": "accessory",
+      "name": "泰迪熊",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/teddy.webp",
+      "description": "永远都在的，软软暖暖的好朋友。",
+      "price": 12,
+      "shopCategory": "accessory",
+      "shopSort": 21,
+      "dailyLimit": 1,
+      "enabled": true
+    },
+    {
+      "id": "acc_biaobiao_p",
+      "type": "accessory",
+      "name": "嫑嫑",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/biaobiao_p.webp",
+      "description": "要勇敢说“不”！没用？那它恰好是一口邦邦硬的锅……",
+      "price": 15,
+      "shopCategory": "accessory",
+      "shopSort": 22,
+      "dailyLimit": 1,
+      "enabled": true
+    },
+    {
+      "id": "acc_mic",
+      "type": "accessory",
+      "name": "蓝啥",
+      "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/mic.webp",
+      "description": "传导声音的蓝色魔法道具。",
+      "price": 20,
+      "shopCategory": "accessory",
+      "shopSort": 23,
+      "dailyLimit": 1,
+      "enabled": true
+    }
+  ],
+  "destinations": [
+    {
+      "id": "dest_croissant",
+      "name": "可颂大陆",
       "terrainTags": [
-        "nature",
+        "sunny",
+        "city"
+      ],
+      "distanceTier": 2,
+      "baseWeight": 3,
+      "durationMinH": 3,
+      "durationMaxH": 6,
+      "souvenirPool": [
+        "souvenir_cake_knife",
+        "souvenir_youtiao"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "dest_biaoguo",
+      "name": "嫑锅半岛",
+      "terrainTags": [
+        "scenic",
+        "nature"
+      ],
+      "distanceTier": 3,
+      "baseWeight": 5,
+      "durationMinH": 5,
+      "durationMaxH": 9,
+      "souvenirPool": [
+        "souvenir_biaobiao_s"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "dest_deep",
+      "name": "深深的",
+      "terrainTags": [
         "cold",
         "scenic"
       ],
@@ -335,176 +366,264 @@
       "durationMinH": 3,
       "durationMaxH": 7,
       "souvenirPool": [
-        "souvenir_leaf"
+        "souvenir_rose_red",
+        "souvenir_rose_blue",
+        "souvenir_frame_1",
+        "souvenir_frame_2",
+        "souvenir_frame_3"
       ],
       "enabled": true
     },
     {
-      "id": "dest_oldtown",
-      "name": "旧街市集",
+      "id": "dest_hz929",
+      "name": "9.29HZ",
       "terrainTags": [
         "city",
         "sunny"
       ],
+      "distanceTier": 1,
+      "baseWeight": 4,
+      "durationMinH": 2,
+      "durationMaxH": 4,
+      "souvenirPool": [
+        "souvenir_album1",
+        "souvenir_album2"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "dest_music_fest",
+      "name": "音乐节",
+      "terrainTags": [
+        "city",
+        "wild"
+      ],
       "distanceTier": 2,
-      "baseWeight": 7,
+      "baseWeight": 12,
       "durationMinH": 4,
       "durationMaxH": 8,
       "souvenirPool": [
-        "souvenir_badge"
-      ],
-      "enabled": true
-    },
-    {
-      "id": "dest_hill",
-      "name": "远山观景台",
-      "terrainTags": [
-        "scenic",
-        "far",
-        "wild"
-      ],
-      "distanceTier": 3,
-      "baseWeight": 5,
-      "durationMinH": 6,
-      "durationMaxH": 12,
-      "souvenirPool": [
-        "souvenir_pebble"
-      ],
-      "enabled": true
-    },
-    {
-      "id": "dest_coast",
-      "name": "海边灯塔",
-      "terrainTags": [
-        "scenic",
-        "far",
-        "sunny"
-      ],
-      "distanceTier": 4,
-      "baseWeight": 4,
-      "durationMinH": 8,
-      "durationMaxH": 16,
-      "souvenirPool": [
-        "souvenir_shell"
+        "souvenir_glasses"
       ],
       "enabled": true
     }
   ],
   "postcards": [
     {
-      "id": "pc_park_duck",
-      "title": "喂鸭子的午后",
-      "rarity": "N",
-      "groupId": "daily",
-      "destId": "dest_park",
-      "imageThumb": "postcards/letter-1-thumb",
-      "imageFull": "postcards/letter-1",
-      "story": "深深在公园长椅上睡着了，鸭子把他的面包屑偷走了。",
-      "baseWeight": 10,
-      "enabled": true,
-      "type": "letter"
-    },
-    {
-      "id": "pc_park_slide",
-      "title": "滑梯一号选手",
-      "rarity": "R",
-      "groupId": "daily",
-      "destId": "dest_park",
-      "imageThumb": "postcards/letter-2-thumb",
-      "imageFull": "postcards/letter-2",
-      "story": "滑了十二次，第十三次决定回家。",
-      "baseWeight": 6,
-      "enabled": true,
-      "type": "letter"
-    },
-    {
-      "id": "pc_lake_mist",
-      "title": "湖面薄雾",
-      "rarity": "R",
-      "groupId": "nature",
-      "destId": "dest_lakeside",
-      "imageThumb": "postcards/letter-3-thumb",
-      "imageFull": "postcards/letter-3",
-      "story": "雾散开时，对岸有人在挥手。",
-      "baseWeight": 7,
-      "enabled": true,
-      "type": "letter"
-    },
-    {
-      "id": "pc_lake_sr",
-      "title": "倒影里的月亮",
+      "id": "pc_01",
+      "title": "超级超级幸福也希望你超级超级幸福的卡布叻周深",
       "rarity": "SR",
-      "groupId": "nature",
-      "destId": "dest_lakeside",
-      "imageThumb": "postcards/letter-4-thumb",
-      "imageFull": "postcards/letter-4",
-      "story": "明明是白天，湖面却映出一弯细月。",
-      "baseWeight": 3,
-      "enabled": true,
-      "type": "letter"
-    },
-    {
-      "id": "pc_town_lantern",
-      "title": "灯笼巷",
-      "rarity": "R",
-      "groupId": "city",
-      "destId": "dest_oldtown",
-      "imageThumb": "postcards/letter-5-thumb",
-      "imageFull": "postcards/letter-5",
-      "story": "巷子尽头飘来糖炒栗子的味道。",
-      "baseWeight": 6,
-      "enabled": true,
-      "type": "letter"
-    },
-    {
-      "id": "pc_hill_wind",
-      "title": "风很大的山顶",
-      "rarity": "SR",
-      "groupId": "scenic",
-      "destId": "dest_hill",
-      "imageThumb": "postcards/letter-6-thumb",
-      "imageFull": "postcards/letter-6",
-      "story": "帽子差点儿飞走，深深紧紧按住。",
+      "type": "postcard",
+      "groupId": "daily",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-1.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-1.webp",
+      "story": "庆祝一个真实又虚构的，幸福也幸运的我的诞生。——超级超级幸福也希望你超级超级幸福的卡布叻周深",
       "baseWeight": 4,
-      "enabled": true,
-      "type": "letter"
+      "enabled": true
     },
     {
-      "id": "pc_coast_ssr",
-      "title": "灯塔与潮声",
+      "id": "pc_02",
+      "title": "爱来自纽约的Mr.Zhou",
       "rarity": "SSR",
-      "groupId": "scenic",
-      "destId": "dest_coast",
-      "imageThumb": "postcards/letter-7-thumb",
-      "imageFull": "postcards/letter-7",
-      "story": "潮水拍岸，灯塔一闪一闪，像在说晚安。",
-      "baseWeight": 2,
-      "enabled": true,
-      "type": "letter"
+      "type": "postcard",
+      "groupId": "concert",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-2.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-2.webp",
+      "story": "纽扣和绿格纹，fashion吧！道具没有浪费，已经吃掉咯。——爱来自纽约的Mr.Zhou",
+      "baseWeight": 1.5,
+      "enabled": true
     },
     {
-      "id": "pc_anywhere_star",
-      "title": "随身星空",
-      "rarity": "UR",
-      "groupId": "scenic",
-      "imageThumb": "postcards/letter-8-thumb",
-      "imageFull": "postcards/letter-8",
-      "story": "无论走到哪里，头顶好像都有同一片星。",
-      "baseWeight": 1,
-      "enabled": true,
-      "type": "letter"
+      "id": "pc_03",
+      "title": "卡布叻周深携小熊",
+      "rarity": "R",
+      "type": "postcard",
+      "groupId": "daily",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-3.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-3.webp",
+      "story": "看我的旅途新伙伴！想抱吗？要先问他愿不愿意哦！——卡布叻周深携小熊",
+      "baseWeight": 10,
+      "enabled": true
     },
     {
-      "id": "pc_nature_leaf",
-      "title": "一片会说话的叶子",
+      "id": "pc_04",
+      "title": "迷路但还要跑的卡布叻周深",
       "rarity": "N",
-      "groupId": "nature",
-      "imageThumb": "postcards/letter-9-thumb",
-      "imageFull": "postcards/letter-9",
-      "story": "叶子上写着：记得喝水。",
-      "baseWeight": 9,
-      "enabled": true,
-      "type": "letter"
+      "type": "postcard",
+      "groupId": "daily",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-4.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-4.webp",
+      "story": "唉？嗨！希望你有美好的每一天！拜拜！ ——迷路但还要跑的卡布叻周深",
+      "baseWeight": 20,
+      "enabled": true
+    },
+    {
+      "id": "pc_05",
+      "title": "偷看新员工的周老板",
+      "rarity": "R",
+      "type": "postcard",
+      "groupId": "daily",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-5.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-5.webp",
+      "story": "就这样过上甜甜蜜蜜的新生活吧，力量不够大也没关系。——偷看新员工的周老板",
+      "baseWeight": 10,
+      "enabled": true
+    },
+    {
+      "id": "pc_06",
+      "title": "摆拍手有点冷的卡布叻周深",
+      "rarity": "SR",
+      "type": "postcard",
+      "groupId": "daily",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-6.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-6.webp",
+      "story": "冬日雪在等春光，我呼唤叫明天的远方。——摆拍手有点冷的卡布叻周深",
+      "baseWeight": 4,
+      "enabled": true
+    },
+    {
+      "id": "pc_07",
+      "title": "想变成柯基的卡布叻周深",
+      "rarity": "N",
+      "type": "postcard",
+      "groupId": "daily",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-7.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-7.webp",
+      "story": "秋天的金黄，是麦田，是小狗，是……嫑嫑的双眸。——想变成柯基的卡布叻周深",
+      "baseWeight": 20,
+      "enabled": true
+    },
+    {
+      "id": "pc_08",
+      "title": "想吃道具的卡布叻周深",
+      "rarity": "R",
+      "type": "postcard",
+      "groupId": "daily",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-8.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-8.webp",
+      "story": "梅子黄梅子青夏令新，摘尽枇杷一树金。——想吃道具的卡布叻周深",
+      "baseWeight": 10,
+      "enabled": true
+    },
+    {
+      "id": "pc_09",
+      "title": "许愿时偷偷睁眼的卡布叻周深",
+      "rarity": "SR",
+      "type": "postcard",
+      "groupId": "daily",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-9.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-9.webp",
+      "story": "许个关于自己的愿望吧，要捕捉到生活的每个小美满。——许愿时偷偷睁眼的卡布叻周深",
+      "baseWeight": 4,
+      "enabled": true
+    },
+    {
+      "id": "pc_10",
+      "title": "缝缝补补的机器人",
+      "rarity": "SSR",
+      "type": "postcard",
+      "groupId": "album",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-10.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-10.webp",
+      "story": "只要心脏依然在跳着，我们就有再重新缝合的机会。——缝缝补补的机器人",
+      "baseWeight": 1.5,
+      "enabled": true
+    },
+    {
+      "id": "pc_11",
+      "title": "行囊满满的空壳",
+      "rarity": "SSR",
+      "type": "postcard",
+      "groupId": "album",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-11.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-11.webp",
+      "story": "谢谢，再见。你不会被弄丢，我们终将重逢。——行囊满满的空壳",
+      "baseWeight": 1.5,
+      "enabled": true
+    },
+    {
+      "id": "pc_12",
+      "title": "你的念想、你的绿洲、你的蜃楼",
+      "rarity": "SSR",
+      "type": "postcard",
+      "groupId": "album",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-12.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-12.webp",
+      "story": "你心底还放不下的执念，是什么呢？——你的念想、你的绿洲、你的蜃楼",
+      "baseWeight": 1.5,
+      "enabled": true
+    },
+    {
+      "id": "pc_13",
+      "title": "绝对没有迷路的卡布叻周深",
+      "rarity": "N",
+      "type": "postcard",
+      "groupId": "daily",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-13.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-13.webp",
+      "story": "什么叫直走呀……路在这里分叉了耶…… ——绝对没有迷路的卡布叻周深",
+      "baseWeight": 20,
+      "enabled": true
+    },
+    {
+      "id": "pc_14",
+      "title": "努力提供精神支持的嫑嫑",
+      "rarity": "R",
+      "type": "postcard",
+      "groupId": "daily",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-14.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-14.webp",
+      "story": "power～ power！蛋糕变好吃power～ ——努力提供精神支持的嫑嫑",
+      "baseWeight": 10,
+      "enabled": true
+    },
+    {
+      "id": "pc_15",
+      "title": "被巧克力香迷糊的可可",
+      "rarity": "N",
+      "type": "postcard",
+      "groupId": "daily",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-15.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-15.webp",
+      "story": "做巧克力最最重要的原料是爱哦。——被巧克力香迷糊的可可",
+      "baseWeight": 20,
+      "enabled": true
+    },
+    {
+      "id": "pc_16",
+      "title": "现在也很幸福的可可",
+      "rarity": "R",
+      "type": "postcard",
+      "groupId": "daily",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-16.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-16.webp",
+      "story": "和嫑嫑一起弹钢琴，好像又回到了那段幸福的日子。——现在也很幸福的可可",
+      "baseWeight": 10,
+      "enabled": true
+    },
+    {
+      "id": "pc_17",
+      "title": "幸福贴贴的COMINO",
+      "rarity": "N",
+      "type": "postcard",
+      "groupId": "daily",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-17.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-17.webp",
+      "story": "甜品的意义是与更多人分享幸福。——幸福贴贴的COMINO",
+      "baseWeight": 20,
+      "enabled": true
+    },
+    {
+      "id": "pc_18",
+      "title": "玫瑰和小鹿和卡布叻周深（是人）",
+      "rarity": "SSR",
+      "type": "postcard",
+      "groupId": "album",
+      "imageThumb": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/pa-18.webp",
+      "imageFull": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/postcards/postcard-18.webp",
+      "story": "要珍惜美好的当下哦。——玫瑰和小鹿和卡布叻周深（是人）",
+      "baseWeight": 1.5,
+      "enabled": true
     }
   ],
   "copy_pool": [

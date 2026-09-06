@@ -7,12 +7,22 @@
       <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
     </view>
 
-    <!-- 标签页：底边贴笔记本顶边，激活标签更高 -->
-    <view class="notebook-tabs">
-      <image class="tab-img tab-img--active" src="{{assets.tabActive}}" mode="widthFix" />
-      <image class="tab-img" src="{{assets.tab}}" mode="widthFix" />
-      <image class="tab-img" src="{{assets.tab}}" mode="widthFix" />
-      <image class="tab-img" src="{{assets.tab}}" mode="widthFix" />
+    <!-- 标签页：底边贴笔记本顶边，激活标签更高；类型数 = 图鉴中实际出现的类型（最多 4 个） -->
+    <view class="notebook-tabs" wx:if="{{tabs.length > 0}}">
+      <view
+        wx:for="{{tabs}}"
+        wx:key="type"
+        class="tab-item"
+        data-type="{{item.type}}"
+        bindtap="onTapTab"
+      >
+        <image
+          class="tab-img"
+          src="{{activeTab === item.type ? assets.tabActive : assets.tab}}"
+          mode="widthFix"
+        />
+        <text class="tab-label">{{item.label}}</text>
+      </view>
     </view>
 
     <scroll-view class="grid-scroll" scroll-y>

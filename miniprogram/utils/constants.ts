@@ -35,13 +35,4 @@ export const GAME = {
   APP_VERSION: '1.0.01',
 } as const;
 
-export const SHOP_TABS = ['all', 'food', 'accessory', 'equipment'] as const;
-
-export const SHOP_TAB_LABELS: Record<(typeof SHOP_TABS)[number], string> = {
-  all: '全部',
-  food: '食物',
-  accessory: '饰品',
-  equipment: '装备',
-};
-
 export default GAME;
