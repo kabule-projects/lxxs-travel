@@ -106,10 +106,13 @@ function mapCatalogEntry(d, owned) {
 async function catalog(openid) {
   const pool = await loadPool();
   const owned = await loadOwnedSet(openid);
-  return ok({
-    items: pool.map((d) => mapCatalogEntry(d, owned)),
-    total: pool.length,
+  const items = pool.map((d) => mapCatalogEntry(d, owned));
+  // 排序：已抽到的在前，未抽到的（问号）在后；组内保持奖池 sortOrder
+  items.sort((a, b) => {
+    if (a.obtained === b.obtained) return 0;
+    return a.obtained ? -1 : 1;
   });
+  return ok({ items, total: items.length });
 }
 
 /** 我的收藏：读 user_gacha；name/icon 以 items 主表为准，rarity 保留 user_gacha 记录值 */
@@ -233,6 +236,7 @@ exports.main = async (event) => {
       case 'ping':
         return ok({ service: 'gacha', ts: Date.now() });
       case 'catalog':
+        return await catalog(OPENID);
       case 'collection':
         return await collection(OPENID);
       case 'draw':

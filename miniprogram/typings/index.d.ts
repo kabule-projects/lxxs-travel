@@ -94,6 +94,13 @@ declare namespace WechatMiniprogram {
 
 declare const wx: WechatMiniprogram.Wx;
 
+declare const console: {
+  log(...args: unknown[]): void;
+  info(...args: unknown[]): void;
+  warn(...args: unknown[]): void;
+  error(...args: unknown[]): void;
+};
+
 declare function App<T extends WechatMiniprogram.IAnyObject>(options: T): void;
 declare function Page<T extends WechatMiniprogram.IAnyObject>(options: T): void;
 declare function getApp<T extends WechatMiniprogram.IAnyObject>(): T;

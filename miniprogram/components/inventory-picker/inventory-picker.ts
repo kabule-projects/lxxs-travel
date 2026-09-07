@@ -15,6 +15,7 @@ Component({
   data: {
     tab: 'food' as InvCategory,
     items: [] as InvItemView[],
+    loading: false,
     panelBg: '',
     iconClose: '',
     tabFood: '',
@@ -70,8 +71,13 @@ Component({
       const lock = (this.properties.lockTab || '') as InvCategory | '';
       const tab: InvCategory =
         lock === 'food' || lock === 'prop' ? lock : this.data.tab;
-      const items = await fetchOwned(lock || tab);
-      this.setData({ tab, items });
+      this.setData({ loading: true, tab });
+      try {
+        const items = await fetchOwned(lock || tab);
+        this.setData({ tab, items });
+      } finally {
+        this.setData({ loading: false });
+      }
     },
 
     async onTapTab(e: WechatMiniprogram.TouchEvent) {
@@ -79,12 +85,14 @@ Component({
       const tab = e.currentTarget.dataset.tab as InvCategory;
       if (!tab || tab === this.data.tab) return;
       // 先切 tab 贴图（立即反馈），再异步拉列表
-      this.setData({ tab, items: [] });
+      this.setData({ tab, items: [], loading: true });
       try {
         const items = await fetchOwned(tab);
         this.setData({ items });
       } catch {
         /* ignore: 列表为空就是失败提示 */
+      } finally {
+        this.setData({ loading: false });
       }
     },
 

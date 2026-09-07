@@ -43,7 +43,8 @@
             </view>
           </view>
         </view>
-        <view wx:if="{{!items.length}}" class="inv-empty">暂无此类物品</view>
+        <view wx:if="{{loading}}" class="inv-empty">加载中…</view>
+        <view wx:elif="{{!items.length}}" class="inv-empty">暂无此类物品</view>
       </scroll-view>
     </view>
   </view>

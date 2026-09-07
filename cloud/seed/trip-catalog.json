@@ -121,7 +121,7 @@
     },
     {
       "id": "souvenir_cake_knife",
-      "type": "souvenir",
+      "type": "accessory",
       "name": "蛋糕刀",
       "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/cake_knife.webp",
       "description": "买蛋糕送的，这有啥用？你看看？",
@@ -131,7 +131,7 @@
     },
     {
       "id": "souvenir_kitchen_knife",
-      "type": "souvenir",
+      "type": "accessory",
       "name": "菜刀",
       "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/kitchen_knife.webp",
       "description": "切蛋糕神器。注意切之前不要切生食不要拍姜蒜哈！",
