@@ -41,11 +41,11 @@
   <!-- loading logo -->
   <image class="loading-logo" src="{{logoSrc}}" mode="widthFix" />
 
-  <view class="enter-zone" style="padding-top: {{safeTop}}px">
+  <view class="enter-zone" style="padding-top: {{safeTop}}px" wx:if="{{canEnter}}">
     <view class="enter-hit" bindtap="onEnterGame">
       <image
-        class="enter-img {{canEnter ? '' : 'enter-img--wait'}}"
-        src="{{canEnter ? btnEnterSrc : btnEnterDisabledSrc}}"
+        class="enter-img"
+        src="{{btnEnterSrc}}"
         mode="widthFix"
         show-menu-by-longpress="{{false}}"
       />

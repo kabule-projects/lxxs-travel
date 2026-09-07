@@ -15,7 +15,7 @@ Page({
   data: {
     progress: 0,
     tip: '正在加载…',
-    canEnter: true,
+    canEnter: false,
     layersReady: false,
     bgSrc: '',
     btnEnterSrc: '',

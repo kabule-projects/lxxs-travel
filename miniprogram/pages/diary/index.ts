@@ -96,24 +96,15 @@ Page({
     this.applyTab();
   },
 
-  /** 按当前 tab 过滤条目并铺网格；不足时用空半透明格补齐 */
+  /** 按当前 tab 过滤条目并铺网格；只渲染实际存在的明信片格子 */
   applyTab() {
     const entries = this.data.allEntries.filter((e: DiaryEntry) => e.type === this.data.activeTab);
-    /** 设计稿一屏约 3×5；不足时补空位 */
-    const minSlots = 15;
-    const slotCount = Math.max(minSlots, Math.ceil(entries.length / 3) * 3);
-    const gridSlots = Array.from({ length: slotCount }, (_, i) => {
-      const entry = entries[i];
-      if (!entry) {
-        return { key: `empty-${i}`, entryIndex: -1 };
-      }
-      return {
-        key: entry.postcardId,
-        entryIndex: i,
-        imageThumb: entry.imageThumb,
-        imageFull: entry.imageFull,
-      };
-    });
+    const gridSlots = entries.map((entry, i) => ({
+      key: entry.postcardId,
+      entryIndex: i,
+      imageThumb: entry.imageThumb,
+      imageFull: entry.imageFull,
+    }));
     this.setData({ entries, gridSlots, empty: this.data.allEntries.length === 0 });
   },
 
