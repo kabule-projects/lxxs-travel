@@ -85,10 +85,9 @@
   height: 62%;
 }
 
-.slot-rice-mark {
-  font-size: 48rpx;
-  font-weight: 700;
-  color: #e8a830;
+.slot-rice-icon {
+  width: 62%;
+  height: 62%;
 }
 
 .slot-clear {

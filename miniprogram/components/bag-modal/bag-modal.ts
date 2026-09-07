@@ -2,7 +2,7 @@ import GAME from '../../utils/constants';
 import { getRiceStars } from '../../store/user';
 import { getItemMeta } from '../../services/inventory';
 import type { InvCategory, InvItemView } from '../../services/inventory';
-import { BAG_ASSETS, COMMON_ASSETS } from '../../utils/asset-path';
+import { BAG_ASSETS, COMMON_ASSETS, ROOF_ASSETS } from '../../utils/asset-path';
 import { resolveAsset, resolveAssetMap } from '../../utils/resolve-assets';
 import { GameEvent, on } from '../../utils/event-bus';
 
@@ -40,6 +40,9 @@ Component({
       });
       resolveAsset(COMMON_ASSETS.iconClose).then((iconClose) => {
         this.setData({ iconClose });
+      });
+      resolveAsset(ROOF_ASSETS.starRice).then((riceIcon) => {
+        this.setData({ riceIcon });
       });
       this._offTripStarted = on(GameEvent.TRIP_STARTED, () => {
         this.resetLoadout();

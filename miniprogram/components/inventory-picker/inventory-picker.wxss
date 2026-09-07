@@ -49,10 +49,6 @@
   gap: 20rpx;
 }
 
-.inv-tabs--locked {
-  justify-content: flex-start;
-}
-
 /* widthFix：宽度直接设定，高度随切图比例；选中态更高由切图本身体现 */
 .inv-tab {
   width: 110rpx;

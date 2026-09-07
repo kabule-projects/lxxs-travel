@@ -27,7 +27,7 @@
 
       <view class="slot slot-rice" catchtap="onTapRice">
         <view wx:if="{{riceStar}}" class="slot-fill">
-          <text class="slot-rice-mark">米</text>
+          <image class="slot-rice-icon" src="{{riceIcon}}" mode="aspectFit" />
           <image
             class="slot-clear"
             src="{{iconClose}}"

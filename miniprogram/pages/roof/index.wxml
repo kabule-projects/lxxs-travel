@@ -24,7 +24,7 @@
   <!-- 屋顶底部角色装饰 -->
   <view class="roof-characters">
     <image class="char-mi" src="{{assets.charMi}}" mode="widthFix" />
-    <image class="char-shen" src="{{assets.charShen}}" mode="widthFix" />
+    <image wx:if="{{charShenVisible}}" class="char-shen" src="{{assets.charShen}}" mode="widthFix" />
     <image class="char-biao" src="{{assets.charBiao}}" mode="widthFix" />
   </view>
 

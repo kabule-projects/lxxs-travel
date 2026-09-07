@@ -45,6 +45,8 @@ Page({
     showInv: false,
     pigeonState: 'idle' as PigeonState,
     flyAway: false,
+    /** depart（旅行中）状态下隐藏小深 */
+    charShenVisible: true,
     showMailbox: false,
     showSettings: false,
     mailItems: [] as MailItem[],
@@ -105,6 +107,7 @@ Page({
     this.setData({
       showTravelBanner: true,
       travelBannerMode: 'return',
+      charShenVisible: true,
     });
     runReturnBannerFlow(tripId, () => {
       this.setData({ showTravelBanner: false });
@@ -378,7 +381,7 @@ Page({
     if (!loadout) return;
     try {
       await startTrip(loadout);
-      this.setData({ showBag: false, flyAway: true });
+      this.setData({ showBag: false, flyAway: true, charShenVisible: false });
       setLocalTraveling(true);
       emit(GameEvent.CHARACTER_HIDDEN);
       this.showDepartBanner();

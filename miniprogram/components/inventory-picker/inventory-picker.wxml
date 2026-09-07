@@ -20,13 +20,7 @@
           catchtap="onTapTab"
         />
       </view>
-      <view class="inv-tabs inv-tabs--locked" wx:else>
-        <image
-          class="inv-tab inv-tab--on"
-          src="{{lockTab === 'prop' ? tabPropOn : tabFoodOn}}"
-          mode="widthFix"
-        />
-      </view>
+      <!-- 从背包等场景锁定类目打开（lockTab 非空）时：不显示 tab，直接进列表 -->
 
       <scroll-view class="inv-list" scroll-y>
         <view
