@@ -8,11 +8,16 @@
 
 .shop-page-bg {
   position: absolute;
-  left: 0;
-  top: 0;
   width: 100%;
   height: 100%;
+  top: 4%;
   z-index: 0;
+}
+
+/* 背景副本：叠在主背景下方，从顶部 0 开始填充主背景 top:4% 留出的空隙 */
+.shop-page-bg--back {
+  top: 0;
+  z-index: -1;
 }
 
 .shop-overlay {
@@ -21,13 +26,33 @@
   min-height: 100vh;
 }
 
-/* ── 顶栏 ── */
+/* ── 顶栏（布局同 home/gacha）；top 由内联样式给定，避让右上角胶囊 ── */
 .shop-hud {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8rpx 20rpx 0;
-  gap: 12rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+}
+
+/* 左右两侧等宽，保证中间货币框水平居中；返回与设置同为 nav-icon size="sm"，高度一致 */
+.hud-side {
+  width: 168rpx;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.hud-side--left {
+  justify-content: flex-start;
+}
+
+.hud-side--right {
+  justify-content: flex-end;
 }
 
 .hud-center {
@@ -39,37 +64,14 @@
   min-width: 0;
 }
 
-.currency-pill {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  min-width: 120rpx;
-  height: 52rpx;
-  padding: 0 18rpx;
-  box-sizing: border-box;
-  border-radius: 26rpx;
-  border: 3rpx solid #5a3a22;
-  background: #fffaf3;
+/* 计数框：基础样式 + 数字定位在 app.wxss 全局定义，此处只管两个框各自的宽度 */
+.currency-pill--star {
+  width: 255rpx;
+  margin-bottom: 5rpx;
 }
 
-.currency-icon {
-  width: 36rpx;
-  height: 36rpx;
-  flex-shrink: 0;
-}
-
-.currency-num {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #3a2410;
-  line-height: 1;
-}
-
-.hud-right {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  flex-shrink: 0;
+.currency-pill--rice {
+  width: 178rpx;
 }
 
 .tabs {
@@ -107,8 +109,8 @@
   position: absolute;
   left: 9%;
   right: 9%;
-  top: 36%;
-  height: 30%;
+  top: 42%;
+  height: 26%;
   z-index: 3;
 }
 
@@ -225,23 +227,33 @@
 
 /*
  * 底部简介区（对齐 page-bg 中信纸位置）
- * bottom≈14% height≈24% left≈5% right≈26%
+ * bottom 由内联样式给定（安全区上沿 + 间距）
  */
 .footer-layer {
   position: absolute;
   left: 5%;
   right: 5%;
-  bottom: 5%;
   height: 26%;
   z-index: 4;
 }
 
+/* 木纹背景板：垫在商品名/介绍文本下方，覆盖 desc-text 区域 */
+.wood-board {
+  position: absolute;
+  left: -2%;
+  top: 8%;
+  width: 82%;
+  z-index: 1;
+  pointer-events: none;
+}
+
 .desc-text {
   position: absolute;
-  left: 3%;
-  right: 30%;
-  top: 8%;
+  left: 9%;
+  right: 29%;
+  top: 15%;
   bottom: 12%;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -250,7 +262,7 @@
 }
 
 .desc-title {
-  font-size: 28rpx;
+  font-size: 120%;
   font-weight: 700;
   color: #3f2e22;
   overflow: hidden;
@@ -261,36 +273,34 @@
 .desc-body {
   flex: 1;
   margin-top: 8rpx;
-  font-size: 24rpx;
+  font-size: 100%;
   color: #6b5344;
-  line-height: 1.5;
+  line-height: 1.8;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.side-btn {
+.side-btns {
   position: absolute;
-  width: 72rpx;
-  height: 72rpx;
-  z-index: 2;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 20rpx;
 }
 
-.side-btn--bag {
-  right: 4%;
-  top: 6%;
-}
-
-.side-btn--gacha {
-  right: 4%;
-  top: 38%;
+/* 侧键大小同 home/roof 底部 nav-icon md：96rpx */
+.side-btn {
+  width: 96rpx;
+  height: 96rpx;
 }
 
 .buy-btn-img {
   position: absolute;
-  right: 2%;
-  bottom: 6%;
+  right: 19.5%;
+  bottom: 0%;
   width: 200rpx;
-  z-index: 2;
+  z-index: 3;
 }

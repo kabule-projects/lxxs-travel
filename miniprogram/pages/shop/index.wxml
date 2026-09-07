@@ -1,22 +1,26 @@
-<view class="shop" style="padding-top: {{safeTop}}px; padding-bottom: {{safeBottom}}px">
+<view class="shop">
+  <!-- 背景副本：叠在主背景下方 -->
+  <image class="shop-page-bg shop-page-bg--back" src="{{assets.pageBg}}" mode="aspectFill" />
   <!-- 整页静态背景（条纹/店主/柜台/木纹/信纸装饰等） -->
   <image class="shop-page-bg" src="{{assets.pageBg}}" mode="aspectFill" />
 
   <view class="shop-overlay">
-    <!-- 顶栏：按钮 + 星星数量 -->
-    <view class="shop-hud">
-      <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
+    <!-- 顶栏：返回 + 双货币贴图框 + 设置（布局同 home/gacha）；top 内联，避让右上角胶囊 -->
+    <view class="shop-hud" style="top: {{hudTop}}px">
+      <view class="hud-side hud-side--left">
+        <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
+      </view>
       <view class="hud-center">
-        <view class="currency-pill">
-          <image class="currency-icon" src="{{assets.iconStar}}" mode="aspectFit" />
-          <text class="currency-num">{{stars}}</text>
+        <view class="currency-pill currency-pill--star">
+          <image class="currency-pill__bg" src="{{assets.pillStar}}" mode="widthFix" />
+          <text class="currency-pill__num">{{stars}}</text>
         </view>
-        <view class="currency-pill">
-          <image class="currency-icon" src="{{assets.iconRiceStar}}" mode="aspectFit" />
-          <text class="currency-num">{{riceStars}}</text>
+        <view class="currency-pill currency-pill--rice">
+          <image class="currency-pill__bg" src="{{assets.pillRice}}" mode="widthFix" />
+          <text class="currency-pill__num">{{riceStars}}</text>
         </view>
       </view>
-      <view class="hud-right">
+      <view class="hud-side hud-side--right">
         <nav-icon src="{{assets.iconGrid}}" label="设置" size="sm" bind:tap="onTapSettings" />
       </view>
     </view>
@@ -71,15 +75,14 @@
       <view class="page-dots" wx:if="{{totalPages > 1}}">{{pageIndex + 1}} / {{totalPages}}</view>
     </view>
 
-    <!-- 底部：简介文字 + 按钮 -->
-    <view class="footer-layer">
+    <!-- 底部：木纹背景板 + 简介文字 + 购买按钮 -->
+    <view class="footer-layer" style="bottom: {{footBottom}}px">
+      <image class="wood-board" src="{{assets.woodBoard}}" mode="widthFix" />
+
       <view class="desc-text">
         <view class="desc-title">{{selectedName || '选择一件商品'}}</view>
         <view class="desc-body">{{selectedDesc || '点货架上的物品查看简介'}}</view>
       </view>
-
-      <image class="side-btn side-btn--bag" src="{{assets.sideBtnBag}}" mode="aspectFit" bindtap="onTapBag" />
-      <image class="side-btn side-btn--gacha" src="{{assets.sideBtnGacha}}" mode="aspectFit" bindtap="onTapGacha" />
 
       <image
         class="buy-btn-img"
@@ -87,6 +90,12 @@
         mode="widthFix"
         bindtap="onTapBuy"
       />
+    </view>
+
+    <!-- 右侧底部侧键：背包 / 扭蛋（大小/位置同 home/roof 底部按钮：96rpx、距右 32rpx、纵向间距 20rpx） -->
+    <view class="side-btns" style="right: 32rpx; bottom: {{footBottom}}px">
+      <image class="side-btn" src="{{assets.sideBtnBag}}" mode="aspectFit" bindtap="onTapBag" />
+      <image class="side-btn" src="{{assets.sideBtnGacha}}" mode="aspectFit" bindtap="onTapGacha" />
     </view>
   </view>
 

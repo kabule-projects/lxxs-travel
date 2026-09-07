@@ -77,12 +77,17 @@ export const SHOP_ASSETS = {
   iconStar: 'icons/home/star',
   iconRiceStar: 'roof/star-rice',
   iconGrid: 'icons/common/settings-grid',
+  /** 顶栏星星/米字星计数框（同 home/roof，整张贴图含 icon） */
+  pillStar: 'roof/pill-star',
+  pillRice: 'roof/pill-rice',
   priceTag: 'shop/price-tag',
   btnBuy: 'shop/btn-buy',
   btnBuyDisabled: 'shop/btn-buy-disabled',
-  /** 底部侧键：背包 / 扭蛋（顶栏无扭蛋） */
-  sideBtnBag: 'shop/side-btn-bag',
-  sideBtnGacha: 'shop/side-btn-gacha',
+  /** 底部商品名/介绍文本的木纹背景板 */
+  woodBoard: 'shop/wood-board',
+  /** 底部侧键：背包 / 扭蛋（与 home 页同名按钮共用贴图） */
+  sideBtnBag: 'icons/home/bag',
+  sideBtnGacha: 'icons/shop/utility-gacha',
 } as const;
 
 export const GACHA_ASSETS = {

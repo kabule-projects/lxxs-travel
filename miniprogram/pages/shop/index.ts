@@ -1,6 +1,6 @@
 import { SHOP_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
-import { readSafeArea } from '../../utils/device';
+import { readSafeArea, readCapsuleRect } from '../../utils/device';
 import { playTap } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
 import { getRiceStars, getStars, setStars } from '../../store/user';
@@ -30,8 +30,10 @@ Page({
   data: {
     stars: 0,
     riceStars: 0,
-    safeTop: 0,
-    safeBottom: 0,
+    /** 顶栏 top：胶囊底边 + 12px，避让右上角胶囊（同 home/gacha） */
+    hudTop: 0,
+    /** 底栏 bottom：安全区上沿 + 间距 */
+    footBottom: 0,
     assets: {} as ShopAssets,
     showSettings: false,
     pageIndex: 0,
@@ -48,9 +50,12 @@ Page({
 
   onLoad() {
     const safe = readSafeArea();
+    const capsule = readCapsuleRect();
     this.setData({
-      safeTop: Math.max(safe.top, 16),
-      safeBottom: Math.max(safe.bottom, 16),
+      // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮
+      hudTop: capsule.bottom + 12,
+      // 底栏贴安全区上沿，底部留间距
+      footBottom: Math.max(safe.bottom, 16) + 8,
       stars: getStars(),
       riceStars: getRiceStars(),
     });
