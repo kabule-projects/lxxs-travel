@@ -78,8 +78,14 @@ Component({
       if (this.properties.lockTab) return;
       const tab = e.currentTarget.dataset.tab as InvCategory;
       if (!tab || tab === this.data.tab) return;
-      const items = await fetchOwned(tab);
-      this.setData({ tab, items });
+      // 先切 tab 贴图（立即反馈），再异步拉列表
+      this.setData({ tab, items: [] });
+      try {
+        const items = await fetchOwned(tab);
+        this.setData({ items });
+      } catch {
+        /* ignore: 列表为空就是失败提示 */
+      }
     },
 
     onTapItem(e: WechatMiniprogram.TouchEvent) {

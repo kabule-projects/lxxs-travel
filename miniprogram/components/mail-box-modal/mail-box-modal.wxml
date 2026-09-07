@@ -6,7 +6,7 @@
         class="mbox-close"
         src="{{assets.iconClose}}"
         size="{{64}}"
-        bind:tap="onClose"
+        bind:close="onClose"
       />
 
       <view class="mbox-content">

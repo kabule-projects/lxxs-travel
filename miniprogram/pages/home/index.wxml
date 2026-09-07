@@ -27,7 +27,7 @@
         </view>
       </view>
       <view class="hud-side hud-side--right">
-        <nav-icon src="{{assets.iconBag}}" label="背包" size="sm" bind:tap="onTapBag" />
+        <nav-icon src="{{assets.iconItems}}" label="物品" size="sm" bind:tap="onTapItems" />
         <nav-icon src="{{assets.iconGrid}}" label="设置" size="sm" bind:tap="onTapSettings" />
       </view>
     </view>
@@ -80,6 +80,12 @@
     visible="{{showBag}}"
     bind:close="onCloseBag"
     bind:depart="onBagDepart"
+  />
+  <inventory-picker
+    visible="{{showInv}}"
+    lock-tab=""
+    bind:close="onCloseInv"
+    bind:select="onSelectInv"
   />
   <settings-modal visible="{{showSettings}}" bind:close="onCloseSettings" />
 </view>

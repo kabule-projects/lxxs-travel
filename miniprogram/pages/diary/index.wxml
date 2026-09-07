@@ -55,16 +55,18 @@
 
   <view class="zoom-mask" wx:if="{{zoomVisible && !letterVisible}}" catchtap="onCloseZoom">
     <view class="zoom-card" catchtap="onStopZoom">
-      <image
-        wx:if="{{zoomImage}}"
+      <image wx:if="{{zoomImage}}"
         class="zoom-image"
         src="{{zoomImage}}"
         mode="aspectFit"
       />
       <view wx:else class="zoom-ph">{{zoomTitle[0] || '?'}}</view>
-      <view class="envelope" catchtap="onTapEnvelope">
-        <image class="envelope-img" src="{{assets.envelope}}" mode="aspectFit" />
-      </view>
+      <image
+        class="zoom-envelope"
+        src="{{assets.envelope}}"
+        mode="aspectFit"
+        catchtap="onTapEnvelope"
+      />
     </view>
   </view>
 

@@ -3,6 +3,7 @@
   "usingComponents": {
     "nav-icon": "/components/nav-icon/nav-icon",
     "bag-modal": "/components/bag-modal/bag-modal",
+    "inventory-picker": "/components/inventory-picker/inventory-picker",
     "trip-banner": "/components/trip-banner/trip-banner",
     "settings-modal": "/components/settings-modal/settings-modal"
   }

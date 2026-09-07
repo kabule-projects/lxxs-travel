@@ -63,6 +63,7 @@ export const HOME_ASSETS = {
   biaoBag: 'home/biao-bag',
   btnPrepare: 'home/btn-prepare',
   iconBag: 'icons/home/bag',
+  iconItems: 'icons/roof/items',
   iconShop: 'icons/home/shop',
   iconGacha: 'icons/shop/utility-gacha',
   iconPrepare: 'icons/home/prepare',

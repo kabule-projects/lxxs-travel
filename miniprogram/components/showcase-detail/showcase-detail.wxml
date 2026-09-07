@@ -1,7 +1,7 @@
 <view class="sc-detail-mask" wx:if="{{visible}}" catchtap="onClose">
   <view class="sc-detail-panel" catchtap="onStop">
     <image class="sc-detail-panel-bg" src="{{panelBg}}" mode="scaleToFill" />
-    <icon-close class="sc-detail-close" src="{{iconClose}}" size="{{64}}" bind:tap="onClose" />
+    <icon-close class="sc-detail-close" src="{{iconClose}}" size="{{64}}" bind:close="onClose" />
     <view class="sc-detail-title">{{title}}</view>
     <!-- 小方块：底部物品背景 + 顶部纪念品图 -->
     <view class="sc-detail-image">

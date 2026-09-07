@@ -1,7 +1,7 @@
 <view class="inv-mask" wx:if="{{visible}}" catchtap="onClose">
   <view class="inv-panel" catchtap="onStop">
     <image class="inv-panel-bg" src="{{panelBg}}" mode="widthFix" />
-    <icon-close class="inv-close" src="{{iconClose}}" size="{{64}}" bind:tap="onClose" />
+    <icon-close class="inv-close" src="{{iconClose}}" size="{{64}}" bind:close="onClose" />
 
     <view class="inv-content">
       <view class="inv-tabs" wx:if="{{!lockTab}}">

@@ -4,7 +4,7 @@
       class="bag-close"
       src="{{iconClose}}"
       size="{{64}}"
-      bind:tap="onClose"
+      bind:close="onClose"
     />
 
     <view class="bag-body">

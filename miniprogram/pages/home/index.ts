@@ -30,6 +30,7 @@ Page({
     footerBottom: 0,
     assets: {} as HomeAssets,
     showBag: false,
+    showInv: false,
     showSettings: false,
   },
 
@@ -157,6 +158,19 @@ Page({
       return;
     }
     this.setData({ showBag: true });
+  },
+
+  onTapItems() {
+    playTap();
+    this.setData({ showInv: true });
+  },
+
+  onCloseInv() {
+    this.setData({ showInv: false });
+  },
+
+  onSelectInv() {
+    wx.showToast({ title: '已选择', icon: 'none' });
   },
 
   onTapPrepare() {

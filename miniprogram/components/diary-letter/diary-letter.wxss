@@ -46,7 +46,7 @@
   right: 0;
   bottom: 0;
   z-index: 1;
-  padding: 120rpx 48rpx 80rpx;
+  padding: 28% 10% 23%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -55,7 +55,7 @@
 .dl-date {
   display: block;
   margin-bottom: 24rpx;
-  font-size: 22rpx;
+  font-size: 100%;
   color: #9ab4e8;
   letter-spacing: 1rpx;
   flex-shrink: 0;
@@ -64,8 +64,9 @@
 .dl-story {
   display: block;
   flex: 1;
-  font-size: 30rpx;
-  line-height: 54rpx;
+  margin-top: 29rpx;
+  font-size: 140%;
+  line-height: 150%;
   color: #5a82d8;
   font-family: 'STKaiti', 'KaiTi', 'PingFang SC', serif;
   white-space: pre-wrap;
@@ -74,10 +75,10 @@
 
 .dl-sign {
   display: block;
-  margin-top: 16rpx;
+  margin-top: 10%;
   text-align: right;
-  font-size: 26rpx;
-  line-height: 44rpx;
+  font-size: 120%;
+  line-height: 120%;
   color: #5a82d8;
   font-family: 'STKaiti', 'KaiTi', 'PingFang SC', serif;
   white-space: pre-wrap;
