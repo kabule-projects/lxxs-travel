@@ -8,6 +8,39 @@
     binderror="onLayerError"
   />
 
+  <!-- 屋顶底部角色装饰 -->
+  <view class="roof-characters">
+    <image class="char-mi" src="{{charMiSrc}}" mode="widthFix" />
+    <image class="char-shen" src="{{charShenSrc}}" mode="widthFix" />
+    <image class="char-biao" src="{{charBiaoSrc}}" mode="widthFix" />
+  </view>
+
+  <!-- 鸽子 + 魔术帽（静态装饰） -->
+  <view class="pigeon-spot">
+    <image class="magic-hat-img" src="{{magicHatSrc}}" mode="aspectFit" />
+    <image class="pigeon-img" src="{{pigeonSrc}}" mode="aspectFit" />
+  </view>
+
+  <!-- 静态 dropped 星星 -->
+  <view class="sky-layer">
+    <star-item
+      wx:for="{{droppedStars}}"
+      wx:key="id"
+      starId="{{item.id}}"
+      kind="dropped"
+      src="{{starSrc}}"
+      glowSrc="{{starGlowSrc}}"
+      glowDelay="{{-index * 0.4}}"
+      left="{{item.left}}"
+      top="{{item.top}}"
+      rotate="{{item.rotate}}"
+      zIndex="{{item.zIndex}}"
+    />
+  </view>
+
+  <!-- loading logo -->
+  <image class="loading-logo" src="{{logoSrc}}" mode="widthFix" />
+
   <view class="enter-zone" style="padding-top: {{safeTop}}px">
     <view class="enter-hit" bindtap="onEnterGame">
       <image

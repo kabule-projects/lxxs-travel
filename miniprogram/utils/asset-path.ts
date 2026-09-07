@@ -218,8 +218,10 @@ export const LOADING_ASSETS = {
   btnEnterDisabled: 'loading/btn-enter-disabled',
   barTrack: 'loading/bar-track',
   barFill: 'loading/bar-fill',
-  /** 米子图标，跟随进度条填充末端 */
-  barThumb: 'loading/bar-thumb',
+  /** 米子图标，跟随进度条填充末端（复用 char-mi 贴图） */
+  barThumb: 'roof/char-mi',
+  /** loading 页 logo 贴图 */
+  logo: 'loading/logo',
 } as const;
 
 export const DESIGN = {

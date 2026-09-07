@@ -19,11 +19,81 @@
   transform: translateY(-50%);
 }
 
+/* ── 底部角色装饰 ── */
+.roof-characters {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 23%;
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.char-shen {
+  width: 200rpx;
+}
+
+.char-biao {
+  width: 110rpx;
+  margin-left: -70rpx;
+}
+
+.char-mi {
+  position: relative;
+  z-index: 1;
+  width: 90rpx;
+  margin-right: -80rpx;
+}
+
+/* ── 鸽子 + 魔术帽 ── */
+.pigeon-spot {
+  position: absolute;
+  right: 5%;
+  bottom: 24%;
+  z-index: 8;
+  width: 180rpx;
+  height: 180rpx;
+  pointer-events: none;
+}
+
+.magic-hat-img,
+.pigeon-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── 星星层 ── */
+.sky-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ── loading logo ── */
+.loading-logo {
+  position: absolute;
+  left: 50%;
+  top: 23%;
+  transform: translateX(-50%);
+  width: 570rpx;
+  z-index: 3;
+}
+
 .enter-zone {
   position: absolute;
   left: 0;
   right: 0;
-  top: 38%;
+  top: 37%;
   z-index: 4;
   display: flex;
   justify-content: center;
@@ -31,8 +101,8 @@
 }
 
 .enter-hit {
-  width: 560rpx;
-  max-width: 86vw;
+  width: 250rpx;
+  max-width: 40vw;
 }
 
 .enter-img {
