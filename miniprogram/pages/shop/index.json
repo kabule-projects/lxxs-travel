@@ -3,6 +3,7 @@
   "usingComponents": {
     "nav-icon": "/components/nav-icon/nav-icon",
     "star-counter": "/components/star-counter/star-counter",
+    "inventory-picker": "/components/inventory-picker/inventory-picker",
     "settings-modal": "/components/settings-modal/settings-modal"
   }
 }

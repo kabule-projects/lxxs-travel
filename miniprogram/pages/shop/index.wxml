@@ -99,5 +99,10 @@
     </view>
   </view>
 
+  <inventory-picker
+    visible="{{showInv}}"
+    lock-tab=""
+    bind:close="onCloseInv"
+  />
   <settings-modal visible="{{showSettings}}" bind:close="onCloseSettings" />
 </view>

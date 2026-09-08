@@ -36,6 +36,7 @@ Page({
     footBottom: 0,
     assets: {} as ShopAssets,
     showSettings: false,
+    showInv: false,
     pageIndex: 0,
     totalPages: 1,
     pages: [] as PageSlot[],
@@ -162,7 +163,11 @@ Page({
 
   onTapBag() {
     playTap();
-    wx.showToast({ title: '背包 · 请从主页准备', icon: 'none' });
+    this.setData({ showInv: true });
+  },
+
+  onCloseInv() {
+    this.setData({ showInv: false });
   },
 
   onSwiperChange(e: WechatMiniprogram.CustomEvent) {
