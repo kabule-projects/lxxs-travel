@@ -165,7 +165,5 @@
 
 .zoom-envelope {
   position: absolute;
-  right: -1%;
-  bottom: -27%;
   width: 29%;
 }

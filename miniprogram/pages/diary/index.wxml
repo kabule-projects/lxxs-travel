@@ -59,10 +59,12 @@
         class="zoom-image"
         src="{{zoomImage}}"
         mode="aspectFit"
+        bindload="onZoomImageLoad"
       />
       <view wx:else class="zoom-ph">{{zoomTitle[0] || '?'}}</view>
       <image
         class="zoom-envelope"
+        style="right: {{envelopeRight}}%; bottom: {{envelopeBottom}}%"
         src="{{assets.envelope}}"
         mode="aspectFit"
         catchtap="onTapEnvelope"

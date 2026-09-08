@@ -130,7 +130,7 @@ export const SHOWCASE_ASSETS = {
 
 /** 日记：书脊/天气/吉祥物/笔记本均画进 diary-bg（frame+notebook 合并图层） */
 export const DIARY_ASSETS = {
-  iconBack: 'icons/shop/back',
+  iconBack: 'diary/back',
   diaryBg: 'diary/diary-bg',
   tab: 'diary/tab',
   tabActive: 'diary/tab-active',
