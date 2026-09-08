@@ -1,0 +1,11 @@
+{"kind":"food","foodId":"food_potato","lostRate":0.5,"basicRate":0.7,"basicPool":["pc_02"],"rarePool":["pc_12","pc_11","pc_10"],"enabled":true}
+{"kind":"food","foodId":"food_rice","lostRate":0.5,"basicRate":0.7,"basicPool":["pc_07"],"rarePool":["pc_09","pc_08","pc_06"],"enabled":true}
+{"kind":"food","foodId":"food_chocolate","lostRate":0.5,"basicRate":0.7,"basicPool":["pc_15"],"rarePool":["pc_05","pc_16","pc_14"],"enabled":true}
+{"kind":"food","foodId":"food_congee","lostRate":0.5,"basicRate":0.7,"basicPool":["pc_04"],"rarePool":["pc_03","pc_18"],"enabled":true}
+{"kind":"food","foodId":"food_cake","lostRate":0.5,"basicRate":0.7,"basicPool":["pc_17"],"rarePool":["pc_01"],"enabled":true}
+{"kind":"food","foodId":"food_tusundong","lostRate":1,"basicRate":0.7,"basicPool":[],"rarePool":[],"enabled":true}
+{"kind":"propBond","propId":"acc_mic","bondedFood":"food_potato","bondedBonus":0.2,"otherBonus":0.05}
+{"kind":"propBond","propId":"acc_biaobiao_p","bondedFood":"food_chocolate","bondedBonus":0.2,"otherBonus":0.05}
+{"kind":"propBond","propId":"acc_teddy","bondedFood":"food_congee","bondedBonus":0.2,"otherBonus":0.05}
+{"kind":"config","riceStarBonus":0.1,"souvenirBasicPool":["souvenir_rose_blue","souvenir_frame_1","souvenir_biaobiao_s","souvenir_rose_red","souvenir_cake_knife"],"souvenirRarePool":["souvenir_album2","souvenir_frame_2","souvenir_frame_3","souvenir_youtiao","souvenir_album1","souvenir_glasses","souvenir_kitchen_knife"],"lostPostcardId":"pc_13"}
+{"kind":"food","foodId":"empty","name":"空手出门","lostRate":0.8,"basicRate":0.7,"basicPool":[],"rarePool":[],"noSouvenir":true,"enabled":true}

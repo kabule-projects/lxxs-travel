@@ -8,7 +8,8 @@
 |------|------|
 | users | 玩家资源、pity、nextSpawnAt、gm、currentTripId、riceStars、notifyEnabled/notifyPending/notifyTmplId（归来订阅通知） |
 | items | 物品（含出行距离/时长范围、地形与明信片权重） |
-| destinations | 目的地（baseWeight、地形、距离档、时长、伴手礼池） |
+| destinations | 【已废弃 v2 不再读取】目的地（baseWeight、地形、距离档、时长、伴手礼池） |
+| food_pools | 旅行 v2 概率配置（kind=food/propBond/config），见 seed/food-pools.json |
 | postcards | 明信片（baseWeight、groupId、可选绑定 destId） |
 | game_config | 全局概率旋钮（key 唯一，如 `trip`） |
 | gacha_pool | 扭蛋奖池配置：`{ itemId, rarity, weight, sortOrder, enabled }`，`itemId` 引用 `items.id`（只出道具 accessory/equipment），名称/图标以 `items` 为准；抽中入 `user_inventory` |
@@ -81,7 +82,9 @@ API：`showcase/list`、`showcase/unlock`；Admin：`grantShowcase`。
 
 ---
 
-## `destinations`
+## `destinations`（已废弃）
+
+v2 旅行（food_pools 体系）不再读取本集合，字段说明保留备查：
 
 | 字段 | 含义 |
 |------|------|
@@ -91,6 +94,16 @@ API：`showcase/list`、`showcase/unlock`；Admin：`grantShowcase`。
 | baseWeight | 抽样基础权重（>0） |
 | durationMinH / durationMaxH | 与食物时长取交集 |
 | souvenirPool | itemId[]，归来抽 1 |
+
+## `food_pools`（旅行 v2 概率配置）
+
+源文件 `seed/food-pools.json`，`kind` 字段区分三种文档：
+
+| kind | 关键字段 | 含义 |
+|------|------|------|
+| food | foodId, lostRate, basicRate, basicPool, rarePool, enabled | 每种食物一份；lostRate=迷路概率，成功后 basicRate 基础 / 1-basicRate 稀有，池内元素为 postcards.id |
+| propBond | propId, bondedFood, bondedBonus, otherBonus | 道具防迷路加成：带专属食物 +bondedBonus，其他食物 +otherBonus |
+| config | riceStarBonus, lostPostcardId, souvenirBasicPool, souvenirRarePool | 米字星加成、全局迷路卡（pc_13）、伴手礼基础/稀有池（70/30） |
 
 ---
 

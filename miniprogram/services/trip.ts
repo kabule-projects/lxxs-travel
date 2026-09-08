@@ -18,8 +18,8 @@ export interface TripLoadout {
 
 export interface TripStartResult {
   tripId: string;
-  destId: string;
-  destName: string;
+  foodId: string;
+  foodName: string;
   startAt: number;
   endAt: number;
   usedRiceStar: boolean;
@@ -45,7 +45,7 @@ function makeLocalPostcards(
   tripId: string,
   startAt: number,
   endAt: number,
-  destName: string,
+  foodName: string,
 ): LocalTripPostcard[] {
   const duration = Math.max(1, endAt - startAt);
   const deliverAt = startAt + Math.floor(duration * 0.4);
@@ -56,7 +56,7 @@ function makeLocalPostcards(
       type: 'letter',
       status: 'pending',
       deliverAt,
-      title: destName || '旅途明信片',
+      title: foodName || '旅途明信片',
       rarity: 'N',
       imageThumb: '',
       imageFull: '',
@@ -101,11 +101,6 @@ function localStart(loadout: TripLoadout): TripStartResult {
     err.code = 'ALREADY_TRAVELING';
     throw err;
   }
-  if (!loadout.bento) {
-    const err = new Error('需要准备食物') as Error & { code?: string };
-    err.code = 'NEED_FOOD';
-    throw err;
-  }
   if (loadout.riceStar && getRiceStars() < 1) {
     const err = new Error('没有米字星') as Error & { code?: string };
     err.code = 'NO_RICE_STAR';
@@ -135,8 +130,8 @@ function localStart(loadout: TripLoadout): TripStartResult {
   const tripId = `local_trip_${startAt}`;
   const result: TripStartResult = {
     tripId,
-    destId: 'dest_local_park',
-    destName: '附近的小公园',
+    foodId: 'local_food',
+    foodName: '本地便当',
     startAt,
     endAt,
     usedRiceStar: usedRice,
@@ -146,7 +141,7 @@ function localStart(loadout: TripLoadout): TripStartResult {
     tripId,
     startAt,
     endAt,
-    result.destName,
+    result.foodName,
   );
 
   try {
@@ -222,7 +217,7 @@ export interface TripSyncResult {
   trip: {
     _id: string;
     status: string;
-    destName?: string;
+    foodName?: string;
     endAt?: number;
     souvenirs?: string[];
   } | null;
@@ -253,7 +248,7 @@ function localSyncTrip(): TripSyncResult {
       tripId?: string;
       status?: string;
       endAt?: number;
-      destName?: string;
+      foodName?: string;
       souvenirs?: string[];
       postcards?: LocalTripPostcard[];
     } | '';
@@ -270,7 +265,7 @@ function localSyncTrip(): TripSyncResult {
         tripId,
         now - 60000,
         raw.endAt,
-        raw.destName || '',
+        raw.foodName || '',
       );
     }
     const advanced = advanceLocalPostcards(tripId, postcards);
@@ -288,7 +283,7 @@ function localSyncTrip(): TripSyncResult {
       _id: tripId,
       status,
       endAt: raw.endAt,
-      destName: raw.destName,
+      foodName: raw.foodName,
       souvenirs: raw.souvenirs || [],
     };
     if (status === 'at_home' || !trip) {

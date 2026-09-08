@@ -1,5 +1,6 @@
 const { unlockShowcase } = require('./showcase');
 const { addInventory } = require('./inventory');
+const { loadFoodPools } = require('./food-trip');
 
 function pickSouvenir(pool) {
   const list = (pool || []).filter(Boolean);
@@ -33,18 +34,22 @@ async function advanceTrip(db, _, trip, userDoc) {
     returnedNow = true;
 
     if (!souvenirs.length) {
-      let pool = [];
-      try {
-        const destRes = await db
-          .collection('destinations')
-          .where({ id: trip.destId })
-          .limit(1)
-          .get();
-        pool = (destRes.data[0] && destRes.data[0].souvenirPool) || [];
-      } catch (e) {
-        pool = [];
+      let sid = null;
+      if (trip.plan && typeof trip.plan === 'object') {
+        // v2 行程：严格按出发时抽样结果发，迷路（souvenirId=null）不发
+        sid = trip.plan.souvenirId || null;
+      } else {
+        // 老行程（无 plan 字段）fallback：从 food_pools 全局伴手礼池随机抽 1 件
+        try {
+          const { config } = await loadFoodPools(db);
+          const pool = (config.souvenirBasicPool || []).concat(
+            config.souvenirRarePool || [],
+          );
+          sid = pickSouvenir(pool);
+        } catch (e) {
+          sid = null;
+        }
       }
-      const sid = pickSouvenir(pool);
       if (sid) {
         souvenirs = [sid];
         souvenirGranted = sid;

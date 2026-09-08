@@ -195,6 +195,30 @@
       "seedFile": "cloud/db/import/gacha_pool.json"
     },
     {
+      "name": "food_pools",
+      "category": "配置表",
+      "description": "旅行 v2 概率配置（kind=food/propBond/config，目的地已废弃）",
+      "fields": {
+        "kind": "food|propBond|config",
+        "foodId": "string（kind=food）",
+        "lostRate": "number 迷路概率",
+        "basicRate": "number 成功时基础级概率",
+        "basicPool": "string[] 基础级明信片 id",
+        "rarePool": "string[] 稀有级明信片 id",
+        "propId": "string（kind=propBond）",
+        "bondedFood": "string 专属食物 id",
+        "bondedBonus": "number",
+        "otherBonus": "number",
+        "riceStarBonus": "number（config）",
+        "lostPostcardId": "string 全局迷路卡（config）",
+        "souvenirBasicPool": "string[]（config）",
+        "souvenirRarePool": "string[]（config）",
+        "enabled": "boolean"
+      },
+      "indexes": [],
+      "seedFile": "cloud/db/import/jsonl/food-pools.json"
+    },
+    {
       "name": "copy_pool",
       "category": "配置表",
       "description": "告别语、商店台词等文案",

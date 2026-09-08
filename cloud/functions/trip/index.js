@@ -1,7 +1,7 @@
 const cloud = require('wx-server-sdk');
 const { ok, fail } = require('./common/response');
 const { BAG_PROP_SLOTS } = require('./common/game');
-const { loadTripConfig, planTrip } = require('./common/trip-engine');
+const { loadFoodPools, planFoodTrip } = require('./common/food-trip');
 const { advanceTrip, claimHome } = require('./common/trip-lifecycle');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
@@ -50,9 +50,10 @@ async function consumeInventory(openid, itemId) {
 }
 
 async function startTrip(openid, loadout, requestId) {
-  if (!loadout || !loadout.bento) {
-    return fail('需要准备食物', 'NEED_FOOD');
+  if (!loadout) {
+    return fail('参数错误', 'VALIDATION');
   }
+  const bento = (loadout.bento || '').trim();
 
   if (requestId) {
     const idemKey = `trip:${openid}:${requestId}`;
@@ -70,8 +71,8 @@ async function startTrip(openid, loadout, requestId) {
     return fail('深深正在旅行中', 'ALREADY_TRAVELING');
   }
 
-  const food = await getItem(loadout.bento);
-  if (!food || food.type !== 'food') {
+  const food = bento ? await getItem(bento) : null;
+  if (bento && (!food || food.type !== 'food')) {
     return fail('食物无效', 'INVALID_FOOD');
   }
 
@@ -92,21 +93,22 @@ async function startTrip(openid, loadout, requestId) {
     return fail('没有米字星', 'NO_RICE_STAR');
   }
 
-  const [destinations, postcards, cfg] = await Promise.all([
-    loadEnabled('destinations'),
+  const [poolCfg, postcards] = await Promise.all([
+    loadFoodPools(db),
     loadEnabled('postcards'),
-    loadTripConfig(db),
   ]);
 
-  if (!destinations.length) {
-    return fail('目的地未配置，请先导入 seed', 'NO_DESTINATION');
+  // 空手（bento 为空）走 food_pools 的 empty 文档：80% 迷路、必无伴手礼
+  const foodPoolDoc = poolCfg.foods.get(bento || 'empty');
+  if (!foodPoolDoc || foodPoolDoc.enabled === false) {
+    return fail('该食物未配置出行', 'FOOD_NOT_IN_POOL');
   }
   if (!postcards.length) {
     return fail('明信片未配置，请先导入 seed', 'NO_POSTCARD');
   }
 
   /** 先校验库存（道具需持有但非消耗品），再抽样，最后只扣食物，避免扣了一半失败 */
-  const needIds = [loadout.bento, ...propIds];
+  const needIds = [bento, ...propIds].filter(Boolean);
   for (const id of needIds) {
     const inv = await db
       .collection('user_inventory')
@@ -120,36 +122,34 @@ async function startTrip(openid, loadout, requestId) {
 
   let plan;
   try {
-    plan = planTrip({
-      destinations,
-      postcards,
-      food,
-      props,
+    plan = planFoodTrip({
+      foodPoolDoc,
+      config: poolCfg.config,
+      postcardsById: new Map(postcards.map((c) => [c.id, c])),
+      propBonds: poolCfg.propBonds,
+      propIds,
       useRice,
-      cfg,
       now: Date.now(),
     });
   } catch (e) {
     return fail(e.message || '抽样失败', e.code || 'PLAN_FAIL');
   }
 
-  /** 只有美食是消耗品；道具随行走一趟仍归还不扣 */
-  for (const id of [loadout.bento]) {
-    if (!(await consumeInventory(openid, id))) {
-      return fail('物品库存不足', 'NO_STOCK');
-    }
+  /** 只有美食是消耗品；道具随行走一趟仍归还不扣；空手不扣 */
+  if (bento && !(await consumeInventory(openid, bento))) {
+    return fail('物品库存不足', 'NO_STOCK');
   }
 
   const tripDoc = {
     userId: openid,
     status: 'traveling',
     loadout: {
-      bento: loadout.bento,
+      bento,
       riceStar: useRice,
       props: propIds,
     },
-    destId: plan.dest.id,
-    destName: plan.dest.name || plan.dest.id,
+    foodId: food ? food.id : 'empty',
+    foodName: food ? food.name || food.id : '空手出门',
     startAt: plan.startAt,
     endAt: plan.endAt,
     durationH: plan.durationH,
@@ -158,7 +158,11 @@ async function startTrip(openid, loadout, requestId) {
     postcardStatus: plan.postcards.map((p) => p.status),
     souvenirs: [],
     usedRiceStar: useRice,
-    secondPostcardRate: plan.secondRate,
+    plan: {
+      lost: plan.lost,
+      noLostRate: plan.noLostRate,
+      souvenirId: plan.souvenirId,
+    },
     createdAt: plan.startAt,
   };
 
@@ -173,8 +177,8 @@ async function startTrip(openid, loadout, requestId) {
 
   const result = {
     tripId: addRes._id,
-    destId: plan.dest.id,
-    destName: plan.dest.name || plan.dest.id,
+    foodId: food ? food.id : 'empty',
+    foodName: food ? food.name || food.id : '空手出门',
     startAt: plan.startAt,
     endAt: plan.endAt,
     durationH: plan.durationH,

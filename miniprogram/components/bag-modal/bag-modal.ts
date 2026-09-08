@@ -1,6 +1,5 @@
 import GAME from '../../utils/constants';
 import { getRiceStars } from '../../store/user';
-import { getItemMeta } from '../../services/inventory';
 import type { InvCategory, InvItemView } from '../../services/inventory';
 import { BAG_ASSETS, COMMON_ASSETS, ROOF_ASSETS } from '../../utils/asset-path';
 import { resolveAsset, resolveAssetMap } from '../../utils/resolve-assets';
@@ -155,25 +154,16 @@ Component({
 
     onDepart() {
       const { food, riceStar, props } = this.data;
-      if (!food) {
-        wx.showToast({ title: '需要准备食物', icon: 'none' });
-        return;
-      }
-
       const propIds = props
         .filter(Boolean)
         .map((p) => (p as SlotItem).id)
         .slice(0, GAME.BAG_PROP_SLOTS);
 
-      if (!getItemMeta(food.id)) {
-        wx.showToast({ title: '食物无效', icon: 'none' });
-        return;
-      }
-
       this.setData({ pickerVisible: false });
       this.triggerEvent('depart', {
         loadout: {
-          bento: food.id,
+          // 允许空手出门：服务端走 food_pools 的 empty 配置（80% 迷路、无伴手礼）
+          bento: food ? food.id : '',
           riceStar: !!riceStar,
           props: propIds,
         },

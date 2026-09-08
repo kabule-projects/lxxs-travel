@@ -1,6 +1,6 @@
 /**
- * 旅行抽样引擎：目的地 / 时长 / 明信片全部读库权重。
- * 缺省回退与 shared/constants.ts 对齐。
+ * 旅行抽样引擎 v1（目的地权重体系，已废弃保留）与 v2 共用工具。
+ * v2 旅行（food_pools 食物概率体系）见 common/food-trip.js。
  */
 
 const DEFAULT_TRIP_CFG = {
@@ -255,4 +255,5 @@ module.exports = {
   secondPostcardRate,
   weightedPick,
   makeInstanceId,
+  buildPostcardInstances,
 };
