@@ -22,6 +22,16 @@
   border: 8rpx solid #5a3a22;
 }
 
+.sc-detail-panel-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
 .sc-detail-close {
   position: absolute;
   top: -18rpx;
@@ -34,7 +44,7 @@
   font-size: 40rpx;
   line-height: 58rpx;
   text-align: center;
-  z-index: 2;
+  z-index: 10;
 }
 
 .sc-detail-title {
