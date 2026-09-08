@@ -1,7 +1,6 @@
 {
   "navigationStyle": "custom",
   "usingComponents": {
-    "nav-icon": "/components/nav-icon/nav-icon",
     "diary-letter": "/components/diary-letter/diary-letter"
   }
 }

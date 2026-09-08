@@ -136,6 +136,8 @@ export const DIARY_ASSETS = {
   tabActive: 'diary/tab-active',
   /** 格子半透明底图；明信片切图叠其上 */
   gridCell: 'diary/grid-cell',
+  /** 翻页提示贴图 */
+  hint: 'diary/hint',
   /** 信封按钮（含角标） */
   envelope: 'icons/diary/envelope',
 } as const;

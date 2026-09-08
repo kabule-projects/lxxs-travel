@@ -3,10 +3,6 @@
   <view class="diary-frame">
     <image class="diary-frame-bg" src="{{assets.diaryBg}}" mode="scaleToFill" />
 
-    <view class="diary-hud" style="top: {{hudTop}}px">
-      <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
-    </view>
-
     <!-- 标签页：底边贴笔记本顶边，激活标签更高；类型数 = 图鉴中实际出现的类型（最多 4 个） -->
     <view class="notebook-tabs" wx:if="{{tabs.length > 0}}">
       <view
@@ -21,36 +17,59 @@
           src="{{activeTab === item.type ? assets.tabActive : assets.tab}}"
           mode="widthFix"
         />
-        <text class="tab-label">{{item.label}}</text>
       </view>
     </view>
 
-    <scroll-view class="grid-scroll" scroll-y>
-      <view class="grid">
-        <view
-          wx:for="{{gridSlots}}"
-          wx:key="key"
-          class="grid-cell"
-          data-index="{{item.entryIndex}}"
-          bindtap="onTapEntry"
-        >
-          <!-- 空格底图（手绘边框方块） -->
-          <image class="grid-cell-bg" src="{{assets.gridCell}}" mode="aspectFill" />
-          <image
-            wx:if="{{item.imageThumb}}"
-            class="grid-thumb"
-            src="{{item.imageThumb}}"
-            mode="aspectFill"
-          />
-          <image
-            wx:elif="{{item.imageFull}}"
-            class="grid-thumb"
-            src="{{item.imageFull}}"
-            mode="aspectFill"
-          />
+    <!-- 网格：左右翻页，每页 3 列 × 4 行 = 12 个 -->
+    <swiper
+      class="grid-swiper"
+      style="left: {{swiperLeft}}px; top: {{swiperTop}}px; width: {{swiperW}}px; height: {{swiperH}}px"
+      current="{{currentPage}}"
+      bindchange="onSwiperChange"
+      circular="{{false}}"
+      duration="300"
+    >
+      <swiper-item wx:for="{{pages}}" wx:key="index">
+        <view class="grid">
+          <view
+            wx:for="{{item}}"
+            wx:for-item="slot"
+            wx:key="key"
+            class="grid-cell"
+            data-index="{{slot.entryIndex}}"
+            bindtap="onTapEntry"
+          >
+            <!-- 空格底图（手绘边框方块） -->
+            <image class="grid-cell-bg" src="{{assets.gridCell}}" mode="aspectFill" />
+            <image
+              wx:if="{{slot.imageThumb}}"
+              class="grid-thumb"
+              src="{{slot.imageThumb}}"
+              mode="aspectFill"
+            />
+            <image
+              wx:elif="{{slot.imageFull}}"
+              class="grid-thumb"
+              src="{{slot.imageFull}}"
+              mode="aspectFill"
+            />
+          </view>
         </view>
-      </view>
-    </scroll-view>
+      </swiper-item>
+    </swiper>
+
+    <!-- 翻页提示：有翻页需求时显示，点击任意位置关闭 -->
+    <view wx:if="{{showHint}}" class="diary-hint-mask" bindtap="onDismissHint">
+      <image class="diary-hint" src="{{assets.hint}}" mode="widthFix" catchtap="onDismissHint" />
+    </view>
+
+    <!-- 返回按钮：左下角 -->
+    <image
+      class="diary-back"
+      src="{{assets.iconBack}}"
+      mode="aspectFit"
+      bindtap="onTapBack"
+    />
   </view>
 
   <view class="zoom-mask" wx:if="{{zoomVisible && !letterVisible}}" catchtap="onCloseZoom">

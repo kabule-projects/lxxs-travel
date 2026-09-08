@@ -25,15 +25,13 @@
   z-index: 0;
 }
 
-/* 顶栏：top 由胶囊规避派生（px，内联），左右按 frame 白区边缘百分比 */
-.diary-hud {
+/* 返回按钮：左下角；位置改 left/bottom，大小改 width */
+.diary-back {
   position: absolute;
-  left: 4%;
-  right: 3%;
+  left: 13%;
+  bottom: -3%;
+  width: 150rpx;
   z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 /* 标签页：底边贴笔记本顶边（flex-end 对齐），激活标签更高 */
@@ -59,31 +57,24 @@
   display: block;
 }
 
-/* 类型名叠加在贴图标签上 */
-.tab-label {
+/* 明信片网格 swiper：左右翻页。
+   left/top/width/height 全部由 JS 按格子大小推算后内联设置，
+   swiper 是原生组件，CSS width 无法让内部 item 缩放，必须用内联 px */
+.grid-swiper {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 10%;
-  text-align: center;
-  font-size: 20rpx;
-  color: #6b5136;
-  pointer-events: none;
-}
-
-/* 明信片网格：四边按 frame 边缘百分比 */
-.grid-scroll {
-  position: absolute;
-  left: 14%;
-  padding-right: 29%;
-  top: 29%;
-  bottom: 12%;
   z-index: 2;
   box-sizing: border-box;
 }
 
-/* 固定每行 3 个：1fr 等宽列，间距从列宽自动扣除，无需手算 */
+.grid-swiper swiper-item {
+  width: 100%;
+  height: 100%;
+}
+
+/* 3 列固定，行高由格子的 aspect-ratio:1/1 自动撑开；
+   最后一行不足 3 个时，第三列位置自动留空 */
 .grid {
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 48rpx;
@@ -116,6 +107,25 @@
   width: 100%;
   height: 100%;
   z-index: 1;
+}
+
+/* 翻页提示遮罩：全屏黑色 70% 不透明，点击任意位置关闭 */
+.diary-hint-mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 翻页提示贴图：水平垂直居中，大小改 width */
+.diary-hint {
+  width: 60%;
 }
 
 
