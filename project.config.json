@@ -40,5 +40,10 @@
     "include": []
   },
   "editorSetting": {},
-  "isGameTourist": false
+  "isGameTourist": false,
+  "watchOptions": {
+    "ignore": [
+      ".cdn-staging/**"
+    ]
+  }
 }

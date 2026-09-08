@@ -1,9 +1,4 @@
-import {
-  assetWebp,
-  assetWebpCandidates,
-  LOADING_ASSETS,
-  preloadFirstAvailable,
-} from '../../utils/asset-path';
+import { assetWebp, LOADING_ASSETS } from '../../utils/asset-path';
 
 Component({
   properties: {
@@ -54,21 +49,9 @@ Component({
       }
 
       const [track, fill, thumb] = await Promise.all([
-        trackSrc
-          ? Promise.resolve(trackSrc)
-          : preloadFirstAvailable(assetWebpCandidates(LOADING_ASSETS.barTrack)).catch(() =>
-              assetWebp(LOADING_ASSETS.barTrack),
-            ),
-        fillSrc
-          ? Promise.resolve(fillSrc)
-          : preloadFirstAvailable(assetWebpCandidates(LOADING_ASSETS.barFill)).catch(() =>
-              assetWebp(LOADING_ASSETS.barFill),
-            ),
-        thumbSrc
-          ? Promise.resolve(thumbSrc)
-          : preloadFirstAvailable(assetWebpCandidates(LOADING_ASSETS.barThumb)).catch(() =>
-              assetWebp(LOADING_ASSETS.barThumb),
-            ),
+        trackSrc ? Promise.resolve(trackSrc) : Promise.resolve(assetWebp(LOADING_ASSETS.barTrack)),
+        fillSrc ? Promise.resolve(fillSrc) : Promise.resolve(assetWebp(LOADING_ASSETS.barFill)),
+        thumbSrc ? Promise.resolve(thumbSrc) : Promise.resolve(assetWebp(LOADING_ASSETS.barThumb)),
       ]);
 
       this.setData({

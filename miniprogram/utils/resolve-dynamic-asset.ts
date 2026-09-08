@@ -1,4 +1,4 @@
-import { assetWebp, assetWebpCandidates, preloadFirstAvailable } from './asset-path';
+import { assetCdnBase } from './asset-path';
 
 /** cloud:// fileID 需要换成 https 临时链接才能给 <image> 用，缓存避免重复请求 */
 const TEMP_URL_CACHE_TTL_MS = 30 * 60 * 1000;
@@ -52,7 +52,7 @@ export function isAbsoluteAssetPath(path: string): boolean {
   );
 }
 
-/** 将库内相对路径（如 postcards/letter-1）解析为本地 WebP URL；cloud:// 换成 https 临时链接 */
+/** 将库内相对路径（如 postcards/letter-1）解析为云存储 CDN 直链；cloud:// 换成 https 临时链接 */
 export async function resolveDynamicAsset(path: string): Promise<string> {
   if (!path) return path;
   if (isCloudFileId(path)) {
@@ -60,11 +60,7 @@ export async function resolveDynamicAsset(path: string): Promise<string> {
     return map.get(path) || path;
   }
   if (isAbsoluteAssetPath(path)) return path;
-  try {
-    return await preloadFirstAvailable(assetWebpCandidates(path));
-  } catch {
-    return assetWebp(path);
-  }
+  return assetCdnBase(path);
 }
 
 export async function resolveDynamicAssetFields<T extends Record<string, unknown>>(

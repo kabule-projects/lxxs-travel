@@ -1,3 +1,4 @@
+import { CDN_BASE } from '../config/cloud';
 import {
   getAudioPrefs,
   initAudioPrefs,
@@ -10,7 +11,7 @@ import {
 } from './audio-prefs';
 
 const SFX = {
-  tap: '/assets/sfx/tap.aac',
+  tap: `${CDN_BASE}/content/ui/sfx/tap.aac`,
 } as const;
 
 type SfxKey = keyof typeof SFX;

@@ -12,11 +12,11 @@
     current="{{pageIndex}}"
     bindchange="onSwiperChange"
   >
-    <swiper-item wx:for="{{pages}}" wx:for-item="page" wx:key="index">
+    <swiper-item wx:for="{{pages}}" wx:for-item="pg" wx:for-index="pi" wx:key="pi">
       <view class="cabinet">
         <view class="cabinet-inner">
           <view
-            wx:for="{{page.shelves}}"
+            wx:for="{{pg.shelves}}"
             wx:for-item="shelf"
             wx:for-index="si"
             wx:key="si"
@@ -25,19 +25,21 @@
             <view class="shelf-slots">
               <view
                 wx:for="{{shelf}}"
-                wx:for-item="slot"
+                wx:for-item="cell"
                 wx:key="id"
-                class="slot {{slot.empty ? 'slot--empty' : ''}}"
-                data-id="{{slot.id}}"
+                class="slot {{cell.empty ? 'slot--empty' : ''}}"
+                data-id="{{cell.id}}"
                 bindtap="onTapItem"
               >
-                <block wx:if="{{!slot.empty}}">
+                <block wx:if="{{!cell.empty}}">
                   <image
-                    wx:if="{{slot.icon}}"
+                    wx:if="{{cell.icon}}"
                     class="slot-icon"
-                    src="{{slot.icon}}"
+                    src="{{cell.icon}}"
                     mode="aspectFit"
                   />
+                  <!-- 诊断用，修完删除 -->
+                  <view class="slot-diag">{{cell.name}}</view>
                 </block>
               </view>
             </view>

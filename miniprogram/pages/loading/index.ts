@@ -1,11 +1,9 @@
 import { isSupportedOrDevtools, readSafeArea } from '../../utils/device';
 import {
   assetWebp,
-  assetWebpCandidates,
   LOADING_ASSETS,
   ROOF_ASSETS,
   ROOF_SCENE_ASSETS,
-  preloadFirstAvailable,
 } from '../../utils/asset-path';
 
 import { ensureSession } from '../../services/auth';
@@ -71,23 +69,11 @@ Page({
   },
 
   async resolveAssets() {
-    try {
-      const [bgSrc, btnEnterSrc, btnEnterDisabledSrc] = await Promise.all([
-        preloadFirstAvailable(assetWebpCandidates(ROOF_SCENE_ASSETS.bg)),
-        preloadFirstAvailable(assetWebpCandidates(LOADING_ASSETS.btnEnter)),
-        preloadFirstAvailable(assetWebpCandidates(LOADING_ASSETS.btnEnterDisabled)).catch(
-          () => preloadFirstAvailable(assetWebpCandidates(LOADING_ASSETS.btnEnter)),
-        ),
-      ]);
-      this.setData({ bgSrc, btnEnterSrc, btnEnterDisabledSrc });
-    } catch (e) {
-      console.warn('[loading] asset resolve fallback', e);
-      this.setData({
-        bgSrc: assetWebp(ROOF_SCENE_ASSETS.bg),
-        btnEnterSrc: assetWebp(LOADING_ASSETS.btnEnter),
-        btnEnterDisabledSrc: assetWebp(LOADING_ASSETS.btnEnterDisabled),
-      });
-    }
+    this.setData({
+      bgSrc: assetWebp(ROOF_SCENE_ASSETS.bg),
+      btnEnterSrc: assetWebp(LOADING_ASSETS.btnEnter),
+      btnEnterDisabledSrc: assetWebp(LOADING_ASSETS.btnEnterDisabled),
+    });
   },
 
   onLayerLoaded() {

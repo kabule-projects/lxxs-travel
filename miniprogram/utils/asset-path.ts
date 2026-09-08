@@ -1,5 +1,6 @@
 import { readDevice } from './device';
 import GAME from './constants';
+import { CDN_BASE } from '../config/cloud';
 
 export type AssetDpr = '2x' | '3x';
 
@@ -242,35 +243,17 @@ export function pickAssetDpr(): AssetDpr {
   return pixelRatio >= 2.75 ? '3x' : '2x';
 }
 
+/**
+ * UI 切图统一走云存储 CDN（tcb.qcloud.la）。
+ * 本地 miniprogram/assets/ 只作为上传源，不进小程序包（动态路径打包器追踪不到，
+ * 且总量远超主包 2M 上限）。云上同时存在 @2x/@3x/无后缀 各变体，按设备 dpr 直接取，
+ * 不再做 getImageInfo 存在性探测（探测会整图下载，对扭蛋动画等大文件代价不可接受）。
+ */
 export function assetWebp(relativeWithoutExt: string): string {
-  const dpr = pickAssetDpr();
-  return `/assets/${relativeWithoutExt}@${dpr}.webp`;
+  return `${CDN_BASE}/content/ui/${relativeWithoutExt}@${pickAssetDpr()}.webp`;
 }
 
-export function assetWebpCandidates(relativeWithoutExt: string): string[] {
-  const preferred = pickAssetDpr();
-  const order: AssetDpr[] =
-    preferred === '3x' ? ['3x', '2x'] : ['2x', '3x'];
-  const paths = order.map((d) => `/assets/${relativeWithoutExt}@${d}.webp`);
-  paths.push(`/assets/${relativeWithoutExt}.webp`);
-  return [...new Set(paths)];
-}
-
-export function preloadFirstAvailable(candidates: string[]): Promise<string> {
-  return new Promise((resolve, reject) => {
-    let i = 0;
-    const tryNext = () => {
-      if (i >= candidates.length) {
-        reject(new Error('all assets failed'));
-        return;
-      }
-      const src = candidates[i++];
-      wx.getImageInfo({
-        src,
-        success: () => resolve(src),
-        fail: tryNext,
-      });
-    };
-    tryNext();
-  });
+/** 不带 dpr 后缀的 CDN 路径（数据库相对路径如 postcards/letter-1 用） */
+export function assetCdnBase(relativeWithoutExt: string): string {
+  return `${CDN_BASE}/content/ui/${relativeWithoutExt}.webp`;
 }

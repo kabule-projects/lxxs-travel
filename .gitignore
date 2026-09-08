@@ -25,3 +25,6 @@ Thumbs.db
 
 # 云函数 common 共享模块副本（由 scripts/sync-cloud-common.js 生成）
 cloud/functions/*/common/
+
+# UI 资产 CDN 上传暂存（由 scripts/upload-ui-assets.js 生成）
+.cdn-staging/

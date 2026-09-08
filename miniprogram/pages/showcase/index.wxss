@@ -100,6 +100,16 @@
   height: 120rpx;
 }
 
+/* 诊断用，修完删除 */
+.slot-diag {
+  position: absolute;
+  width: 140rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: #ff00ff;
+  font-weight: bold;
+}
+
 .page-hint {
   position: relative;
   z-index: 3;

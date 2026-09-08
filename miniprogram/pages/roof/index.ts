@@ -64,6 +64,7 @@ Page({
   _dropped: [] as RoofStarView[],
   _offReturned: null as (() => void) | null,
   _offStarted: null as (() => void) | null,
+  _offVisible: null as (() => void) | null,
 
   onLoad() {
     const safe = readSafeArea();
@@ -87,9 +88,13 @@ Page({
     });
     this._offStarted = on(GameEvent.TRIP_STARTED, (payload) => {
       const endAt = (payload as { endAt?: number })?.endAt;
+      this.setData({ charShenVisible: false });
       if (endAt) {
         scheduleReturnWatch(endAt, () => this.syncTripState());
       }
+    });
+    this._offVisible = on(GameEvent.CHARACTER_VISIBLE, () => {
+      this.setData({ charShenVisible: true });
     });
   },
 
@@ -132,6 +137,8 @@ Page({
     this.setData({
       stars: getStars(),
       riceStars: getRiceStars(),
+      // 旅行中（含返回后未确认回家前）屋顶不显示小深
+      charShenVisible: !isTraveling(),
     });
     this.syncFromServer();
     this.syncMailboxState();
@@ -149,6 +156,7 @@ Page({
     if (this._flyTimer) clearTimeout(this._flyTimer);
     this._offReturned?.();
     this._offStarted?.();
+    this._offVisible?.();
     clearTripBannerTimer();
     stopReturnWatch();
   },

@@ -99,6 +99,8 @@ Page({
       const res = await listShowcase();
       this._items = res.items || [];
       const built = buildPages(this._items);
+      // 诊断用，修完删除
+      console.warn('[showcase]', 'items=', this._items.length, 'firstIcon=', this._items[0] && this._items[0].icon, 'slot0=', JSON.stringify(built.pages[0] && built.pages[0].shelves[0] && built.pages[0].shelves[0][0]));
       this.setData({
         pages: built.pages,
         totalPages: built.totalPages,

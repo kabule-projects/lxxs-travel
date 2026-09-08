@@ -1,8 +1,10 @@
 /** 音乐 / 音效开关与音量偏好（本地持久化） */
+import { CDN_BASE } from '../config/cloud';
 
 const STORAGE_KEY = 'lxxs_audio_prefs';
 
-const BGM_SRC = '/assets/sfx/bgm.aac';
+/** 音频走云存储 CDN；文件就位前静默失败（本地 assets/sfx/ 已不存在） */
+const BGM_SRC = `${CDN_BASE}/content/ui/sfx/bgm.aac`;
 
 export interface AudioPrefs {
   musicEnabled: boolean;

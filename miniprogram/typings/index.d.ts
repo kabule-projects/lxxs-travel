@@ -101,6 +101,11 @@ declare const console: {
   error(...args: unknown[]): void;
 };
 
+declare function setTimeout(cb: () => void, ms?: number): number;
+declare function clearTimeout(id: number): void;
+declare function setInterval(cb: () => void, ms?: number): number;
+declare function clearInterval(id: number): void;
+
 declare function App<T extends WechatMiniprogram.IAnyObject>(options: T): void;
 declare function Page<T extends WechatMiniprogram.IAnyObject>(options: T): void;
 declare function getApp<T extends WechatMiniprogram.IAnyObject>(): T;
