@@ -21,9 +21,10 @@
     </view>
   </view>
 
-  <!-- 扭蛋机：宽度铺满屏幕、垂直居中；常态静态图，抽奖时切 get_one/get_five 动图；抽1次/抽5次为热区 -->
+  <!-- 扭蛋机：宽度铺满屏幕、垂直居中；常态静态图，抽奖时切 get_one/get_five 动图。
+       盒子固定为静态图画布比例（2000:4330）+ aspectFit，切 src 时不重排、不拉伸 -->
   <view class="machine-wrap">
-    <image class="machine-img" src="{{machineSrc}}" mode="widthFix" />
+    <image class="machine-img" src="{{machineSrc}}" mode="aspectFit" />
     <view class="machine-btn machine-btn--1" data-count="1" catchtap="onTapDraw" />
     <view class="machine-btn machine-btn--5" data-count="5" catchtap="onTapDraw" />
   </view>

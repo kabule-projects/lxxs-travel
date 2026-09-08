@@ -78,6 +78,10 @@ Page({
   async loadAssets() {
     const assets = await resolveAssetMap(GACHA_ASSETS);
     this.setData({ assets, machineSrc: assets.machine });
+    // 预加载抽奖动图到缓存，抽奖开始时动图立即显示、无需等待加载
+    [assets.machineOne, assets.machineFive].forEach((src) => {
+      wx.getImageInfo({ src, fail: () => {} });
+    });
   },
 
   async reloadCatalog() {
@@ -124,7 +128,7 @@ Page({
 
   startSpin(count: 1 | 5) {
     const { assets } = this.data;
-    // 切对应动图开始播放；抽奖请求并行发起（后端按 requestId 幂等）
+    // 切对应动图开始播放（固定盒子 + aspectFit，切换不拉伸）；抽奖请求并行发起
     this._drawPromise = drawGacha(count);
     this.setData({
       spinning: true,
