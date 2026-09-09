@@ -103,12 +103,19 @@ async function mailboxSync(openid) {
     user.currentTripId &&
     trips.some((t) => t._id === user.currentTripId && t.status === 'traveling')
   );
+  /** 本次行程是否已送回过信（含已收的）：决定旅行中鸽子是否常驻在家 */
+  const hasDelivered = trips.some((t) =>
+    (t.postcards || []).some(
+      (p) => p.status === 'delivered' || p.status === 'claimed',
+    ),
+  );
 
   const pigeonState = resolvePigeonState({
     traveling,
     unreadCount: items.length,
     lastMailboxOpenAt: user.lastMailboxOpenAt || 0,
     newestDeliverAt,
+    hasDelivered,
   });
 
   return ok({
@@ -116,6 +123,7 @@ async function mailboxSync(openid) {
     unreadCount: displayItems.length,
     pigeonState,
     traveling,
+    hasDelivered,
     lastMailboxOpenAt: user.lastMailboxOpenAt || 0,
     mailCap: 5,
   });

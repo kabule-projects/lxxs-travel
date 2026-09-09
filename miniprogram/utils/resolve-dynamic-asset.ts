@@ -40,6 +40,15 @@ async function getCloudTempUrls(paths: string[]): Promise<Map<string, string>> {
   return map;
 }
 
+/** cloud:// fileID → 云存储 CDN 直链。
+ * cloud://{envId}.{bucket}/{path} → https://{bucket}.tcb.qcloud.la/{path}
+ * 直链免 getTempFileURL 换链往返，且 URL 固定可被 CDN 边缘缓存；
+ * 前提：存储权限「所有用户可读」（content/items 与 content/ui 同 bucket，已开） */
+export function cloudFileIdToCdnUrl(fileID: string): string {
+  const m = /^cloud:\/\/([^.]+)\.([^/]+)\/(.+)$/.exec(fileID);
+  return m ? `https://${m[2]}.tcb.qcloud.la/${m[3]}` : fileID;
+}
+
 /** 已是可直接用于 image src 的路径 */
 export function isAbsoluteAssetPath(path: string): boolean {
   if (!path) return true;
@@ -52,10 +61,12 @@ export function isAbsoluteAssetPath(path: string): boolean {
   );
 }
 
-/** 将库内相对路径（如 postcards/letter-1）解析为云存储 CDN 直链；cloud:// 换成 https 临时链接 */
+/** 将库内相对路径（如 postcards/letter-1）解析为云存储 CDN 直链；cloud:// 直接转 CDN 直链（不匹配的格式回退 getTempFileURL） */
 export async function resolveDynamicAsset(path: string): Promise<string> {
   if (!path) return path;
   if (isCloudFileId(path)) {
+    const direct = cloudFileIdToCdnUrl(path);
+    if (direct !== path) return direct;
     const map = await getCloudTempUrls([path]);
     return map.get(path) || path;
   }
@@ -83,14 +94,7 @@ export async function resolveDynamicAssetList<T extends Record<string, unknown>>
   items: T[],
   keys: (keyof T)[],
 ): Promise<T[]> {
-  // 先批量换取临时链接（并预热缓存），再逐条解析剩余本地路径
-  const cloudPaths: string[] = [];
-  items.forEach((item) => {
-    keys.forEach((key) => {
-      const val = item[key];
-      if (typeof val === 'string' && isCloudFileId(val)) cloudPaths.push(val);
-    });
-  });
-  await getCloudTempUrls(cloudPaths);
+  // cloud:// → CDN 直链为纯字符串转换，无需预热身；
+  // 仅个别不匹配格式才在 resolveDynamicAsset 内单独 getTempFileURL
   return Promise.all(items.map((item) => resolveDynamicAssetFields(item, keys)));
 }

@@ -6,7 +6,7 @@
 
 .track {
   position: relative;
-  width: 670rpx;
+  width: 520rpx;
   max-width: calc(100vw - 80rpx);
   height: 48rpx;
   margin: 24rpx auto;
@@ -35,7 +35,7 @@
 }
 
 .fill-img {
-  width: 670rpx;
+  width: 520rpx;
   max-width: calc(100vw - 80rpx);
   height: 100%;
   display: block;

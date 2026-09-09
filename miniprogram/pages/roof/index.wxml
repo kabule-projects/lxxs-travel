@@ -32,7 +32,7 @@
   <view class="pigeon-spot">
     <image class="magic-hat-img" src="{{assets.magicHat}}" mode="aspectFit" />
     <image
-      wx:if="{{pigeonState !== 'away' && !flyAway}}"
+      wx:if="{{pigeonReady && pigeonState !== 'away' && !flyAway}}"
       class="pigeon-img {{pigeonState === 'mail' ? 'pigeon-img--mail' : ''}}"
       src="{{pigeonState === 'mail' ? assets.pigeonMail : assets.pigeon}}"
       mode="aspectFit"

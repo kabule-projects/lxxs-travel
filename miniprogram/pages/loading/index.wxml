@@ -8,22 +8,28 @@
     binderror="onLayerError"
   />
 
-  <!-- 进入按钮：常驻同位同尺寸；加载中显示 disabled 贴图，完成后切常态贴图 -->
-  <view class="enter-zone" style="padding-top: {{safeTop}}px">
+  <!-- 加载中：进度条占着按钮的位置（同位同高，含相同 safeTop padding），完成后消失 -->
+  <view class="loading-slot" wx:if="{{!canEnter}}" style="padding-top: {{safeTop}}px">
+    <loading-bar progress="{{progress}}" />
+  </view>
+
+  <!-- 加载完成：按钮在同一位置出现（位置与原版一致：top 75.5%） -->
+  <view class="enter-zone" wx:if="{{canEnter}}" style="padding-top: {{safeTop}}px">
     <view class="enter-hit" bindtap="onEnterGame">
       <image
-        class="enter-img {{canEnter ? '' : 'enter-img--wait'}}"
-        src="{{canEnter ? btnEnterSrc : btnEnterDisabledSrc}}"
+        class="enter-img"
+        src="{{btnEnterSrc}}"
         mode="widthFix"
         show-menu-by-longpress="{{false}}"
       />
     </view>
   </view>
 
+  <!-- 底部仅保留提示文字；进度条已上移到按钮位 -->
   <loading-frame
     progress="{{progress}}"
-    tip="{{canEnter ? '' : tip}}"
+    tip="{{entering ? '正在准备小屋…' : (canEnter ? '' : tip)}}"
     safeBottom="{{safeBottom}}"
-    showBar="{{true}}"
+    showBar="{{false}}"
   />
 </view>

@@ -9,6 +9,7 @@ import { formatRemain, mergeRoofStars, withRemain, type RoofStarDisplay, type Ro
 import GAME from '../../utils/constants';
 import { emit, GameEvent, on } from '../../utils/event-bus';
 import { startTrip, type TripLoadout } from '../../services/trip';
+import { preloadOtherPagesAssets } from '../../utils/preload';
 import {
   resolveTripSyncView,
   runReturnBannerFlow,
@@ -45,6 +46,8 @@ Page({
     showBag: false,
     showInv: false,
     pigeonState: 'idle' as PigeonState,
+    /** 首次信箱同步完成前不渲染鸽子，避免旅行中鸽子按默认态闪现 */
+    pigeonReady: false,
     flyAway: false,
     /** depart（旅行中）状态下隐藏小深 */
     charShenVisible: true,
@@ -163,6 +166,8 @@ Page({
     this.syncMailboxState();
     this.syncTripState();
     this.startTick();
+    // 首屏渲染后延迟预热其他页面 UI 资产（会话内一次），避免与屋顶自身图片抢网络
+    setTimeout(() => preloadOtherPagesAssets(), 2000);
   },
 
   onHide() {
@@ -250,13 +255,15 @@ Page({
       const mailCap = res.mailCap || GAME.PIGEON_MAIL_CAP;
       const mailItems = res.items || [];
       this.setData({
+        pigeonReady: true,
         pigeonState: res.pigeonState,
         mailItems,
         mailCap,
         mailFull: mailItems.length >= mailCap,
       });
     } catch {
-      /* ignore */
+      // 同步失败也解除隐藏，避免鸽子永远不出现
+      this.setData({ pigeonReady: true });
     }
   },
 

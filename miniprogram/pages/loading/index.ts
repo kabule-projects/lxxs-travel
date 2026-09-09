@@ -1,5 +1,6 @@
 import { isSupportedOrDevtools, readSafeArea } from '../../utils/device';
-import { assetWebp, LOADING_ASSETS } from '../../utils/asset-path';
+import { assetWebp, LOADING_ASSETS, ROOF_SCENE_ASSETS, ROOF_ASSETS } from '../../utils/asset-path';
+import { preloadImages } from '../../utils/preload';
 
 import { ensureSession } from '../../services/auth';
 import { playTap } from '../../services/sound';
@@ -10,6 +11,8 @@ Page({
     tip: '正在加载…',
     canEnter: false,
     layersReady: false,
+    /** 点按钮后预载屋顶资产中，防止重复点击 */
+    entering: false,
     bgSrc: '',
     btnEnterSrc: '',
     btnEnterDisabledSrc: '',
@@ -22,6 +25,7 @@ Page({
   _layerCount: 0,
   _targetLayerCount: 1,
   _navigated: false,
+  _entering: false,
 
   onLoad() {
     if (!isSupportedOrDevtools()) {
@@ -112,15 +116,28 @@ Page({
     // this.enterGame(); // TODO: UI 调试完后恢复自动跳转
   },
 
+  /** 预载屋顶页全部图片，全部下载完成（或超时兜底）后再跳转，避免落地后逐张闪现 */
+  preloadRoofAssets(): Promise<void> {
+    const urls = [
+      assetWebp(ROOF_SCENE_ASSETS.bg),
+      ...Object.values(ROOF_ASSETS).map((k) => assetWebp(k)),
+    ];
+    return preloadImages(urls, 5000);
+  },
+
   enterGame() {
-    if (this._navigated) return;
+    if (this._navigated || this._entering) return;
     if (!this.data.sessionReady) {
       wx.showToast({ title: '还在加载中', icon: 'none' });
       return;
     }
-    this._navigated = true;
+    this._entering = true;
+    this.setData({ entering: true });
     playTap();
-    wx.reLaunch({ url: '/pages/roof/index' });
+    this.preloadRoofAssets().then(() => {
+      this._navigated = true;
+      wx.reLaunch({ url: '/pages/roof/index' });
+    });
   },
 
   onEnterGame() {

@@ -70,16 +70,21 @@ Component({
     },
 
     async refresh() {
-      const seq = ++this._refreshSeq;
+      // 部分编译链不会初始化 options 里的自定义字段，这里自兜底，避免 ++undefined → NaN 把结果全部误判过期
+      const seq = (this._refreshSeq = (this._refreshSeq || 0) + 1);
       const lock = (this.properties.lockTab || '') as InvCategory | '';
       const tab: InvCategory =
         lock === 'food' || lock === 'prop' ? lock : this.data.tab;
       // 清空旧列表，避免上一次打开时的内容残留
       this.setData({ loading: true, tab, items: [] });
+      console.warn('[inv-picker] refresh start', seq, 'lock=', lock || '(none)');
       try {
         const items = await fetchOwned(lock || tab);
+        console.warn('[inv-picker] fetch resolved', seq, 'count=', items.length);
         if (seq !== this._refreshSeq) return; // 已有更新的请求，丢弃过期结果
         this.setData({ tab, items });
+      } catch (e) {
+        console.warn('[inv-picker] fetch rejected', seq, e);
       } finally {
         if (seq === this._refreshSeq) {
           this.setData({ loading: false });

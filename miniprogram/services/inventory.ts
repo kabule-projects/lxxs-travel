@@ -194,8 +194,8 @@ export async function fetchOwned(
           (i.type === 'food' ? 'food' : ('prop' as InvCategory)),
       }));
     }
-  } catch {
-    /* local */
+  } catch (e) {
+    console.warn('[inventory] 云端库存获取失败，回落本地', e);
   }
   return listOwned(category);
 }

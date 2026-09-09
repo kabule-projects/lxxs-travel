@@ -110,9 +110,19 @@ async function collectAndTrimUnread(db, _, openid, tripDocs) {
   return { items, autoReadCount };
 }
 
-/** pigeonVisual: away | mail | idle */
-function resolvePigeonState({ traveling, unreadCount, lastMailboxOpenAt, newestDeliverAt }) {
-  if (traveling && unreadCount === 0) return 'away';
+/** pigeonVisual: away | mail | idle
+ *  away：旅行中且本次行程还没送回过信（鸽子在路上）
+ *  mail：有未读信（嘴上叼信，在家）
+ *  idle：在家。旅行中但已送回过信（哪怕已收）也算 idle——鸽子中途回来就不走了，
+ *        直到下一次出发 */
+function resolvePigeonState({
+  traveling,
+  unreadCount,
+  lastMailboxOpenAt,
+  newestDeliverAt,
+  hasDelivered,
+}) {
+  if (traveling && unreadCount === 0 && !hasDelivered) return 'away';
   if (unreadCount > 0) {
     const opened = lastMailboxOpenAt || 0;
     const newest = newestDeliverAt || 0;

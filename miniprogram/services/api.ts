@@ -28,6 +28,22 @@ export interface UserProfile {
 
 const TIMEOUT_MS = 15000;
 
+function withTimeout<T>(p: Promise<T>, ms: number, msg: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(msg)), ms);
+    p.then(
+      (v) => {
+        clearTimeout(t);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(t);
+        reject(e);
+      },
+    );
+  });
+}
+
 function normalizeResult<T>(raw: unknown): CloudResult<T> {
   if (raw && typeof raw === 'object' && 'ok' in (raw as object)) {
     return raw as CloudResult<T>;
@@ -42,7 +58,11 @@ export async function call<T>(
   if (!wx.cloud) {
     throw new Error('云开发不可用');
   }
-  const res = await wx.cloud.callFunction({ name, data });
+  const res = await withTimeout(
+    wx.cloud.callFunction({ name, data }),
+    TIMEOUT_MS,
+    `云函数 ${name} 调用超时`,
+  );
   const result = normalizeResult<T>(res.result);
   if (!result.ok) {
     const err = new Error(result.error || '云函数错误');

@@ -26,6 +26,8 @@ export interface MailboxSyncResult {
   unreadCount: number;
   pigeonState: PigeonState;
   traveling: boolean;
+  /** 本次行程是否已送回过信（含已收）：旅行中鸽子中途回家则常驻 */
+  hasDelivered?: boolean;
   lastMailboxOpenAt: number;
   mailCap: number;
 }
@@ -36,6 +38,7 @@ interface LocalMail {
   items: MailItem[];
   lastMailboxOpenAt: number;
   traveling: boolean;
+  hasDelivered: boolean;
 }
 
 function readLocal(): LocalMail {
@@ -45,7 +48,7 @@ function readLocal(): LocalMail {
   } catch {
     /* ignore */
   }
-  return { items: [], lastMailboxOpenAt: 0, traveling: false };
+  return { items: [], lastMailboxOpenAt: 0, traveling: false, hasDelivered: false };
 }
 
 function writeLocal(state: LocalMail) {
@@ -57,7 +60,8 @@ function writeLocal(state: LocalMail) {
 }
 
 function localPigeon(state: LocalMail): PigeonState {
-  if (state.traveling && state.items.length === 0) return 'away';
+  // 旅行中且本次行程还没送回过信 → 外出；送回过（哪怕已收）→ 在家常驻
+  if (state.traveling && state.items.length === 0 && !state.hasDelivered) return 'away';
   if (state.items.length > 0) {
     const newest = state.items.reduce((m, i) => Math.max(m, i.deliverAt), 0);
     if (newest > (state.lastMailboxOpenAt || 0)) return 'mail';
@@ -87,6 +91,7 @@ export async function syncMailbox(): Promise<MailboxSyncResult> {
       items,
       lastMailboxOpenAt: res.lastMailboxOpenAt || 0,
       traveling: !!res.traveling,
+      hasDelivered: !!res.hasDelivered,
     });
     return {
       ...res,
@@ -102,6 +107,7 @@ export async function syncMailbox(): Promise<MailboxSyncResult> {
       unreadCount: items.length,
       pigeonState: localPigeon({ ...local, items }),
       traveling: local.traveling,
+      hasDelivered: local.hasDelivered,
       lastMailboxOpenAt: local.lastMailboxOpenAt,
       mailCap: GAME.PIGEON_MAIL_CAP,
     };
@@ -119,6 +125,7 @@ export async function openMailbox(): Promise<MailboxSyncResult> {
       items,
       lastMailboxOpenAt: res.lastMailboxOpenAt || 0,
       traveling: !!res.traveling,
+      hasDelivered: !!res.hasDelivered,
     });
     return {
       ...res,
