@@ -9,6 +9,7 @@
 
   <swiper
     class="cabinet-swiper"
+    style="{{cabStyle}}"
     current="{{pageIndex}}"
     bindchange="onSwiperChange"
   >
@@ -31,16 +32,12 @@
                 data-id="{{cell.id}}"
                 bindtap="onTapItem"
               >
-                <block wx:if="{{!cell.empty}}">
-                  <image
-                    wx:if="{{cell.icon}}"
-                    class="slot-icon"
-                    src="{{cell.icon}}"
-                    mode="aspectFit"
-                  />
-                  <!-- 诊断用，修完删除 -->
-                  <view class="slot-diag">{{cell.name}}</view>
-                </block>
+                <image
+                  wx:if="{{!cell.empty && cell.icon}}"
+                  class="slot-icon"
+                  src="{{cell.icon}}"
+                  mode="aspectFit"
+                />
               </view>
             </view>
           </view>
@@ -57,6 +54,7 @@
     image="{{detailImage}}"
     description="{{detailDesc}}"
     bind:close="onCloseDetail"
+    bind:confirm="onCloseDetail"
   />
 
   <settings-modal visible="{{showSettings}}" bind:close="onCloseSettings" />

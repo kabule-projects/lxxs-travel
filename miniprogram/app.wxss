@@ -1,5 +1,9 @@
+/* 全局禁止页面整体滚动/橡皮筋（替代各页 json 的 disableScroll：
+   纯 CSS 方案不经过原生触摸拦截，模拟器与真机行为一致；
+   内部 swiper/scroll-view 是独立滚动容器，不受影响） */
 page {
   height: 100%;
+  overflow: hidden;
 }
 
 /* ── 贴图计数框（roof/home 等页共用）：整张贴图（框+icon 已画进图），数字叠加其上 ──

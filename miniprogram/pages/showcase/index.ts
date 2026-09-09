@@ -68,6 +68,8 @@ Page({
   data: {
     /** 顶栏 padding-top：胶囊按钮底边 + 间距，避开右上角关闭/菜单 */
     hudTop: 0,
+    /** 柜子区域像素矩形：真机上百分比高度链会失效（同 shop/diary），按屏显内联 px */
+    cabStyle: '',
     assets: {} as PageAssets,
     pages: [] as ShelfPage[],
     pageIndex: 0,
@@ -83,8 +85,15 @@ Page({
 
   onLoad() {
     const capsule = readCapsuleRect();
+    const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    const screenW = info.windowWidth || 375;
+    const screenH = info.windowHeight || 667;
     // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮（同 home/roof）
-    this.setData({ hudTop: capsule.bottom + 12 });
+    this.setData({
+      hudTop: capsule.bottom + 12,
+      // 柜子区：左 15%、上 26%、宽 70%（与原调试网格对位参数一致），高度 54% 容纳 4 行
+      cabStyle: `left: ${screenW * 0.15}px; top: ${screenH * 0.21}px; width: ${screenW * 0.7}px; height: ${screenH * 0.60}px;`,
+    });
     this.loadAssets();
     this.reload();
   },
@@ -99,8 +108,6 @@ Page({
       const res = await listShowcase();
       this._items = res.items || [];
       const built = buildPages(this._items);
-      // 诊断用，修完删除
-      console.warn('[showcase]', 'items=', this._items.length, 'firstIcon=', this._items[0] && this._items[0].icon, 'slot0=', JSON.stringify(built.pages[0] && built.pages[0].shelves[0] && built.pages[0].shelves[0][0]));
       this.setData({
         pages: built.pages,
         totalPages: built.totalPages,

@@ -1,18 +1,28 @@
 <view class="sc-detail-mask" wx:if="{{visible}}" catchtap="onClose">
   <view class="sc-detail-panel" catchtap="onStop">
-    <image class="sc-detail-panel-bg" src="{{panelBg}}" mode="scaleToFill" />
+    <!-- 底图按自身比例撑出面板盒子（widthFix），内容浮于其上，不拉伸 -->
+    <image class="sc-detail-panel-bg" src="{{panelBg}}" mode="widthFix" />
     <icon-close class="sc-detail-close" src="{{iconClose}}" size="{{64}}" bind:close="onClose" />
-    <view class="sc-detail-title">{{title}}</view>
-    <!-- 小方块：底部物品背景 + 顶部纪念品图 -->
-    <view class="sc-detail-image">
-      <image class="sc-detail-item-bg" src="{{itemBg}}" mode="aspectFill" />
+    <view class="sc-detail-content">
+      <view class="sc-detail-title">{{title}}</view>
+      <!-- 小方块：底部物品背景 + 顶部纪念品图 -->
+      <view class="sc-detail-image">
+        <image class="sc-detail-item-bg" src="{{itemBg}}" mode="aspectFill" />
+        <image
+          wx:if="{{image}}"
+          class="sc-detail-img"
+          src="{{image}}"
+          mode="aspectFit"
+        />
+      </view>
+      <view class="sc-detail-desc">{{description}}</view>
       <image
-        wx:if="{{image}}"
-        class="sc-detail-img"
-        src="{{image}}"
-        mode="aspectFit"
+        wx:if="{{btnConfirm}}"
+        class="sc-detail-confirm"
+        src="{{btnConfirm}}"
+        mode="widthFix"
+        catchtap="onConfirm"
       />
     </view>
-    <view class="sc-detail-desc">{{description}}</view>
   </view>
 </view>

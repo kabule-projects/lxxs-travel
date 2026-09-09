@@ -1,4 +1,4 @@
-import { COMMON_ASSETS, SHOWCASE_ASSETS } from '../../utils/asset-path';
+import { COMMON_ASSETS, GACHA_ASSETS, SHOWCASE_ASSETS } from '../../utils/asset-path';
 import { resolveAsset } from '../../utils/resolve-assets';
 
 Component({
@@ -13,6 +13,7 @@ Component({
     panelBg: '',
     itemBg: '',
     iconClose: '',
+    btnConfirm: '',
   },
 
   lifetimes: {
@@ -26,6 +27,10 @@ Component({
       resolveAsset(COMMON_ASSETS.iconClose).then((iconClose) => {
         this.setData({ iconClose });
       });
+      // 复用扭蛋结果弹窗的通用确认按钮贴图
+      resolveAsset(GACHA_ASSETS.btnConfirm).then((btnConfirm) => {
+        this.setData({ btnConfirm });
+      });
     },
   },
 
@@ -33,6 +38,9 @@ Component({
     onStop() {},
     onClose() {
       this.triggerEvent('close');
+    },
+    onConfirm() {
+      this.triggerEvent('confirm');
     },
   },
 });
