@@ -1,6 +1,6 @@
 <view class="gr-mask" wx:if="{{visible}}" catchtap="onClose">
   <view class="gr-panel" catchtap="onStop">
-    <image class="gr-panel-bg" src="{{panelBg}}" mode="widthFix" />
+    <image class="gr-panel-bg" src="{{panelBg}}" mode="scaleToFill" />
     <icon-close class="gr-close" src="{{iconClose}}" size="{{64}}" bind:close="onClose" />
 
     <view wx:if="{{single}}" class="gr-single">

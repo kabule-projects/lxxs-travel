@@ -1,0 +1,43 @@
+.pz-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 裸图卡片：固定 3:4 盒子（无底色/边框），图片 aspectFit 在盒内居中 */
+.pz-card {
+  position: relative;
+  width: 75vw;
+  max-width: 620rpx;
+  aspect-ratio: 3 / 4;
+  border-radius: 16rpx;
+}
+
+.pz-image {
+  width: 100%;
+  height: 100%;
+}
+
+.pz-ph {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 120rpx;
+  font-weight: 700;
+  color: #5a4088;
+}
+
+/* 信封按钮：right/bottom 由 JS 按图片渲染边界内联给定，动态贴合图片右下角 */
+.pz-envelope {
+  position: absolute;
+  width: 29%;
+}

@@ -111,6 +111,8 @@ export const GACHA_ASSETS = {
   btnPrizes: 'gacha/btn-prizes',
   exchangeBanner: 'gacha/exchange-banner',
   resultPanel: 'gacha/result-panel',
+  /** 图鉴/兑换列表弹窗面板（独立切图，勿与 result-panel 共用） */
+  prizePanel: 'gacha/prize-panel',
   /** 结果格底图；实物 icon 叠在其上 */
   resultItemBg: 'gacha/result-item-bg',
   btnConfirm: 'gacha/btn-confirm',

@@ -169,8 +169,7 @@
 .slot-icon {
   position: relative;
   z-index: 1;
-  width: 112rpx;
-  height: 112rpx;
+  width: 200%;
   margin-bottom: -10rpx;
   transition: transform 0.15s ease;
 }

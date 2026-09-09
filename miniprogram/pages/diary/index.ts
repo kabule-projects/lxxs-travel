@@ -89,9 +89,6 @@ Page({
     zoomTitle: '',
     letterDate: '',
     letterStory: '',
-    /** 信封按钮位置（% of zoom-card），跟随明信片图片实际边缘 */
-    envelopeRight: -5,
-    envelopeBottom: -27,
   },
 
   onLoad() {
@@ -212,39 +209,9 @@ Page({
     });
   },
 
-  onStopZoom() {},
-
   onTapEnvelope() {
     playTap();
     this.setData({ letterVisible: true });
-  },
-
-  /** 明信片大图加载后，根据图片实际比例计算信封位置，使其贴合图片右下角 */
-  onZoomImageLoad(e: WechatMiniprogram.ImageLoad) {
-    const { width: imgW, height: imgH } = e.detail;
-    if (!imgW || !imgH) return;
-    const cardAR = 3 / 4;
-    const imgAR = imgW / imgH;
-    // 溢出量（与 CSS 原始值一致）：right -5% of card width, bottom -27% of card height
-    const rightOverflow = -5;
-    const bottomOverflow = -27;
-    if (imgAR >= cardAR) {
-      // 图片更宽：填满宽度，上下有留白
-      const renderedImgHPct = (100 * 3) / (4 * imgAR);
-      const marginPct = (100 - renderedImgHPct) / 2;
-      this.setData({
-        envelopeRight: rightOverflow,
-        envelopeBottom: marginPct + bottomOverflow,
-      });
-    } else {
-      // 图片更高：填满高度，左右有留白
-      const renderedImgWPct = (100 * 4 * imgAR) / 3;
-      const marginPct = (100 - renderedImgWPct) / 2;
-      this.setData({
-        envelopeRight: marginPct + rightOverflow,
-        envelopeBottom: bottomOverflow,
-      });
-    }
   },
 
   onCloseLetter() {

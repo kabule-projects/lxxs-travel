@@ -11,16 +11,21 @@
   justify-content: center;
 }
 
-/* 面板复用 gacha/result-panel 切图（1181×1359，同图鉴弹窗）：宽度占屏 85.4%，
-   底图 widthFix 决定面板高度（按原图比例），内容百分比绝对定位叠在图上 */
+/* 面板底图 gacha/result-panel 切图（1181×1359）：宽度占屏 85.4%，
+   用 aspect-ratio 锁定面板原始比例、底图铺满盒子（不依赖 widthFix 回填高度，
+   五连时背景也不会被压缩变形），内容百分比绝对定位叠在图上 */
 .gr-panel {
   position: relative;
   width: 85.4%;
+  aspect-ratio: 1181 / 1359;
 }
 
 .gr-panel-bg {
-  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 100%;
+  height: 100%;
 }
 
 .gr-close {

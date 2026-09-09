@@ -37,24 +37,15 @@
     </view>
   </view>
 
-  <view
-    class="mbox-detail-mask"
+  <!-- 明信片大图弹层（与 diary 共用组件）：裸图 + 信封跟随右下角 -->
+  <postcard-zoom
     wx:if="{{detailVisible && !letterVisible}}"
-    catchtap="onCloseDetail"
-  >
-    <view class="mbox-zoom-card" catchtap="onStop">
-      <image
-        wx:if="{{zoomImage}}"
-        class="mbox-zoom-image"
-        src="{{zoomImage}}"
-        mode="aspectFit"
-      />
-      <view wx:else class="mbox-zoom-ph">{{zoomTitle[0] || '?'}}</view>
-      <view class="mbox-envelope" catchtap="onTapEnvelope">
-        <image class="mbox-envelope-img" src="{{assets.envelope}}" mode="aspectFit" />
-      </view>
-    </view>
-  </view>
+    image="{{zoomImage}}"
+    title="{{zoomTitle}}"
+    envelope="{{assets.envelope}}"
+    bind:close="onCloseDetail"
+    bind:envelope="onTapEnvelope"
+  />
 
   <diary-letter
     visible="{{letterVisible}}"

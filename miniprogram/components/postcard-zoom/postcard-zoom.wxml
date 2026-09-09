@@ -1,0 +1,21 @@
+<!-- 明信片大图弹层（diary / mail 共用）：裸图 3:4 盒子 + aspectFit，
+     信封按钮按图片实际比例动态贴合图片右下角 -->
+<view class="pz-mask" catchtap="onClose">
+  <view class="pz-card" catchtap="onStop">
+    <image
+      wx:if="{{image}}"
+      class="pz-image"
+      src="{{image}}"
+      mode="aspectFit"
+      bindload="onImageLoad"
+    />
+    <view wx:else class="pz-ph">{{title[0] || '?'}}</view>
+    <image
+      class="pz-envelope"
+      style="right: {{envelopeRight}}%; bottom: {{envelopeBottom}}%"
+      src="{{envelope}}"
+      mode="aspectFit"
+      catchtap="onTapEnvelope"
+    />
+  </view>
+</view>

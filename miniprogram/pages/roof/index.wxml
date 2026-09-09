@@ -42,7 +42,7 @@
       wx:if="{{flyAway}}"
       class="pigeon-fly-img pigeon-fly-img--go"
       src="{{assets.pigeonFly}}"
-      mode="widthFix"
+      mode="scaleToFill"
     />
     <image
       wx:if="{{pigeonState === 'mail' && !flyAway}}"

@@ -41,11 +41,12 @@
   <!-- loading logo -->
   <image class="loading-logo" src="{{logoSrc}}" mode="widthFix" />
 
-  <view class="enter-zone" style="padding-top: {{safeTop}}px" wx:if="{{canEnter}}">
+  <!-- 进入按钮：常驻同位同尺寸；加载中显示 disabled 贴图，完成后切常态贴图 -->
+  <view class="enter-zone" style="padding-top: {{safeTop}}px">
     <view class="enter-hit" bindtap="onEnterGame">
       <image
-        class="enter-img"
-        src="{{btnEnterSrc}}"
+        class="enter-img {{canEnter ? '' : 'enter-img--wait'}}"
+        src="{{canEnter ? btnEnterSrc : btnEnterDisabledSrc}}"
         mode="widthFix"
         show-menu-by-longpress="{{false}}"
       />

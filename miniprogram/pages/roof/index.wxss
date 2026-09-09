@@ -150,17 +150,20 @@
 }
 
 /* pigeon-fly 动图
-   left/top/width 即起飞起始位（调定：left 13% / top -25% / width 190rpx） */
+   left/top/width 即起飞起始位（调定：left 13% / top -25% / width 190rpx）。
+   动图画布为正方形（240×240）：显式定高 + scaleToFill，插入瞬间即为最终尺寸，
+   避免 widthFix 回填高度前被默认高（240px）纵向拉伸 */
 .pigeon-fly-img {
   position: absolute;
   left: 13%;
   top: -25%;
   width: 190rpx;
+  height: 190rpx;
 }
 
-/* 飞出：从起始位右上位移 + 缩小 + 淡出；0.9s 与 _flyTimer 950ms 匹配 */
+/* 飞出：从起始位右上位移 + 缩小 + 淡出；1.6s 与 _flyTimer 1650ms 匹配 */
 .pigeon-fly-img--go {
-  animation: pigeon-fly-go 0.9s ease-in forwards;
+  animation: pigeon-fly-go 1.6s ease-in forwards;
 }
 
 @keyframes pigeon-fly-go {

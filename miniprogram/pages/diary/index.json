@@ -1,6 +1,7 @@
 {
   "navigationStyle": "custom",
   "usingComponents": {
-    "diary-letter": "/components/diary-letter/diary-letter"
+    "diary-letter": "/components/diary-letter/diary-letter",
+    "postcard-zoom": "/components/postcard-zoom/postcard-zoom"
   }
 }

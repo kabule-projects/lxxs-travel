@@ -111,8 +111,8 @@
   transition: opacity 0.3s, transform 0.2s;
 }
 
+/* wait 态：仅用于 :active 按压排除，_disabled 贴图本身已表达不可点 */
 .enter-img--wait {
-  opacity: 0.55;
 }
 
 .enter-hit:active .enter-img:not(.enter-img--wait) {

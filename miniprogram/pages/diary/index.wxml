@@ -72,24 +72,15 @@
     />
   </view>
 
-  <view class="zoom-mask" wx:if="{{zoomVisible && !letterVisible}}" catchtap="onCloseZoom">
-    <view class="zoom-card" catchtap="onStopZoom">
-      <image wx:if="{{zoomImage}}"
-        class="zoom-image"
-        src="{{zoomImage}}"
-        mode="aspectFit"
-        bindload="onZoomImageLoad"
-      />
-      <view wx:else class="zoom-ph">{{zoomTitle[0] || '?'}}</view>
-      <image
-        class="zoom-envelope"
-        style="right: {{envelopeRight}}%; bottom: {{envelopeBottom}}%"
-        src="{{assets.envelope}}"
-        mode="aspectFit"
-        catchtap="onTapEnvelope"
-      />
-    </view>
-  </view>
+  <!-- 明信片大图弹层（与 mail 共用组件）：信封点击展开信件 -->
+  <postcard-zoom
+    wx:if="{{zoomVisible && !letterVisible}}"
+    image="{{zoomImage}}"
+    title="{{zoomTitle}}"
+    envelope="{{assets.envelope}}"
+    bind:close="onCloseZoom"
+    bind:envelope="onTapEnvelope"
+  />
 
   <diary-letter
     visible="{{letterVisible}}"

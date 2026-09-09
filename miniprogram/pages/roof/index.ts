@@ -167,6 +167,8 @@ Page({
       resolveAssetMap(ROOF_ASSETS),
     ]);
     this.setData({ bgSrc, assets });
+    // 预载起飞动图，出发瞬间即解码播放，不出现首帧空档
+    wx.getImageInfo({ src: assets.pigeonFly, fail: () => {} });
   },
 
   startTick() {
@@ -396,7 +398,7 @@ Page({
       this._flyTimer = setTimeout(() => {
         this.setData({ flyAway: false, pigeonState: 'away' });
         navigateBack('/pages/home/index');
-      }, 950) as unknown as number;
+      }, 1650) as unknown as number;
     } catch (err) {
       wx.showToast({
         title: (err as Error).message || '出发失败',
