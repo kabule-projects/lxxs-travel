@@ -14,6 +14,7 @@ import {
   scheduleReturnWatch,
   stopReturnWatch,
   clearTripBannerTimer,
+  dismissReturnBanner,
 } from '../../services/trip-return';
 
 type HomeAssets = Record<keyof typeof HOME_ASSETS, string>;
@@ -39,6 +40,8 @@ Page({
   _offStars: null as (() => void) | null,
   _offReturned: null as (() => void) | null,
   _offStarted: null as (() => void) | null,
+  /** 当前回家横幅对应的行程 id（点击立即收下时用） */
+  _bannerTripId: null as string | null,
 
   onLoad() {
     const safe = readSafeArea();
@@ -101,6 +104,7 @@ Page({
   },
 
   showDepartBanner() {
+    this._bannerTripId = null;
     this.setData({
       showTravelBanner: true,
       travelBannerMode: 'depart',
@@ -111,6 +115,7 @@ Page({
   },
 
   showReturnBanner(tripId: string) {
+    this._bannerTripId = tripId;
     this.setData({
       showTravelBanner: true,
       travelBannerMode: 'return',
@@ -118,6 +123,20 @@ Page({
     runReturnBannerFlow(tripId, () => {
       this.setData({ showTravelBanner: false });
     });
+  },
+
+  /** 点击横幅：立即收下并隐藏（回家横幅）或直接隐藏（出门横幅） */
+  onBannerDismiss() {
+    const tripId = this._bannerTripId;
+    if (this.data.travelBannerMode === 'return' && tripId) {
+      dismissReturnBanner(tripId, () => {
+        this._bannerTripId = null;
+        this.setData({ showTravelBanner: false });
+      });
+      return;
+    }
+    clearTripBannerTimer();
+    this.setData({ showTravelBanner: false });
   },
 
   bindEvents() {

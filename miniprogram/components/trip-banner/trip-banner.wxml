@@ -1,4 +1,4 @@
-<view class="trip-banner" wx:if="{{visible}}">
+<view class="trip-banner" wx:if="{{visible}}" catchtap="onTap">
   <!-- 完整提示图（文案已画在图上），按出发/归来切换 -->
   <image
     class="trip-banner-img"

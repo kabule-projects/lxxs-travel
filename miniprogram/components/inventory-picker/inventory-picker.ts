@@ -60,6 +60,8 @@ Component({
     },
   },
 
+  _refreshSeq: 0,
+
   methods: {
     onStop() {},
 
@@ -68,15 +70,20 @@ Component({
     },
 
     async refresh() {
+      const seq = ++this._refreshSeq;
       const lock = (this.properties.lockTab || '') as InvCategory | '';
       const tab: InvCategory =
         lock === 'food' || lock === 'prop' ? lock : this.data.tab;
-      this.setData({ loading: true, tab });
+      // 清空旧列表，避免上一次打开时的内容残留
+      this.setData({ loading: true, tab, items: [] });
       try {
         const items = await fetchOwned(lock || tab);
+        if (seq !== this._refreshSeq) return; // 已有更新的请求，丢弃过期结果
         this.setData({ tab, items });
       } finally {
-        this.setData({ loading: false });
+        if (seq === this._refreshSeq) {
+          this.setData({ loading: false });
+        }
       }
     },
 
@@ -84,15 +91,19 @@ Component({
       if (this.properties.lockTab) return;
       const tab = e.currentTarget.dataset.tab as InvCategory;
       if (!tab || tab === this.data.tab) return;
+      const seq = ++this._refreshSeq;
       // 先切 tab 贴图（立即反馈），再异步拉列表
       this.setData({ tab, items: [], loading: true });
       try {
         const items = await fetchOwned(tab);
+        if (seq !== this._refreshSeq) return;
         this.setData({ items });
       } catch {
         /* ignore: 列表为空就是失败提示 */
       } finally {
-        this.setData({ loading: false });
+        if (seq === this._refreshSeq) {
+          this.setData({ loading: false });
+        }
       }
     },
 

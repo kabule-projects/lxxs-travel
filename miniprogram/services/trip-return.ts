@@ -102,6 +102,19 @@ export async function resolveTripSyncView(): Promise<TripSyncView> {
   };
 }
 
+/** 归来收尾：收下旅行、清本地/内存旅行态、通知各页小深现身 */
+async function finishReturnFlow(tripId: string, onHide: () => void) {
+  try {
+    await claimHome();
+  } catch {
+    /* 可能已 claim */
+  }
+  setLocalTraveling(false);
+  emit(GameEvent.CHARACTER_VISIBLE);
+  returnHandledTripId = null;
+  onHide();
+}
+
 /** 归来提示：5 秒后 claimHome 并隐藏 */
 export function runReturnBannerFlow(
   tripId: string,
@@ -110,18 +123,18 @@ export function runReturnBannerFlow(
   if (!tripId || returnHandledTripId === tripId) return false;
   returnHandledTripId = tripId;
   clearTripBannerTimer();
-  bannerTimer = setTimeout(async () => {
+  bannerTimer = setTimeout(() => {
     bannerTimer = 0;
-    try {
-      await claimHome();
-    } catch {
-      /* 可能已 claim */
-    }
-    setLocalTraveling(false);
-    emit(GameEvent.CHARACTER_VISIBLE);
-    returnHandledTripId = null;
-    onHide();
+    finishReturnFlow(tripId, onHide);
   }, TRIP_BANNER_MS) as unknown as number;
+  return true;
+}
+
+/** 点击横幅立即收下并隐藏（跳过 5 秒等待）；未在展示该行程时返回 false */
+export function dismissReturnBanner(tripId: string, onHide: () => void): boolean {
+  if (!tripId || returnHandledTripId !== tripId) return false;
+  clearTripBannerTimer();
+  finishReturnFlow(tripId, onHide);
   return true;
 }
 

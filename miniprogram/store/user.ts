@@ -81,7 +81,7 @@ export function patchProfile(patch: Partial<UserProfile>): void {
       riceStars: state.profile.riceStars,
     });
   }
-  if (patch.currentTripId !== undefined) {
+  if (Object.prototype.hasOwnProperty.call(patch, 'currentTripId')) {
     state.traveling = !!patch.currentTripId;
   }
 }

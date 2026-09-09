@@ -49,7 +49,7 @@
       aria-label="日记"
     ></view>
 
-    <trip-banner visible="{{showTravelBanner}}" mode="{{travelBannerMode}}" />
+    <trip-banner visible="{{showTravelBanner}}" mode="{{travelBannerMode}}" bind:dismiss="onBannerDismiss" />
 
     <!-- 底栏：准备 + 商店 / 扭蛋；bottom 内联，贴安全区上沿 -->
     <view class="home-footer" style="bottom: {{footerBottom}}px">

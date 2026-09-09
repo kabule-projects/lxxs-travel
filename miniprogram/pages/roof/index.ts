@@ -16,6 +16,7 @@ import {
   scheduleReturnWatch,
   stopReturnWatch,
   clearTripBannerTimer,
+  dismissReturnBanner,
 } from '../../services/trip-return';
 import {
   claimMail,
@@ -65,6 +66,8 @@ Page({
   _offReturned: null as (() => void) | null,
   _offStarted: null as (() => void) | null,
   _offVisible: null as (() => void) | null,
+  /** 当前回家横幅对应的行程 id（点击立即收下时用） */
+  _bannerTripId: null as string | null,
 
   onLoad() {
     const safe = readSafeArea();
@@ -99,6 +102,7 @@ Page({
   },
 
   showDepartBanner() {
+    this._bannerTripId = null;
     this.setData({
       showTravelBanner: true,
       travelBannerMode: 'depart',
@@ -109,6 +113,7 @@ Page({
   },
 
   showReturnBanner(tripId: string) {
+    this._bannerTripId = tripId;
     this.setData({
       showTravelBanner: true,
       travelBannerMode: 'return',
@@ -117,6 +122,20 @@ Page({
     runReturnBannerFlow(tripId, () => {
       this.setData({ showTravelBanner: false });
     });
+  },
+
+  /** 点击横幅：立即收下并隐藏（回家横幅）或直接隐藏（出门横幅） */
+  onBannerDismiss() {
+    const tripId = this._bannerTripId;
+    if (this.data.travelBannerMode === 'return' && tripId) {
+      dismissReturnBanner(tripId, () => {
+        this._bannerTripId = null;
+        this.setData({ showTravelBanner: false });
+      });
+      return;
+    }
+    clearTripBannerTimer();
+    this.setData({ showTravelBanner: false });
   },
 
   async syncTripState() {
@@ -384,7 +403,7 @@ Page({
     this.setData({ showBag: false });
   },
 
-  /** 屋顶出发：鸽子飞出走动画 → 空帽子 → 回小屋提示 */
+  /** 屋顶出发：鸽子飞走动画 → 空帽子，停留在屋顶（不再自动回小屋） */
   async onBagDepart(e: WechatMiniprogram.CustomEvent) {
     playTap();
     const loadout = (e.detail as { loadout?: TripLoadout }).loadout;
@@ -397,7 +416,6 @@ Page({
       this.showDepartBanner();
       this._flyTimer = setTimeout(() => {
         this.setData({ flyAway: false, pigeonState: 'away' });
-        navigateBack('/pages/home/index');
       }, 1650) as unknown as number;
     } catch (err) {
       wx.showToast({

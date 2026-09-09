@@ -55,7 +55,7 @@
     <view class="pigeon-hit" bindtap="onTapPigeon"></view>
   </view>
 
-  <trip-banner visible="{{showTravelBanner}}" mode="{{travelBannerMode}}" />
+  <trip-banner visible="{{showTravelBanner}}" mode="{{travelBannerMode}}" bind:dismiss="onBannerDismiss" />
 
   <!-- 顶栏：双货币 + 物品 / 设置（top 内联，避让右上角胶囊） -->
   <view class="roof-hud" style="top: {{hudTop}}px">

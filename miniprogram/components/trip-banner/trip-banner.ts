@@ -23,4 +23,11 @@ Component({
       });
     },
   },
+
+  methods: {
+    /** 点击横幅任意处立即关闭（5 秒自动消失由页面侧定时器兜底） */
+    onTap() {
+      this.triggerEvent('dismiss');
+    },
+  },
 });
