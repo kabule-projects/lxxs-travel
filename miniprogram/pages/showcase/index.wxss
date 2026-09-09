@@ -29,22 +29,22 @@
   justify-content: space-between;
 }
 
+/* 整页翻页容器：铺满屏幕，内部格子按屏幕百分比绝对定位（与调试网格对位一致） */
 .cabinet-swiper {
-  position: relative;
+  position: absolute;
+  left: 0;
+  top: 20%;
+  right: 0;
+  bottom: 20%;
   z-index: 2;
-  flex: 1;
-  height: 0;
-  min-height: 920rpx;
-  margin-top: 12rpx;
 }
 
+/* 格子区：整体位置/宽度直接对应屏幕百分比（原 inv-tune 调试网格参数） */
 .cabinet {
-  position: relative;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 48rpx 80rpx;
+  position: absolute;
+  left: 15%;
+  top: 26%;
+  width: 70%;
   box-sizing: border-box;
 }
 
@@ -52,29 +52,19 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 640rpx;
-  height: 860rpx;
-  padding: 28rpx 24rpx 36rpx;
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
 }
 
+/* 每行（共 4 行）格底对齐 */
 .shelf {
   position: relative;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  min-height: 0;
+  height: 20%;
+  margin-bottom: 10%;
 }
 
 .shelf-slots {
-  position: absolute;
-  left: 20rpx;
-  right: 20rpx;
-  bottom: 22rpx;
+  position: relative;
+  width: 100%;
   height: 140rpx;
   display: flex;
   justify-content: space-around;
@@ -83,8 +73,8 @@
 }
 
 .slot {
-  width: 140rpx;
-  height: 140rpx;
+  width: 160rpx;
+  height: 160rpx;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -100,16 +90,6 @@
   height: 120rpx;
 }
 
-/* 诊断用，修完删除 */
-.slot-diag {
-  position: absolute;
-  width: 140rpx;
-  text-align: center;
-  font-size: 22rpx;
-  color: #ff00ff;
-  font-weight: bold;
-}
-
 .page-hint {
   position: relative;
   z-index: 3;
@@ -117,41 +97,4 @@
   padding-bottom: 28rpx;
   font-size: 24rpx;
   color: #5a4030;
-}
-
-/* ── 物品栏调试层（调完删除）──
-   复刻正式 item 排列：4 行 × 每行 2 格，行内 space-around，格子底对齐。
-   调整入口：
-   - 整体位置/宽度：.inv-tune 的 left/top/width
-   - 行高与行距：.inv-tune__row 的 height / margin-bottom
-   - 格子大小：.inv-tune__cell 的 width/height（保持正方形）
-   行内格子间距由 space-around 自动分配（同正式逻辑） */
-.inv-tune {
-  position: absolute;
-  left: 15%;
-  top: 26%;
-  width: 70%;
-  z-index: 10;
-  pointer-events: none;
-}
-
-.inv-tune__row {
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-end;
-  height: 140rpx;
-  margin-bottom: 120rpx;
-}
-
-.inv-tune__cell {
-  width: 160rpx;
-  height: 160rpx;
-  box-sizing: border-box;
-  border: 3rpx solid rgba(255, 0, 0, 0.8);
-  background: rgba(255, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24rpx;
-  color: #c0392b;
 }

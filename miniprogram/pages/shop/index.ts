@@ -34,6 +34,9 @@ Page({
     hudTop: 0,
     /** 底栏 bottom：安全区上沿 + 间距 */
     footBottom: 0,
+    /** 展示柜像素矩形：真机上百分比高度链（min-height 父级 + swiper height:100%）会失效，
+     *  按屏显尺寸内联 px，保证 swiper 有确定高度（同 diary swiperH 的处理） */
+    cabinetStyle: '',
     assets: {} as ShopAssets,
     showSettings: false,
     showInv: false,
@@ -52,11 +55,16 @@ Page({
   onLoad() {
     const safe = readSafeArea();
     const capsule = readCapsuleRect();
+    const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    const screenW = info.windowWidth || 375;
+    const screenH = info.windowHeight || 667;
     this.setData({
       // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮
       hudTop: capsule.bottom + 12,
       // 底栏贴安全区上沿，底部留间距
       footBottom: Math.max(safe.bottom, 16) + 8,
+      // 展示柜矩形：与原 CSS 百分比一致（left/right 各 9%，top 42%，height 26%）
+      cabinetStyle: `left: ${screenW * 0.09}px; top: ${screenH * 0.42}px; width: ${screenW * 0.82}px; height: ${screenH * 0.26}px;`,
       stars: getStars(),
       riceStars: getRiceStars(),
     });

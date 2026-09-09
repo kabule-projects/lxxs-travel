@@ -13,13 +13,12 @@
   box-sizing: border-box;
 }
 
+/* 无圆角容器：卡片即信纸，尺寸跟随信纸切图比例 */
 .dl-card {
   width: 85vw;
   max-width: 640rpx;
   max-height: 82vh;
   box-sizing: border-box;
-  overflow: hidden;
-  border-radius: 24rpx;
 }
 
 .dl-body {
@@ -27,16 +26,14 @@
   overflow: hidden;
 }
 
+/* 信纸本体：letter-paper 切图（1681×2340）作 CSS 背景铺满，
+   高度由 aspect-ratio 锁定，与背景图比例一致不变形 */
 .dl-paper {
   position: relative;
   width: 100%;
-}
-
-.dl-paper-bg {
-  position: relative;
-  z-index: 0;
-  width: 100%;
-  display: block;
+  aspect-ratio: 1681 / 2340;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
 
 /* 文字区域：四边偏移 = 距信纸各边的距离。
@@ -46,7 +43,7 @@
   left: 10%;    
   right: 10%;   
   top: 4.5%;
-  bottom: 18%;  
+  bottom: 19%;  
   z-index: 1;
   box-sizing: border-box;
   display: flex;
@@ -56,7 +53,7 @@
 
 .dl-date {
   display: block;
-  margin-bottom: 12%;
+  margin-bottom: 13%;
   margin-left: 19%;
   font-size: 100%;
   color: #9ab4e8;

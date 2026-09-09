@@ -25,8 +25,8 @@
       </view>
     </view>
 
-    <!-- 展示柜：仅物品 icon + 价签 -->
-    <view class="cabinet-layer">
+    <!-- 展示柜：仅物品 icon + 价签；位置/尺寸内联 px（cabinetStyle），真机不依赖百分比高度 -->
+    <view class="cabinet-layer" style="{{cabinetStyle}}">
       <swiper
         class="goods-swiper"
         current="{{pageIndex}}"
@@ -59,10 +59,9 @@
                       mode="aspectFit"
                     />
                     <view class="slot-tag">
-                      <image class="slot-tag-bg" src="{{assets.priceTag}}" mode="scaleToFill" />
+                      <image class="slot-tag-bg" src="{{assets.priceTag}}" mode="widthFix" />
                       <view class="slot-tag-content">
                         <text class="tag-price">{{goods.price}}</text>
-                        <image class="tag-star" src="{{assets.iconStar}}" mode="aspectFit" />
                       </view>
                     </view>
                   </block>

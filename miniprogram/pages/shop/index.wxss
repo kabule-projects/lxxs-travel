@@ -104,13 +104,12 @@
 /*
  * 展示柜玻璃区域（对齐 page-bg 中柜台）
  * 设计稿 1320×2868：left≈9% right≈9% top≈36% height≈30%
+ * 位置/尺寸由 onLoad 计算的 cabinetStyle 内联 px 给定——
+ * 真机上相对 min-height 父级的百分比高度会失效导致 swiper 回落到默认 150px、物品/价签被挤压变形。
+ * 微调位置改 index.ts 里的 0.09 / 0.42 / 0.82 / 0.26。
  */
 .cabinet-layer {
   position: absolute;
-  left: 9%;
-  right: 9%;
-  top: 42%;
-  height: 26%;
   z-index: 3;
 }
 
@@ -138,80 +137,79 @@
 
 .shelf-slots {
   width: 100%;
+  height: 100%;
   display: flex;
   justify-content: space-around;
   align-items: flex-end;
 }
 
+/* 格子：相对定位容器；icon/价签均绝对定位 + 显式 rpx 尺寸，
+ * 不依赖图片固有高度或 flex 收缩（真机与 DevTools 渲染一致） */
 .shelf-slot {
   position: relative;
   width: 30%;
   height: 100%;
-  max-height: 176rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
 }
 
 .shelf-slot--empty {
   pointer-events: none;
 }
 
-.shelf-slot--on .slot-icon {
-  transform: translateY(-6rpx) scale(1.06);
-}
-
 .shelf-slot--sold {
   opacity: 0.45;
 }
 
+/* 物品 icon：固定 240rpx 方盒，aspectFit 内缩放；水平居中，底部落在价签上方 */
 .slot-icon {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  bottom: 40rpx;
   z-index: 1;
-  width: 200%;
-  margin-bottom: -10rpx;
+  width: 150rpx;
+  height: 150rpx;
+  transform: translateX(-50%);
   transition: transform 0.15s ease;
 }
 
+.shelf-slot--on .slot-icon {
+  transform: translateX(-50%) translateY(-6rpx) scale(1.06);
+}
+
+/* 价签：固定宽度 + widthFix 按切图原始比例（294×96）定高，不拉伸；
+ * 微调标签大小改 width，高度自动跟随 */
 .slot-tag {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  bottom: 0;
   z-index: 4;
-  width: 96rpx;
-  height: 52rpx;
+  width: 120rpx;
+  transform: translateX(-50%);
 }
 
 .slot-tag-bg {
+  display: block;
+  width: 100%;
+}
+
+/* 价格文字覆盖在价签切图上；padding-left 对齐切图中数字孔位 */
+.slot-tag-content {
   position: absolute;
   left: 0;
   top: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.slot-tag-content {
-  position: relative;
+  right: 0;
+  bottom: 0;
   z-index: 1;
-  width: 100%;
-  height: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 4rpx;
-  padding-bottom: 4rpx;
+  padding-left: 22%;
   box-sizing: border-box;
 }
 
 .tag-price {
-  font-size: 26rpx;
+  font-size: 22rpx;
   font-weight: 700;
   color: #3a2410;
   line-height: 1;
-}
-
-.tag-star {
-  width: 30rpx;
-  height: 30rpx;
 }
 
 .page-dots {
