@@ -1,10 +1,5 @@
 import { isSupportedOrDevtools, readSafeArea } from '../../utils/device';
-import {
-  assetWebp,
-  LOADING_ASSETS,
-  ROOF_ASSETS,
-  ROOF_SCENE_ASSETS,
-} from '../../utils/asset-path';
+import { assetWebp, LOADING_ASSETS } from '../../utils/asset-path';
 
 import { ensureSession } from '../../services/auth';
 import { playTap } from '../../services/sound';
@@ -18,22 +13,6 @@ Page({
     bgSrc: '',
     btnEnterSrc: '',
     btnEnterDisabledSrc: '',
-    // 角色/鸽子/帽子/logo 等装饰贴图（同步拼路径）
-    charShenSrc: '',
-    charBiaoSrc: '',
-    charMiSrc: '',
-    pigeonSrc: '',
-    magicHatSrc: '',
-    starSrc: '',
-    starGlowSrc: '',
-    logoSrc: '',
-    // 静态 dropped 星星
-    droppedStars: [
-      { id: 's1', left: 22, top: 74, rotate: -15, zIndex: 6 },
-      { id: 's2', left: 76, top: 73, rotate: 20, zIndex: 6 },
-      { id: 's3', left: 69, top: 72.5, rotate: 5, zIndex: 6 },
-      { id: 's4', left: 30, top: 75, rotate: -30, zIndex: 6 },
-    ],
     safeTop: 0,
     safeBottom: 0,
     sessionReady: false,
@@ -54,15 +33,6 @@ Page({
     this.setData({
       safeTop: safe.top,
       safeBottom: Math.max(safe.bottom, 0),
-      // 装饰贴图直接同步拼路径，不走异步 preload
-      charShenSrc: assetWebp(ROOF_ASSETS.charShen),
-      charBiaoSrc: assetWebp(ROOF_ASSETS.charBiao),
-      charMiSrc: assetWebp(ROOF_ASSETS.charMi),
-      pigeonSrc: assetWebp(ROOF_ASSETS.pigeon),
-      magicHatSrc: assetWebp(ROOF_ASSETS.magicHat),
-      starSrc: assetWebp(ROOF_ASSETS.star),
-      starGlowSrc: assetWebp(ROOF_ASSETS.starGlow),
-      logoSrc: assetWebp(LOADING_ASSETS.logo),
     });
 
     this.resolveAssets().then(() => this.bootstrap());
@@ -70,7 +40,7 @@ Page({
 
   async resolveAssets() {
     this.setData({
-      bgSrc: assetWebp(ROOF_SCENE_ASSETS.bg),
+      bgSrc: assetWebp(LOADING_ASSETS.bg),
       btnEnterSrc: assetWebp(LOADING_ASSETS.btnEnter),
       btnEnterDisabledSrc: assetWebp(LOADING_ASSETS.btnEnterDisabled),
     });

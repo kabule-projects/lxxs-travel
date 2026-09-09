@@ -225,6 +225,8 @@ export const HOME_IDLE_ASSETS: Record<(typeof GAME.IDLE_POSES)[number], string> 
 };
 
 export const LOADING_ASSETS = {
+  /** loading 页独立背景（不再与 roof 共用） */
+  bg: 'loading/loading-bg',
   btnEnter: 'loading/btn-enter',
   btnEnterDisabled: 'loading/btn-enter-disabled',
   barTrack: 'loading/bar-track',
