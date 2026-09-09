@@ -26,8 +26,10 @@ Page({
     /** 底栏 bottom：安全区上沿 + 8px */
     footBottom: 0,
     assets: {} as GachaAssets,
-    /** 扭蛋机当前贴图：常态静态图，抽奖时切对应动图 */
-    machineSrc: '',
+    /** 抽奖动图地址：抽奖时设置；静态图常驻不切 src */
+    animSrc: '',
+    /** 动图是否已加载完成：加载好后才隐藏静态图，避免空档 */
+    animReady: false,
     stars: 0,
     riceStars: 0,
     spinning: false,
@@ -77,11 +79,16 @@ Page({
 
   async loadAssets() {
     const assets = await resolveAssetMap(GACHA_ASSETS);
-    this.setData({ assets, machineSrc: assets.machine });
-    // 预加载抽奖动图到缓存，抽奖开始时动图立即显示、无需等待加载
+    this.setData({ assets });
+    // 预加载抽奖动图到缓存，抽奖开始时动图 bindload 更快触发
     [assets.machineOne, assets.machineFive].forEach((src) => {
       wx.getImageInfo({ src, fail: () => {} });
     });
+  },
+
+  /** 动图加载完成：同一帧隐藏静态图、显示动图 */
+  onAnimLoad() {
+    if (this.data.spinning) this.setData({ animReady: true });
   },
 
   async reloadCatalog() {
@@ -128,11 +135,12 @@ Page({
 
   startSpin(count: 1 | 5) {
     const { assets } = this.data;
-    // 切对应动图开始播放（固定盒子 + aspectFit，切换不拉伸）；抽奖请求并行发起
+    // 动图先隐藏加载（animReady=false），bindload 后才隐藏静态图；抽奖请求并行发起
     this._drawPromise = drawGacha(count);
     this.setData({
       spinning: true,
-      machineSrc: count === 5 ? assets.machineFive : assets.machineOne,
+      animReady: false,
+      animSrc: count === 5 ? assets.machineFive : assets.machineOne,
     });
     this._spinTimer = setTimeout(() => {
       this.finishSpin();
@@ -147,10 +155,11 @@ Page({
     try {
       const res = await this._drawPromise;
       setStars(res.stars);
-      // 动图播完：切回静态常态图，衔接奖品弹窗
+      // 动图播完：移除动图层，静态图本就常驻（恢复可见），衔接奖品弹窗
       this.setData({
         spinning: false,
-        machineSrc: this.data.assets.machine,
+        animReady: false,
+        animSrc: '',
         stars: res.stars,
         drawResults: res.results,
         showResult: true,
@@ -159,7 +168,8 @@ Page({
     } catch (e) {
       this.setData({
         spinning: false,
-        machineSrc: this.data.assets.machine,
+        animReady: false,
+        animSrc: '',
       });
       wx.showToast({
         title: (e as Error).message || '抽取失败',

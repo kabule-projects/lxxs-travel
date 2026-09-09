@@ -11,7 +11,10 @@
         />
         <view class="dl-paper-content">
           <text class="dl-date" wx:if="{{dateText}}">{{dateText}}</text>
-          <text class="dl-story">{{bodyText || '（暂无信件内容）'}}</text>
+          <view class="dl-story">
+            <text wx:for="{{paragraphs}}" wx:key="index" class="dl-story-p">{{item}}</text>
+            <text wx:if="{{paragraphs.length === 0}}" class="dl-story-p">（暂无信件内容）</text>
+          </view>
           <text class="dl-sign" wx:if="{{signText}}">{{signText}}</text>
         </view>
       </view>

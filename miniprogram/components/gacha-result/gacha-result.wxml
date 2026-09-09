@@ -2,7 +2,6 @@
   <view class="gr-panel" catchtap="onStop">
     <image class="gr-panel-bg" src="{{panelBg}}" mode="widthFix" />
     <icon-close class="gr-close" src="{{iconClose}}" size="{{64}}" bind:close="onClose" />
-    <view class="gr-title">恭喜获得</view>
 
     <view wx:if="{{single}}" class="gr-single">
       <view

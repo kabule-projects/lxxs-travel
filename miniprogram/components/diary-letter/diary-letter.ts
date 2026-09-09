@@ -37,6 +37,7 @@ Component({
 
   data: {
     bodyText: '',
+    paragraphs: [] as string[],
     signText: DEFAULT_SIGN,
     assets: {
       paper: '',
@@ -83,8 +84,14 @@ Component({
   methods: {
     applyStory(story: string, signature: string) {
       const parsed = splitStory(story);
+      // 按换行拆成段落，过滤空行，供每段首行缩进渲染
+      const paragraphs = parsed.body
+        .split(/\n+/)
+        .map((p) => p.trim())
+        .filter(Boolean);
       this.setData({
         bodyText: parsed.body,
+        paragraphs,
         signText: (signature || '').trim() || parsed.sign,
       });
     },

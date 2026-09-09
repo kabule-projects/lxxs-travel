@@ -30,24 +30,12 @@
   z-index: 2;
 }
 
-.gr-title {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 9%;
-  z-index: 1;
-  text-align: center;
-  font-size: 40rpx;
-  font-weight: 700;
-  color: #5a3a22;
-}
-
 /* 奖品格区：top/bottom 对齐底图上的内容区，按需微调 */
 .gr-single {
   position: absolute;
   left: 0;
   right: 0;
-  top: 20%;
+  top: 23%;
   z-index: 1;
   display: flex;
   justify-content: center;
@@ -95,11 +83,15 @@
   z-index: 0;
 }
 
+/* 物品本体图标：相对卡片居中；改 width/height 百分比即可缩放 item 在格子中的大小 */
 .gr-icon {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   z-index: 1;
-  width: 100%;
-  height: 100%;
+  width: 78%;
+  height: 78%;
 }
 
 .gr-ph {

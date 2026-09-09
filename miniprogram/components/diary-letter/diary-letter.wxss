@@ -39,22 +39,25 @@
   display: block;
 }
 
+/* 文字区域：四边偏移 = 距信纸各边的距离。
+   left/right 百分比相对信纸宽度，top/bottom 百分比相对信纸高度 */
 .dl-paper-content {
   position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  left: 10%;    
+  right: 10%;   
+  top: 4.5%;
+  bottom: 18%;  
   z-index: 1;
-  padding: 28% 10% 23%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  font-family: 'PingFang SC', 'Heiti SC', sans-serif;
 }
 
 .dl-date {
   display: block;
-  margin-bottom: 24rpx;
+  margin-bottom: 12%;
+  margin-left: 19%;
   font-size: 100%;
   color: #9ab4e8;
   letter-spacing: 1rpx;
@@ -62,25 +65,27 @@
 }
 
 .dl-story {
-  display: block;
   flex: 1;
-  margin-top: 29rpx;
-  font-size: 140%;
+  font-size: 120%;
   line-height: 150%;
   color: #5a82d8;
-  font-family: 'STKaiti', 'KaiTi', 'PingFang SC', serif;
-  white-space: pre-wrap;
+}
+
+/* 每个段落独立成块，首行缩进两个字；缩进量改 text-indent */
+.dl-story-p {
+  display: block;
+  text-indent: 2em;
+  margin-bottom: 12rpx;
   word-break: break-word;
 }
 
 .dl-sign {
   display: block;
-  margin-top: 10%;
+  margin-top: 12%;
   text-align: right;
   font-size: 120%;
-  line-height: 120%;
+  line-height: 150%;
   color: #5a82d8;
-  font-family: 'STKaiti', 'KaiTi', 'PingFang SC', serif;
   white-space: pre-wrap;
   word-break: break-word;
   flex-shrink: 0;

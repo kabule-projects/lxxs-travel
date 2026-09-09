@@ -86,6 +86,24 @@
   display: block;
 }
 
+/* 动图：与静态图同尺寸盒子叠放；未加载好时 opacity:0 隐藏（后台加载），
+   bindload 后加 --anim-on 显示，同时静态图加 --hide 隐藏 → 同一帧切换、无空档 */
+.machine-img--anim {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  opacity: 0;
+}
+
+.machine-img--anim-on {
+  opacity: 1;
+}
+
+.machine-img--hide {
+  opacity: 0;
+}
+
 /* 机器图上画着的"抽1次/抽五次"按钮 → 透明热区 */
 .machine-btn {
   position: absolute;
