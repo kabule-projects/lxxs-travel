@@ -52,9 +52,17 @@
   flex-shrink: 0;
 }
 
+/* 固定宽高按切图比例（tab 268×122 / tab-active 269×264，宽≈原 tab-item 25%×53% 屏宽）：
+   加载前不塌缩；激活标签更高由 --on 定高体现。tab 悬在页面深色底上，用浅色半透明占位 */
 .tab-img {
-  width: 100%;
+  width: 100rpx;
+  height: 46rpx;
   display: block;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.tab-img--on {
+  height: 98rpx;
 }
 
 /* 明信片网格 swiper：左右翻页。
@@ -97,6 +105,7 @@
   width: 102%;
   height: 102%;
   z-index: 5;
+  background: rgba(0, 0, 0, 0.06);
 }
 
 /* 明信片切图叠在空格底图上 */
@@ -107,6 +116,7 @@
   width: 100%;
   height: 100%;
   z-index: 1;
+  background: rgba(0, 0, 0, 0.06);
 }
 
 /* 翻页提示遮罩：全屏黑色 70% 不透明，点击任意位置关闭 */

@@ -3,6 +3,7 @@ import { call } from './api';
 import { getStars, setStars } from '../store/user';
 import { readInventoryCounts, writeInventoryCounts } from './inventory';
 import { resolveDynamicAsset } from '../utils/resolve-dynamic-asset';
+import { preloadImages } from '../utils/preload';
 
 export interface GachaCatalogItem {
   gachaId: string;
@@ -186,17 +187,49 @@ export function gachaCost(count: 1 | 5): number {
   return GAME.GACHA_COST * count;
 }
 
-export async function listGachaCatalog(): Promise<GachaCatalogItem[]> {
+/** 会话内缓存：loading 阶段预取，兑换列表秒开；抽卡后本地补 obtained */
+let catalogCache: GachaCatalogItem[] | null = null;
+
+async function fetchCatalogCloud(): Promise<GachaCatalogItem[]> {
+  const res = await call<{ items: GachaCatalogItem[] }>('gacha', {
+    action: 'catalog',
+  });
+  if (!res || !Array.isArray(res.items)) {
+    throw new Error('扭蛋图鉴响应异常');
+  }
+  // icon 是相对素材路径，需解析为本地 WebP 地址
+  const items = await Promise.all(
+    res.items.map(async (i) => ({ ...i, icon: await resolveDynamicAsset(i.icon) })),
+  );
+  catalogCache = items;
+  return items;
+}
+
+/** loading 阶段预取扭蛋兑换列表并预热图标；失败不抛错 */
+export async function prefetchGachaCatalog(): Promise<void> {
   try {
-    const res = await call<{ items: GachaCatalogItem[] }>('gacha', {
-      action: 'catalog',
-    });
-    // icon 是相对素材路径，需解析为本地 WebP 地址
-    const items = await Promise.all(
-      (res.items || []).map(async (i) => ({ ...i, icon: await resolveDynamicAsset(i.icon) })),
-    );
-    return items;
+    const items = await fetchCatalogCloud();
+    void preloadImages(items.map((i) => i.icon).filter(Boolean), 10000);
   } catch {
+    /* 打开兑换列表时会自己拉 */
+  }
+}
+
+/** 抽卡结果同步进缓存：新获得的标记为已拥有 */
+function markObtainedInCache(gachaIds: string[]) {
+  if (!catalogCache || !gachaIds.length) return;
+  const won = new Set(gachaIds);
+  catalogCache = catalogCache.map((i) =>
+    won.has(i.gachaId) ? { ...i, obtained: true } : i,
+  );
+}
+
+export async function listGachaCatalog(force = false): Promise<GachaCatalogItem[]> {
+  if (!force && catalogCache) return catalogCache;
+  try {
+    return await fetchCatalogCloud();
+  } catch {
+    if (catalogCache) return catalogCache;
     const owned = readOwned();
     return SEED_POOL.map((p) => ({
       ...p,
@@ -218,9 +251,12 @@ export async function drawGacha(count: 1 | 5): Promise<GachaDrawResult> {
     res.results = await Promise.all(
       (res.results || []).map(async (i) => ({ ...i, icon: await resolveDynamicAsset(i.icon) })),
     );
+    markObtainedInCache(res.results.map((r) => r.gachaId));
     return res;
   } catch (e) {
     if ((e as Error & { code?: string }).code === 'INSUFFICIENT_STARS') throw e;
-    return localDraw(count);
+    const res = localDraw(count);
+    markObtainedInCache(res.results.map((r) => r.gachaId));
+    return res;
   }
 }

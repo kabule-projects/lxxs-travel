@@ -66,6 +66,21 @@ declare namespace WechatMiniprogram {
     }): void;
     getStorageSync(key: string): unknown;
     setStorageSync(key: string, data: unknown): void;
+    /** 下载文件到临时目录（音效预载用） */
+    downloadFile(options: {
+      url: string;
+      success?: (res: { statusCode: number; tempFilePath: string }) => void;
+      fail?: (err: unknown) => void;
+    }): void;
+    /** 本地文件系统管理器（saveFile 持久化 / accessSync 校验） */
+    getFileSystemManager(): {
+      saveFile(options: {
+        tempFilePath: string;
+        success?: (res: { savedFilePath: string }) => void;
+        fail?: (err: unknown) => void;
+      }): void;
+      accessSync(path: string): void;
+    };
     reLaunch(options: { url: string }): void;
     navigateTo(options: {
       url: string;
@@ -73,6 +88,8 @@ declare namespace WechatMiniprogram {
     }): void;
     navigateBack(options?: { fail?: (err: unknown) => void }): void;
     showToast(options: { title: string; icon?: string }): void;
+    showLoading(options: { title?: string; mask?: boolean }): void;
+    hideLoading(): void;
     /** 订阅消息授权结果：各模板 id → accept / reject / ban 等 */
     requestSubscribeMessage(options: {
       tmplIds: string[];

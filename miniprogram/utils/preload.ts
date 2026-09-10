@@ -35,13 +35,17 @@ export function preloadImages(urls: string[], timeoutMs = 5000): Promise<void> {
   );
 }
 
+/** 按资产 key 清单预载（assetWebp 拼 CDN 链接后走 preloadImages） */
+export function preloadAssetKeys(keys: string[], timeoutMs = 5000): Promise<void> {
+  return preloadImages(keys.map((k) => assetWebp(k)), timeoutMs);
+}
+
 let _idleWarmed = false;
 
 /**
  * 屋顶 idle 时预热其余页面的 UI 资产（会话内只跑一次）。
  * 扭蛋开奖动画（get_one/get_five，单张 ~24MB）刻意排除，不预热。
- */
-export function preloadOtherPagesAssets(): void {
+ */export function preloadOtherPagesAssets(): void {
   if (_idleWarmed) return;
   _idleWarmed = true;
   const gachaKeys = Object.entries(GACHA_ASSETS)

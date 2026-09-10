@@ -3,7 +3,10 @@ import { assetWebp, LOADING_ASSETS, ROOF_SCENE_ASSETS, ROOF_ASSETS } from '../..
 import { preloadImages } from '../../utils/preload';
 
 import { ensureSession } from '../../services/auth';
-import { playTap } from '../../services/sound';
+import { playTap, playBgm, preloadSfx, preloadBgm } from '../../services/sound';
+import { prefetchShowcase } from '../../services/showcase';
+import { prefetchShop } from '../../services/shop';
+import { prefetchGachaCatalog } from '../../services/gacha';
 
 Page({
   data: {
@@ -40,8 +43,11 @@ Page({
     });
 
     this.resolveAssets().then(() => this.bootstrap());
+    // 音效/BGM 本地化与启动流程并行，不阻塞进度条；播放时未就绪的单个回落 CDN
+    void preloadSfx();
+    void preloadBgm();
+    playBgm('loading');
   },
-
   async resolveAssets() {
     this.setData({
       bgSrc: assetWebp(LOADING_ASSETS.bg),
@@ -106,6 +112,10 @@ Page({
     if (!this.data.layersReady) {
       this.setData({ layersReady: true });
     }
+    // 会话就绪后预取展示柜/商店/扭蛋图鉴数据 + 物品图，相应页面可秒开（失败不阻塞启动）
+    void prefetchShowcase();
+    void prefetchShop();
+    void prefetchGachaCatalog();
     await this.tryFinishBoot();
   },
 

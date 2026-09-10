@@ -1,6 +1,6 @@
 import { DIARY_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
-import { playTap } from '../../services/sound';
+import { playSfx, playTap } from '../../services/sound';
 import { navigateBack } from '../../utils/nav';
 import { listDiary, type DiaryEntry, type PostcardType } from '../../services/diary';
 
@@ -161,7 +161,7 @@ Page({
   onTapTab(e: WechatMiniprogram.TouchEvent) {
     const type = e.currentTarget.dataset.type as PostcardType;
     if (!type || type === this.data.activeTab) return;
-    playTap();
+    playSfx('diary_flip');
     this.setData({ activeTab: type });
     this.applyTab();
   },
@@ -173,6 +173,7 @@ Page({
 
   /** swiper 左右翻页时同步当前页码 */
   onSwiperChange(e: WechatMiniprogram.SwiperChange) {
+    playSfx('diary_flip');
     this.setData({ currentPage: e.detail.current });
   },
 

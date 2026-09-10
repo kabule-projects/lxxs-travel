@@ -1,9 +1,10 @@
-import { HOME_ASSETS } from '../../utils/asset-path';
+import { HOME_ASSETS, SHOP_ASSETS, SHOWCASE_ASSETS } from '../../utils/asset-path';
+import { preloadAssetKeys } from '../../utils/preload';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readSafeArea, readCapsuleRect } from '../../utils/device';
 import { emit, GameEvent, on } from '../../utils/event-bus';
 import { getRiceStars, getStars, isTraveling } from '../../store/user';
-import { playTap } from '../../services/sound';
+import { playSfx, playTap, playBgm } from '../../services/sound';
 import { navigateTo } from '../../utils/nav';
 import { startTrip, type TripLoadout } from '../../services/trip';
 import { setLocalTraveling } from '../../services/postcard';
@@ -42,6 +43,8 @@ Page({
   _offStarted: null as (() => void) | null,
   /** 当前回家横幅对应的行程 id（点击立即收下时用） */
   _bannerTripId: null as string | null,
+  /** 进入其他页面的预载/跳转进行中，防止连点堆叠 */
+  _entering: false as boolean,
 
   onLoad() {
     const safe = readSafeArea();
@@ -69,6 +72,7 @@ Page({
   },
 
   onShow() {
+    playBgm('room');
     this.syncWallet();
     this.syncTripState();
   },
@@ -230,7 +234,7 @@ Page({
 
   onTapShop() {
     playTap();
-    navigateTo('/pages/shop/index');
+    this.enterAfterPreload('/pages/shop/index', Object.values(SHOP_ASSETS));
   },
 
   onTapGacha() {
@@ -239,13 +243,30 @@ Page({
   },
 
   onTapShowcase() {
-    playTap();
-    navigateTo('/pages/showcase/index');
+    playSfx('showcase_open');
+    this.enterAfterPreload('/pages/showcase/index', Object.values(SHOWCASE_ASSETS));
+  },
+
+  /** 预载目标页 UI 资产后再跳转，避免落地逐张闪图；5s 兜底不阻塞 */
+  async enterAfterPreload(url: string, keys: string[]) {
+    if (this._entering) return;
+    this._entering = true;
+    wx.showLoading({ title: '加载中', mask: true });
+    try {
+      await preloadAssetKeys(keys, 5000);
+    } finally {
+      wx.hideLoading();
+    }
+    navigateTo(url);
+    // 等页面推入动画落地后复位，覆盖 hideLoading 后、动画前的可点窗口
+    setTimeout(() => {
+      this._entering = false;
+    }, 600);
   },
 
   /** 点击窗户 → 进入屋顶页 */
   onTapWindow() {
-    playTap();
+    playSfx('window');
     navigateTo('/pages/roof/index');
   },
 
@@ -253,7 +274,7 @@ Page({
   // onTapWardrobe() {}
 
   onTapDiary() {
-    playTap();
+    playSfx('diary_open');
     navigateTo('/pages/diary/index');
   },
 });

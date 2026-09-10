@@ -13,9 +13,9 @@
         bindtap="onTapTab"
       >
         <image
-          class="tab-img"
+          class="tab-img {{activeTab === item.type ? 'tab-img--on' : ''}}"
           src="{{activeTab === item.type ? assets.tabActive : assets.tab}}"
-          mode="widthFix"
+          mode="aspectFit"
         />
       </view>
     </view>

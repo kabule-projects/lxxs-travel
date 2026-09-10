@@ -58,9 +58,12 @@
   margin-bottom: 3%;
 }
 
+/* 行高按切图比例固定（1453×318，行宽 = 屏宽 750×85.4%×90% ≈ 576rpx → 高约 126rpx），加载前不塌缩 */
 .mbox-row-bg {
   display: block;
   width: 100%;
+  height: 126rpx;
+  background: rgba(0, 0, 0, 0.06);
 }
 
 .mbox-row-body {

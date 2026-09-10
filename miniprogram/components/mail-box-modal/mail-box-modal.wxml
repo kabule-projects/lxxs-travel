@@ -18,7 +18,7 @@
             data-index="{{index}}"
             catchtap="onTapRow"
           >
-            <image class="mbox-row-bg" src="{{assets.rowBg}}" mode="widthFix" />
+            <image class="mbox-row-bg" src="{{assets.rowBg}}" mode="aspectFit" />
             <view class="mbox-row-body">
               <view class="mbox-thumb">
                 <image

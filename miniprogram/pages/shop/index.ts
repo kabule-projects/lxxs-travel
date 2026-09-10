@@ -1,7 +1,7 @@
 import { SHOP_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readSafeArea, readCapsuleRect } from '../../utils/device';
-import { playTap } from '../../services/sound';
+import { playSfx, playTap, playBgm } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
 import { getRiceStars, getStars, setStars } from '../../store/user';
 import GAME from '../../utils/constants';
@@ -73,6 +73,7 @@ Page({
   },
 
   onShow() {
+    playBgm('room');
     this.setData({ stars: getStars(), riceStars: getRiceStars() });
   },
 
@@ -195,7 +196,7 @@ Page({
     if (!this.data.buyEnabled || this.data.buying || !this.data.selectedId) {
       return;
     }
-    playTap();
+    playSfx('gacha_coin');
     this.setData({ buying: true });
     try {
       const res = await purchaseShop(this.data.selectedId);

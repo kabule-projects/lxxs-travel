@@ -169,6 +169,7 @@
   height: 150rpx;
   transform: translateX(-50%);
   transition: transform 0.15s ease;
+  background: rgba(0, 0, 0, 0.06);
 }
 
 .shelf-slot--on .slot-icon {

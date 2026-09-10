@@ -8,14 +8,14 @@
         <image
           class="inv-tab {{tab === 'food' ? 'inv-tab--on' : ''}}"
           src="{{tab === 'food' ? tabFoodOn : tabFood}}"
-          mode="widthFix"
+          mode="aspectFit"
           data-tab="food"
           catchtap="onTapTab"
         />
         <image
           class="inv-tab {{tab === 'prop' ? 'inv-tab--on' : ''}}"
           src="{{tab === 'prop' ? tabPropOn : tabProp}}"
-          mode="widthFix"
+          mode="aspectFit"
           data-tab="prop"
           catchtap="onTapTab"
         />

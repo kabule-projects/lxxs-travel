@@ -2,6 +2,7 @@ import GAME from '../utils/constants';
 import { call } from './api';
 import { ITEM_CATALOG, listOwned } from './inventory';
 import { resolveDynamicAssetList } from '../utils/resolve-dynamic-asset';
+import { preloadImages } from '../utils/preload';
 
 export interface ShowcaseItemView {
   id: string;
@@ -89,16 +90,40 @@ function normalizeList(res: ShowcaseListResult): ShowcaseListResult {
   };
 }
 
-/** 展示柜：云端 user_showcase；云调用失败才走本地联调数据 */
-export async function listShowcase(): Promise<ShowcaseListResult> {
+/** 会话内缓存：loading 阶段预取，展示柜页先吃缓存秒开再后台刷新 */
+let cache: ShowcaseListResult | null = null;
+
+async function fetchCloud(): Promise<ShowcaseListResult> {
+  const res = await call<ShowcaseListResult>('showcase', { action: 'list' });
+  if (!res || !Array.isArray(res.items)) {
+    throw new Error('展示柜响应异常');
+  }
+  const items = await resolveDynamicAssetList(res.items, ['icon']);
+  cache = normalizeList({ ...res, items });
+  return cache;
+}
+
+/** loading 阶段预取展示柜数据并预热物品图；失败不抛错（展示柜页自行回落） */
+export async function prefetchShowcase(): Promise<void> {
   try {
-    const res = await call<ShowcaseListResult>('showcase', { action: 'list' });
-    if (!res || !Array.isArray(res.items)) {
-      return localList();
-    }
-    const items = await resolveDynamicAssetList(res.items, ['icon']);
-    return normalizeList({ ...res, items });
+    const res = await fetchCloud();
+    void preloadImages(
+      res.items.map((i) => i.icon).filter(Boolean),
+      10000,
+    );
   } catch {
+    /* 展示柜页打开时会自己拉 */
+  }
+}
+
+/** 有缓存先吃缓存秒开；force=true 强制走云端拉新（预取/刷新用） */
+export async function listShowcase(force = false): Promise<ShowcaseListResult> {
+  if (!force && cache) return cache;
+  try {
+    return await fetchCloud();
+  } catch {
+    if (cache) return cache;
     return localList();
   }
 }
+

@@ -1,5 +1,6 @@
 import { claimHome, syncTrip, type TripSyncResult } from './trip';
 import { setLocalTraveling } from './postcard';
+import { prefetchShowcase } from './showcase';
 import { emit, GameEvent } from '../utils/event-bus';
 
 export const TRIP_BANNER_MS = 5000;
@@ -85,6 +86,17 @@ export async function resolveTripSyncView(): Promise<TripSyncView> {
 
   if (trip.status === 'returned') {
     stopReturnWatch();
+    // 该行程的回家横幅已展示过，但 claim 计时器可能因页面跳转被 onUnload 清掉，
+    // 导致行程永远停在 returned、每次进页面都重复弹横幅。
+    // 这里直接补收尾（claimHome），不再重复展示。
+    if (returnHandledTripId === trip._id) {
+      finishReturnFlow(trip._id, () => {});
+      return {
+        banner: { visible: false, mode: null },
+        showCharacter: true,
+        sync,
+      };
+    }
     return {
       banner: {
         visible: true,
@@ -106,6 +118,8 @@ export async function resolveTripSyncView(): Promise<TripSyncView> {
 async function finishReturnFlow(tripId: string, onHide: () => void) {
   try {
     await claimHome();
+    // 新伴手礼已入库：刷新展示柜缓存（下次进页面直接是最新）
+    void prefetchShowcase();
   } catch {
     /* 可能已 claim */
   }

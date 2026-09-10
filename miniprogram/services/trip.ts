@@ -193,6 +193,7 @@ export async function startTrip(loadout: TripLoadout): Promise<TripStartResult> 
     ) {
       throw e;
     }
+    console.warn('[trip] start 云端失败，回落本地', e);
     return localStart(loadout);
   }
 }

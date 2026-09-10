@@ -1,7 +1,7 @@
 import { GACHA_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readSafeArea, readCapsuleRect } from '../../utils/device';
-import { playTap } from '../../services/sound';
+import { playSfx, playTap, playBgm } from '../../services/sound';
 import { navigateBack } from '../../utils/nav';
 import { getStars, getRiceStars, setStars } from '../../store/user';
 import { GameEvent, on } from '../../utils/event-bus';
@@ -62,6 +62,7 @@ Page({
   },
 
   onShow() {
+    playBgm('room');
     this.syncWallet();
   },
 
@@ -112,9 +113,9 @@ Page({
 
   onTapDraw(e: WechatMiniprogram.TouchEvent) {
     if (this.data.spinning || this.data.showResult) return;
-    playTap();
     const count = Number(e.currentTarget.dataset.count) as 1 | 5;
     if (count !== 1 && count !== 5) return;
+    playSfx('gacha_coin');
     const { stars } = this.data;
     const cost = gachaCost(count);
     if (stars < cost) {
@@ -136,6 +137,7 @@ Page({
   startSpin(count: 1 | 5) {
     const { assets } = this.data;
     // 动图先隐藏加载（animReady=false），bindload 后才隐藏静态图；抽奖请求并行发起
+    playSfx('gacha_drop');
     this._drawPromise = drawGacha(count);
     this.setData({
       spinning: true,
@@ -156,6 +158,7 @@ Page({
       const res = await this._drawPromise;
       setStars(res.stars);
       // 动图播完：移除动图层，静态图本就常驻（恢复可见），衔接奖品弹窗
+      playSfx('gacha_result');
       this.setData({
         spinning: false,
         animReady: false,

@@ -3,6 +3,7 @@ import { call } from './api';
 import { getStars, setStars } from '../store/user';
 import { emit, GameEvent } from '../utils/event-bus';
 import { resolveDynamicAsset } from '../utils/resolve-dynamic-asset';
+import { preloadImages } from '../utils/preload';
 
 export interface ShopItemView {
   id: string;
@@ -262,26 +263,54 @@ function localPurchase(itemId: string): ShopPurchaseResult {
   };
 }
 
-export async function listShop(): Promise<ShopListResult> {
+/** 会话内缓存：loading 阶段预取，进商店纯读缓存秒开；购买后本地补 boughtToday */
+let cache: ShopListResult | null = null;
+
+async function fetchCloud(): Promise<ShopListResult> {
+  const res = await call<ShopListResult>('shop', { action: 'list' });
+  if (!res || !Array.isArray(res.items) || !res.items.length) {
+    throw new Error('商店响应异常');
+  }
+  if (typeof res.stars === 'number') setStars(res.stars);
+  res.items = await Promise.all(
+    res.items.map(async (i) => ({ ...i, icon: await resolveDynamicAsset(i.icon) })),
+  );
+  cache = res;
+  return res;
+}
+
+/** loading 阶段预取货架数据并预热商品图；失败不抛错（商店页自行回落） */
+export async function prefetchShop(): Promise<void> {
   try {
-    const res = await call<ShopListResult>('shop', {
-      action: 'list',
-    });
-    if (res && Array.isArray(res.items)) {
-      if (typeof res.stars === 'number') setStars(res.stars);
-      if (res.items.length) {
-        // icon 为素材路径：相对路径解析为本地 WebP，cloud:// 云存储路径原样透传
-        res.items = await Promise.all(
-          res.items.map(async (i) => ({ ...i, icon: await resolveDynamicAsset(i.icon) })),
-        );
-        return res;
-      }
-    }
-    /** 云端货架为空时用本地种子，方便无后台配置时联调 */
-    return localList();
+    const res = await fetchCloud();
+    void preloadImages(
+      res.items.map((i) => i.icon).filter(Boolean),
+      10000,
+    );
   } catch {
+    /* 商店页打开时会自己拉 */
+  }
+}
+
+/** 有缓存先吃缓存秒开；force=true 强制走云端拉新 */
+export async function listShop(force = false): Promise<ShopListResult> {
+  if (!force && cache) return cache;
+  try {
+    return await fetchCloud();
+  } catch {
+    if (cache) return cache;
     return localList();
   }
+}
+
+/** 购买成功后把 boughtToday/余额同步进缓存，下次进商店不会显示可再买 */
+function markBoughtInCache(itemId: string, stars: number) {
+  if (!cache) return;
+  cache = {
+    ...cache,
+    stars,
+    items: cache.items.map((i) => (i.id === itemId ? { ...i, boughtToday: true } : i)),
+  };
 }
 
 export async function purchaseShop(itemId: string): Promise<ShopPurchaseResult> {
@@ -293,6 +322,7 @@ export async function purchaseShop(itemId: string): Promise<ShopPurchaseResult> 
       requestId,
     });
     if (typeof res.stars === 'number') setStars(res.stars);
+    markBoughtInCache(itemId, res.stars);
     bumpInventory(itemId);
     emit(GameEvent.INVENTORY_CHANGED, { itemId, delta: 1 });
     return res;
@@ -306,7 +336,9 @@ export async function purchaseShop(itemId: string): Promise<ShopPurchaseResult> 
     ) {
       throw e;
     }
-    return localPurchase(itemId);
+    const res = localPurchase(itemId);
+    markBoughtInCache(itemId, res.stars);
+    return res;
   }
 }
 

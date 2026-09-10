@@ -1,15 +1,15 @@
-import { ROOF_SCENE_ASSETS, ROOF_ASSETS } from '../../utils/asset-path';
+import { ROOF_SCENE_ASSETS, ROOF_ASSETS, SHOP_ASSETS } from '../../utils/asset-path';
 import { resolveAsset, resolveAssetMap } from '../../utils/resolve-assets';
 import { readSafeArea, readCapsuleRect } from '../../utils/device';
 import { getRiceStars, getStars, setRiceStars, setStars, isTraveling } from '../../store/user';
-import { playTap } from '../../services/sound';
+import { playSfx, playTap, playBgm } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
 import { collectRoofStar, syncRoof } from '../../services/roof';
 import { formatRemain, mergeRoofStars, withRemain, type RoofStarDisplay, type RoofStarView } from '../../utils/roof-logic';
 import GAME from '../../utils/constants';
 import { emit, GameEvent, on } from '../../utils/event-bus';
-import { startTrip, type TripLoadout } from '../../services/trip';
-import { preloadOtherPagesAssets } from '../../utils/preload';
+import { startTrip, claimHome, type TripLoadout } from '../../services/trip';
+import { preloadOtherPagesAssets, preloadAssetKeys } from '../../utils/preload';
 import {
   resolveTripSyncView,
   runReturnBannerFlow,
@@ -71,6 +71,8 @@ Page({
   _offVisible: null as (() => void) | null,
   /** 当前回家横幅对应的行程 id（点击立即收下时用） */
   _bannerTripId: null as string | null,
+  /** 进入商店的预载/跳转进行中，防止连点堆叠 */
+  _entering: false as boolean,
 
   onLoad() {
     const safe = readSafeArea();
@@ -156,6 +158,7 @@ Page({
   },
 
   onShow() {
+    playBgm('roof');
     this.setData({
       stars: getStars(),
       riceStars: getRiceStars(),
@@ -284,7 +287,7 @@ Page({
     const target = this._dropped.find((s) => s.id === id);
     if (!target) return;
 
-    playTap();
+    playSfx('star');
     const prevDropped = this._dropped;
     this._dropped = prevDropped.filter((s) => s.id !== id);
     this.setData({
@@ -412,18 +415,11 @@ Page({
 
   /** 屋顶出发：鸽子飞走动画 → 空帽子，停留在屋顶（不再自动回小屋） */
   async onBagDepart(e: WechatMiniprogram.CustomEvent) {
-    playTap();
+    playSfx('pigeon_fly');
     const loadout = (e.detail as { loadout?: TripLoadout }).loadout;
     if (!loadout) return;
     try {
-      await startTrip(loadout);
-      this.setData({ showBag: false, flyAway: true, charShenVisible: false });
-      setLocalTraveling(true);
-      emit(GameEvent.CHARACTER_HIDDEN);
-      this.showDepartBanner();
-      this._flyTimer = setTimeout(() => {
-        this.setData({ flyAway: false, pigeonState: 'away' });
-      }, 1650) as unknown as number;
+      await this.doDepart(loadout);
     } catch (err) {
       wx.showToast({
         title: (err as Error).message || '出发失败',
@@ -432,9 +428,45 @@ Page({
     }
   },
 
-  onTapShop() {
+  /** 出发成功后的统一收尾：关背包、鸽飞走、隐藏小深、弹出门口横幅 */
+  applyDepartSuccess() {
+    this.setData({ showBag: false, flyAway: true, charShenVisible: false });
+    setLocalTraveling(true);
+    emit(GameEvent.CHARACTER_HIDDEN);
+    this.showDepartBanner();
+    this._flyTimer = setTimeout(() => {
+      this.setData({ flyAway: false, pigeonState: 'away' });
+    }, 1650) as unknown as number;
+  },
+
+  async doDepart(loadout: TripLoadout) {
+    try {
+      await startTrip(loadout);
+      this.applyDepartSuccess();
+      return;
+    } catch (err) {
+      // 云端还挂着未确认的归来（本地已脱钩）：先收下旧旅行再重试一次
+      if ((err as Error & { code?: string }).code !== 'ALREADY_TRAVELING') throw err;
+    }
+    await claimHome();
+    await startTrip(loadout);
+    this.applyDepartSuccess();
+  },
+
+  async onTapShop() {
+    if (this._entering) return;
+    this._entering = true;
     playTap();
+    wx.showLoading({ title: '加载中', mask: true });
+    try {
+      await preloadAssetKeys(Object.values(SHOP_ASSETS), 5000);
+    } finally {
+      wx.hideLoading();
+    }
     navigateTo('/pages/shop/index');
+    setTimeout(() => {
+      this._entering = false;
+    }, 600);
   },
 
   onTapHome() {

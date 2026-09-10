@@ -103,16 +103,21 @@ Page({
     this.setData({ assets });
   },
 
+  applyItems(items: ShowcaseItemView[]) {
+    this._items = items || [];
+    const built = buildPages(this._items);
+    this.setData({
+      pages: built.pages,
+      totalPages: built.totalPages,
+      pageIndex: 0,
+    });
+  },
+
   async reload() {
+    // 数据由 loading 预取 + 旅行回家时刷新维护，进页面只读缓存，不再发起请求
     try {
       const res = await listShowcase();
-      this._items = res.items || [];
-      const built = buildPages(this._items);
-      this.setData({
-        pages: built.pages,
-        totalPages: built.totalPages,
-        pageIndex: 0,
-      });
+      this.applyItems(res.items || []);
     } catch (e) {
       wx.showToast({
         title: (e as Error).message || '加载失败',

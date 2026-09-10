@@ -49,10 +49,16 @@
   gap: 20rpx;
 }
 
-/* widthFix：宽度直接设定，高度随切图比例；选中态更高由切图本身体现 */
+/* 固定宽高按切图比例（188×111 / 188×199）：加载前不塌缩；选中态更高由 --on 定高体现 */
 .inv-tab {
   width: 110rpx;
+  height: 65rpx;
   flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.inv-tab--on {
+  height: 116rpx;
 }
 
 /* 列表：独立的顶部边界，与 tab 高度/位置无关 */
@@ -104,6 +110,7 @@
 .inv-icon image {
   width: 100%;
   height: 100%;
+  background: rgba(0, 0, 0, 0.06);
 }
 
 .inv-count {

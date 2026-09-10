@@ -28,3 +28,5 @@ cloud/functions/*/common/
 
 # UI 资产 CDN 上传暂存（由 scripts/upload-ui-assets.js 生成）
 .cdn-staging/
+
+.venv-sfx/
