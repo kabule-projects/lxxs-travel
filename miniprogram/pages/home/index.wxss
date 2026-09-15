@@ -7,11 +7,13 @@
   background: rgb(248, 236, 196);
 }
 
+/* 显式定高 = 屏宽 750rpx × 切图高宽比（room 2000×4330），widthFix 加载前后同高不抖动 */
 .home-page-bg {
   position: absolute;
   left: 0;
   top: 57%;
   width: 100%;
+  height: 1624rpx;
   z-index: 0;
   transform: translateY(-50%);
   pointer-events: none;
@@ -25,21 +27,25 @@
   flex-direction: column;
 }
 
-/* 窗户：叠在背景上，位置/大小按屏幕百分比（相对 .home-overlay 即视口） */
+/* 窗户：叠在背景上，位置/大小按屏幕百分比（相对 .home-overlay 即视口）；
+   显式定高 = 屏宽 16.5%（123.75rpx）× 切图高宽比（window 326×403），widthFix 加载前后同高不抖动 */
 .home-window {
   position: absolute;
   right: 28%;
   top: 24.5%;
   width: 16.5%;
+  height: 153rpx;
   z-index: 5;
 }
 
-/* 标包装饰：盖在窗户(z5)之上，无交互；位置/大小按屏幕百分比调 */
+/* 标包装饰：盖在窗户(z5)之上，无交互；位置/大小按屏幕百分比调；
+   显式定高 = 屏宽 19%（142.5rpx）× 切图高宽比（biao-bag 389×558），widthFix 加载前后同高不抖动 */
 .home-biao-bag {
   position: absolute;
   left: 42.5%;
   top: 31.5%;
   width: 19%;
+  height: 204rpx;
   z-index: 6;
   pointer-events: none;
 }
@@ -150,7 +156,9 @@
   gap: 20rpx;
 }
 
+/* 显式定高 = 宽 280rpx × 切图高宽比（btn-prepare 391×252），widthFix 加载前后同高不抖动 */
 .btn-prepare-img {
   width: 280rpx;
+  height: 180rpx;
   display: block;
 }

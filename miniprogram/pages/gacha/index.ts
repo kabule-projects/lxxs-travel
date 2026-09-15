@@ -41,7 +41,11 @@ Page({
   },
 
   _spinTimer: 0 as number,
+  /** 动画实际播放计时器：bindload（动图就绪）后才启动，保证抽1/抽5都完整播完 */
+  _animTimer: 0 as number,
   _drawing: false,
+  /** 当前抽奖次数（动画时长按次数取） */
+  _spinCount: 0 as 0 | 1 | 5,
   /** 本次抽奖的进行中 Promise（与动图并行发起，动图播完/跳过时 await 它） */
   _drawPromise: null as Promise<GachaDrawResult> | null,
   _offStars: null as (() => void) | null,
@@ -68,6 +72,7 @@ Page({
 
   onUnload() {
     if (this._spinTimer) clearTimeout(this._spinTimer);
+    if (this._animTimer) clearTimeout(this._animTimer);
     this._offStars?.();
   },
 
@@ -87,9 +92,14 @@ Page({
     });
   },
 
-  /** 动图加载完成：同一帧隐藏静态图、显示动图 */
+  /** 动图加载完成：同一帧隐藏静态图、显示动图，并从这一刻起计时（动画真正开始播） */
   onAnimLoad() {
-    if (this.data.spinning) this.setData({ animReady: true });
+    if (!this.data.spinning || this.data.animReady) return;
+    this.setData({ animReady: true });
+    const count = this._spinCount === 5 ? 5 : 1;
+    this._animTimer = setTimeout(() => {
+      this.finishSpin();
+    }, ANIM_MS[count]) as unknown as number;
   },
 
   async reloadCatalog() {
@@ -136,24 +146,28 @@ Page({
 
   startSpin(count: 1 | 5) {
     const { assets } = this.data;
-    // 动图先隐藏加载（animReady=false），bindload 后才隐藏静态图；抽奖请求并行发起
+    // 动图先隐藏加载（animReady=false），bindload 后才隐藏静态图并启动动画计时；抽奖请求并行发起
     playSfx('gacha_drop');
     this._drawPromise = drawGacha(count);
+    this._spinCount = count;
     this.setData({
       spinning: true,
       animReady: false,
       animSrc: count === 5 ? assets.machineFive : assets.machineOne,
     });
+    // 兜底：动图加载失败/超慢时也不卡死，最多 ANIM_MS+5s 后收尾
     this._spinTimer = setTimeout(() => {
       this.finishSpin();
-    }, ANIM_MS[count]) as unknown as number;
+    }, ANIM_MS[count] + 5000) as unknown as number;
   },
 
   async finishSpin() {
     if (this._drawing || !this._drawPromise) return;
     this._drawing = true;
     if (this._spinTimer) clearTimeout(this._spinTimer);
+    if (this._animTimer) clearTimeout(this._animTimer);
     this._spinTimer = 0;
+    this._animTimer = 0;
     try {
       const res = await this._drawPromise;
       setStars(res.stars);

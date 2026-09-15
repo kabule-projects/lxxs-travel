@@ -26,9 +26,12 @@
   width: 85.4%;
 }
 
+/* 显式定高 = 面板宽（屏宽 750×85.4% = 640.5rpx）× 切图高宽比（deco-2 1681×2340），
+   widthFix 加载前后同高不抖动 */
 .mbox-panel-bg {
   display: block;
   width: 100%;
+  height: 892rpx;
 }
 
 .mbox-content {

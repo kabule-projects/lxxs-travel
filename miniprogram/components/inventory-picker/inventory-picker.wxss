@@ -17,9 +17,12 @@
   width: 85.4%;
 }
 
+/* 显式定高 = 面板宽（屏宽 750×85.4% = 640.5rpx）× 切图高宽比（panel 1118×1481），
+   widthFix 加载前后同高不抖动 */
 .inv-panel-bg {
   display: block;
   width: 100%;
+  height: 848rpx;
 }
 
 /* 内容区仅为定位上下文：tabs 与 list 各自绝对定位，位置互不影响 */

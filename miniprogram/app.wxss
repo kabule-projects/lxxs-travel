@@ -19,6 +19,16 @@ page {
   display: block;
 }
 
+/* 显式定高按切图比例（pill-star 398×141 / pill-rice 288×144）：
+   widthFix 加载完成前后同高，防抖动；宽度仍在各页 --star/--rice modifier 里定 */
+.currency-pill--star .currency-pill__bg {
+  height: 90rpx;
+}
+
+.currency-pill--rice .currency-pill__bg {
+  height: 89rpx;
+}
+
 .currency-pill__num {
   position: absolute;
   top: 50%;

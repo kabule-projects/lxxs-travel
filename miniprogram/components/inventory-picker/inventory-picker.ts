@@ -77,14 +77,12 @@ Component({
         lock === 'food' || lock === 'prop' ? lock : this.data.tab;
       // 清空旧列表，避免上一次打开时的内容残留
       this.setData({ loading: true, tab, items: [] });
-      console.warn('[inv-picker] refresh start', seq, 'lock=', lock || '(none)');
       try {
         const items = await fetchOwned(lock || tab);
-        console.warn('[inv-picker] fetch resolved', seq, 'count=', items.length);
         if (seq !== this._refreshSeq) return; // 已有更新的请求，丢弃过期结果
         this.setData({ tab, items });
       } catch (e) {
-        console.warn('[inv-picker] fetch rejected', seq, e);
+        // 网络错误时静默降级为空列表，由用户重试
       } finally {
         if (seq === this._refreshSeq) {
           this.setData({ loading: false });

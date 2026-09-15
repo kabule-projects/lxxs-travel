@@ -136,14 +136,17 @@
   box-sizing: border-box;
 }
 
+/* 显式定高 = 底栏内容宽 702rpx × 82.7% × 切图高宽比（exchange-banner 963×238），防抖动 */
 .exchange-banner-img {
   width: 82.7%;
+  height: 143rpx;
 }
 
 /* 奖品图鉴按钮：右对齐；大小改 width，水平位置改 margin-right，
    与横幅间距改 .gacha-foot 的 gap，整体高低改内联 bottom（footBottom） */
 .prizes-btn-img {
   width: 30%;
+  height: 101rpx;
   align-self: flex-end;
   margin-right: 1%;
 }

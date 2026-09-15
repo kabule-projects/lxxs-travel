@@ -17,9 +17,11 @@
   width: 620rpx;
 }
 
+/* 显式定高 = 面板宽 620rpx × 切图高宽比（detail-panel 1181×1359），widthFix 加载前后同高不抖动 */
 .sc-detail-panel-bg {
   display: block;
   width: 100%;
+  height: 713rpx;
 }
 
 .sc-detail-close {
@@ -108,9 +110,11 @@
   white-space: pre-wrap;
 }
 
-/* 底部确认按钮：复用扭蛋 btn-confirm 贴图，居中并贴向面板底部 */
+/* 底部确认按钮：复用扭蛋 btn-confirm 贴图，居中并贴向面板底部；
+   显式定高 = 面板宽 620rpx × 52% × 切图高宽比（btn-confirm 334×155），widthFix 加载前后同高不抖动 */
 .sc-detail-confirm {
   display: block;
   width: 52%;
+  height: 150rpx;
   margin-top: auto;
 }

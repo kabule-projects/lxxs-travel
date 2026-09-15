@@ -36,8 +36,11 @@
   color: #5a4088;
 }
 
-/* 信封按钮：right/bottom 由 JS 按图片渲染边界内联给定，动态贴合图片右下角 */
+/* 信封按钮：right/bottom 由 JS 按图片渲染边界内联给定，动态贴合图片右下角；
+   切图 306×219。image 组件默认高 225px 会使 aspect-ratio 失效（默认高非 auto），
+   故用显式高度：29% 卡宽 × (3/4 卡宽卡高比) × 0.716 切图高宽比 ≈ 卡高 15.6% */
 .pz-envelope {
   position: absolute;
   width: 29%;
+  height: 15.6%;
 }

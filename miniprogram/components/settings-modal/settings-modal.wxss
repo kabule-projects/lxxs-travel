@@ -19,7 +19,8 @@
   justify-content: center;
 }
 
-/* 面板由贴图定形（1029×1369 竖版）：widthFix 定高，尺寸/圆角/边框全部来自贴图 */
+/* 面板由贴图定形（1029×1369 竖版）：宽 600rpx、高按切图比例显式定（→ 798rpx），
+   widthFix 加载前后同高不抖动；尺寸/圆角/边框全部来自贴图 */
 .sett-panel {
   position: relative;
   width: 600rpx;
@@ -28,6 +29,7 @@
 .sett-panel-bg {
   display: block;
   width: 100%;
+  height: 798rpx;
 }
 
 /* 内容区相对贴图百分比定位；top 需让开贴图内嵌的标题 */
@@ -52,8 +54,9 @@
 }
 
 .sett-toggle {
-  /* toggle 大小：width 定宽，高度随切图比例 */
+  /* toggle 大小：width 定宽；显式定高 = 150rpx × 切图高宽比（toggle-on 261×111 / off 262×111），防抖动 */
   width: 150rpx;
+  height: 64rpx;
 }
 
 /* 通知行：开/关两按钮同显居中 */
@@ -64,8 +67,9 @@
 }
 
 .sett-notify-btn {
-  /* 单个通知按钮大小：width 定宽，高度随切图比例 */
+  /* 单个通知按钮大小：width 定宽；显式定高 = 96rpx × 切图高宽比（notification-* 168×108），防抖动 */
   width: 96rpx;
+  height: 62rpx;
 }
 
 /* user-bar：贴图即整条 bar（widthFix 定形），文字绝对居中叠放 */
@@ -79,6 +83,8 @@
 .sett-user-bar-bg {
   display: block;
   width: 100%;
+  /* 显式定高 = 内容区宽（600rpx × 84% = 504rpx）× 切图高宽比（user-id-bar 824×156），防抖动 */
+  height: 95rpx;
 }
 
 .sett-user-id {

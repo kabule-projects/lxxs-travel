@@ -13,10 +13,12 @@
   pointer-events: none;
 }
 
-/* 宽度适配 + 垂直居中：高度由 widthFix 按图片比例自适应，上下溢出裁掉 */
+/* 宽度适配 + 垂直居中：高度按切图比例显式定（shared/roof/bg 1244×2690，750rpx 宽 → 1622rpx），
+   widthFix 加载前后同高不抖动，上下溢出裁掉 */
 .layer-bg {
   top: 50%;
   z-index: 0;
+  height: 1622rpx;
   transform: translateY(-50%);
 }
 
@@ -44,12 +46,16 @@
   pointer-events: none;
 }
 
+/* 角色贴图显式定高 = 各自 width × 切图高宽比（char-shen 315×367 / char-biao 191×164 / char-mi 155×150），
+   widthFix 加载前后同高不抖动 */
 .char-shen {
   width: 200rpx;
+  height: 233rpx;
 }
 
 .char-biao {
   width: 110rpx;
+  height: 94rpx;
   margin-left: -70rpx;
 }
 
@@ -57,6 +63,7 @@
   position: relative;
   z-index: 1;
   width: 90rpx;
+  height: 87rpx;
   margin-right: -80rpx;
 }
 
@@ -177,12 +184,14 @@
   }
 }
 
+/* 显式定高 = 宽 80rpx × 切图高宽比（mail-tip / mail-tip-full 均 103×124），widthFix 加载前后同高不抖动 */
 .mail-tip-img {
   position: absolute;
   top: -88rpx;
   left: 86%;
   transform: translateX(-50%);
   width: 80rpx;
+  height: 96rpx;
 }
 
 .plus-one {
@@ -236,6 +245,8 @@
 
 .btn-prepare-img {
   width: 240rpx;
+  /* 显式定高 = 宽 240rpx × 切图高宽比（btn-prepare 391×252），widthFix 加载前后同高不抖动 */
+  height: 155rpx;
   /* 单独调出发键左右位置（在 footer 左边距基础上叠加），不影响右下角商店/小屋 */
   margin-left: -20rpx;
   display: block;

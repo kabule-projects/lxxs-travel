@@ -25,12 +25,14 @@
   z-index: 0;
 }
 
-/* 返回按钮：左下角；位置改 left/bottom，大小改 width */
+/* 返回按钮：左下角；位置改 left/bottom，大小改 width/height（切图 149×149 方形，
+   不设 height 时 image 默认高 225px，会盖住左下格子；bottom 6% 对齐原视觉位置） */
 .diary-back {
   position: absolute;
   left: 13%;
-  bottom: -3%;
+  bottom: 6%;
   width: 150rpx;
+  height: 150rpx;
   z-index: 5;
 }
 
@@ -133,9 +135,11 @@
   justify-content: center;
 }
 
-/* 翻页提示贴图：水平垂直居中，大小改 width */
+/* 翻页提示贴图：水平垂直居中，大小改 width；
+   显式定高 = 屏宽 60%（450rpx）× 切图高宽比（hint 965×420），widthFix 加载前后同高不抖动 */
 .diary-hint {
   width: 60%;
+  height: 196rpx;
 }
 
 

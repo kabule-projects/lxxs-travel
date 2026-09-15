@@ -34,10 +34,13 @@
   border-radius: 28rpx;
 }
 
+/* 显式定高 = bag-body 宽（屏宽 750×90.7%×82.7% ≈ 562.6rpx）× 切图高宽比（panel 1707×2809），
+   widthFix 加载前后同高不抖动 */
 .bag-panel-bg {
   position: relative;
   z-index: 0;
   width: 100%;
+  height: 926rpx;
   display: block;
 }
 
@@ -121,7 +124,10 @@
   width: 68%;
 }
 
+/* 显式定高 = 出发区宽（屏宽 750×90.7%×68% ≈ 462.6rpx）× 切图高宽比（btn-depart 556×338），
+   widthFix 加载前后同高不抖动 */
 .depart-btn-img {
   width: 100%;
+  height: 281rpx;
   display: block;
 }

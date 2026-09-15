@@ -326,6 +326,21 @@ cloud/functions/
 
 5. `common` 不是云函数（无入口文件），**禁止单独上传**（会卡在 CreateFailed 状态）；各函数通过 `require('./common/...')` 引用由同步脚本复制进本函数目录的副本
 
+### 7.2.1 用 CLI 部署（tcb）的注意事项
+
+```bash
+cd cloud/functions/<函数名>          # 必须先进函数目录！
+printf '\n' | npx tcb fn deploy <函数名> --force -e cloud1-d9ghjbijh5aa24e10
+```
+
+⚠️ **不要**在项目根目录用 `--dir cloud/functions/xxx` 的形式部署：该参数会被忽略，CLI 会把**整个项目根目录**（含 .git、miniprogram，约 300MB）打进包里。部署会报告"成功"、函数修改时间也会更新，但入口 `index.main` 解析不到根目录的 index.js，**线上代码不会更新且无任何报错**。验证部署是否生效：
+
+```bash
+npx tcb fn invoke <函数名> --params '{"action":"list"}' -e cloud1-d9ghjbijh5aa24e10
+```
+
+（CLI 调用不带 openid，能返回"未获取 openid"即说明新代码已生效；若改了 common，先跑 `node scripts/sync-cloud-common.js`。）
+
 ### 7.3 部署后冒烟测试
 
 在云开发控制台 → 云函数 → 选中函数 → **云端测试**：

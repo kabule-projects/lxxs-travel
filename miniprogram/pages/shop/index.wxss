@@ -187,9 +187,11 @@
   transform: translateX(-50%);
 }
 
+/* 显式定高 = 价签宽 120rpx × 切图高宽比（price-tag 294×96），widthFix 加载前后同高不抖动 */
 .slot-tag-bg {
   display: block;
   width: 100%;
+  height: 39rpx;
 }
 
 /* 价格文字覆盖在价签切图上；padding-left 对齐切图中数字孔位 */
@@ -235,12 +237,14 @@
   z-index: 4;
 }
 
-/* 木纹背景板：垫在商品名/介绍文本下方，覆盖 desc-text 区域 */
+/* 木纹背景板：垫在商品名/介绍文本下方，覆盖 desc-text 区域；
+   显式定高 = footer 内容宽（屏宽 90%）× 82% × 切图高宽比（wood-board 1514×814），widthFix 加载前后同高不抖动 */
 .wood-board {
   position: absolute;
   left: -2%;
   top: 8%;
   width: 82%;
+  height: 298rpx;
   z-index: 1;
   pointer-events: none;
 }
@@ -300,5 +304,7 @@
   right: 19.5%;
   bottom: 0%;
   width: 200rpx;
+  /* 显式定高 = 宽 200rpx × 切图高宽比（btn-buy 320×158），widthFix 加载前后同高不抖动 */
+  height: 99rpx;
   z-index: 3;
 }

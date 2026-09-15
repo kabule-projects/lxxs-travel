@@ -2,7 +2,6 @@ const cloud = require('wx-server-sdk');
 const { ok, fail } = require('./common/response');
 const {
   SHOP_PAGE_SIZE,
-  DAILY_BUY_LIMIT,
   businessDayKey,
 } = require('./common/game');
 
@@ -115,53 +114,80 @@ async function purchase(openid, itemId, requestId) {
   if (!(price >= 0)) return fail('价格无效', 'VALIDATION');
 
   const dayKey = businessDayKey();
-  const bought = await db
-    .collection('daily_purchases')
-    .where({ userId: openid, itemId, dayKey })
-    .limit(1)
-    .get();
-  if (bought.data.length >= DAILY_BUY_LIMIT) {
-    return fail('今日已购买该商品', 'DAILY_LIMIT');
-  }
-
-  const stars = user.stars || 0;
-  if (stars < price) return fail('星星不足', 'INSUFFICIENT_STARS');
-
-  const nextStars = stars - price;
-  await db.collection('users').doc(user._id).update({
-    data: { stars: nextStars },
-  });
-
-  const invRes = await db
-    .collection('user_inventory')
-    .where({ userId: openid, itemId })
-    .limit(1)
-    .get();
-  if (invRes.data.length) {
-    await db.collection('user_inventory').doc(invRes.data[0]._id).update({
-      data: { count: _.inc(1), updatedAt: Date.now() },
-    });
-  } else {
-    await db.collection('user_inventory').add({
+  // 先查再插存在并发空窗（两个请求同时过检查、同时插入），
+  // 唯一索引 userId+itemId+dayKey 才是可靠的并发闸：先插购买记录，撞唯一索引即今日已购
+  try {
+    await db.collection('daily_purchases').add({
       data: {
         userId: openid,
         itemId,
-        count: 1,
+        dayKey,
+        price,
         createdAt: Date.now(),
-        updatedAt: Date.now(),
       },
     });
+  } catch (e) {
+    if (String((e && e.message) || e).includes('E11000')) {
+      return fail('今日已购买该商品', 'DAILY_LIMIT');
+    }
+    throw e;
   }
 
-  await db.collection('daily_purchases').add({
-    data: {
-      userId: openid,
-      itemId,
-      dayKey,
-      price,
-      createdAt: Date.now(),
-    },
-  });
+  const stars = user.stars || 0;
+  if (stars < price) {
+    // 星星不足：回滚已插入的购买记录，避免占位导致今天无法再购买
+    try {
+      await db
+        .collection('daily_purchases')
+        .where({ userId: openid, itemId, dayKey })
+        .remove();
+    } catch {
+      /* 回滚失败不覆盖主错误 */
+    }
+    return fail('星星不足', 'INSUFFICIENT_STARS');
+  }
+
+  let nextStars = stars - price;
+  try {
+    await db.collection('users').doc(user._id).update({
+      data: { stars: nextStars },
+    });
+
+    const invRes = await db
+      .collection('user_inventory')
+      .where({ userId: openid, itemId })
+      .limit(1)
+      .get();
+    if (invRes.data.length) {
+      await db.collection('user_inventory').doc(invRes.data[0]._id).update({
+        data: { count: _.inc(1), updatedAt: Date.now() },
+      });
+    } else {
+      await db.collection('user_inventory').add({
+        data: {
+          userId: openid,
+          itemId,
+          count: 1,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        },
+      });
+    }
+  } catch (e) {
+    // 扣款/入库失败：回滚购买记录与已扣星星，失败不覆盖主错误
+    try {
+      await db
+        .collection('daily_purchases')
+        .where({ userId: openid, itemId, dayKey })
+        .remove();
+      await db.collection('users').doc(user._id).update({
+        data: { stars: stars },
+      });
+    } catch {
+      /* ignore */
+    }
+    throw e;
+  }
 
   const result = {
     itemId,
@@ -200,7 +226,7 @@ async function talk() {
 exports.main = async (event) => {
   try {
     const { OPENID } = cloud.getWXContext();
-    if (!OPENID) return fail('未获取 openid', 'UNAUTHORIZED');
+    if (!OPENID) return fail('未获取 openid (shop-v2)', 'UNAUTHORIZED');
 
     const { action } = event || {};
     switch (action) {

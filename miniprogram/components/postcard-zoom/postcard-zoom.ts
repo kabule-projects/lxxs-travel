@@ -2,7 +2,9 @@
  * 裸图 3:4 盒子 + aspectFit；信封按钮动态跟随图片右下角。
  * 微调信封溢出量改 OVERFLOW_RIGHT / OVERFLOW_BOTTOM。 */
 const OVERFLOW_RIGHT = -5; // 相对卡片宽度的右溢出百分比
-const OVERFLOW_BOTTOM = -27; // 相对卡片高度的底部溢出百分比
+// 相对卡片高度的底部溢出百分比（盒子原为 image 默认高 225px、图居中；
+// 盒子修正为贴齐切图后，换算为图下沿位置 ≈ -8% 才能保持原视觉）
+const OVERFLOW_BOTTOM = -8;
 const CARD_AR = 3 / 4;
 
 Component({

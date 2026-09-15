@@ -18,8 +18,10 @@
   padding-right: 24rpx;
 }
 
+/* 显式定高 = 宽 480rpx × 切图高宽比（empty 300×300 方形），widthFix 加载前后同高不抖动 */
 .empty-img {
   width: 480rpx;
+  height: 480rpx;
   margin-top: 120rpx;
 }
 

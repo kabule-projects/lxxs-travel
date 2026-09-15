@@ -1,5 +1,6 @@
 import GAME from '../utils/constants';
 import { call } from './api';
+import { isCloudConfigured } from '../config/cloud';
 import { getStars, setStars } from '../store/user';
 import { emit, GameEvent } from '../utils/event-bus';
 import { resolveDynamicAsset } from '../utils/resolve-dynamic-asset';
@@ -332,8 +333,14 @@ export async function purchaseShop(itemId: string): Promise<ShopPurchaseResult> 
       code === 'DAILY_LIMIT' ||
       code === 'INSUFFICIENT_STARS' ||
       code === 'NOT_FOUND' ||
+      code === 'NOT_FOR_SALE' ||
       code === 'VALIDATION'
     ) {
+      throw e;
+    }
+    // 已配置云环境时网络错误/超时要如实报错；本地兜底只适合未配云开发的联调，
+    // 否则真实商品（不在 SEED_CATALOG）会被误报“物品不存在”
+    if (isCloudConfigured()) {
       throw e;
     }
     const res = localPurchase(itemId);
