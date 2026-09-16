@@ -135,7 +135,7 @@
       "name": "菜刀",
       "icon": "cloud://cloud1-d9ghjbijh5aa24e10.636c-cloud1-d9ghjbijh5aa24e10-1325335245/content/items/kitchen_knife.webp",
       "description": "切蛋糕神器。注意切之前不要切生食不要拍姜蒜哈！",
-      "showcase": true,
+      "showcase": false,
       "enabled": true,
       "shopSort": 961
     },

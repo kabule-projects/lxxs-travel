@@ -43,7 +43,17 @@
             </view>
           </view>
         </view>
-        <view wx:if="{{loading}}" class="inv-empty">加载中…</view>
+        <!-- 加载中：四只变装米从左往右依次亮起再消失（animation-delay 依次错开，纯 CSS 循环） -->
+        <view wx:if="{{loading}}" class="inv-loading">
+          <image
+            wx:for="{{loadingCats}}"
+            wx:key="*this"
+            class="inv-loading-cat"
+            style="animation-delay: {{index * 0.35}}s"
+            src="{{item}}"
+            mode="aspectFit"
+          />
+        </view>
         <view wx:elif="{{!items.length}}" class="inv-empty">暂无此类物品</view>
       </scroll-view>
     </view>

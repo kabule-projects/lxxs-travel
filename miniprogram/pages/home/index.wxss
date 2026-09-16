@@ -50,6 +50,22 @@
   pointer-events: none;
 }
 
+/* 房间小猫：纯装饰动图，定位由内联 style（视口百分比锚点）给定，中心对齐；
+   切换时先淡出再换位置/换猫淡入（transition 与 index.ts 的 CAT_FADE_MS 一致） */
+.room-cat {
+  position: absolute;
+  width: 24%;
+  z-index: 4;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.45s;
+  pointer-events: none;
+}
+
+.room-cat--on {
+  opacity: 1;
+}
+
 /* ── 顶栏（布局同商店）；top 由内联样式给定，避让右上角胶囊 ── */
 .home-hud {
   position: absolute;

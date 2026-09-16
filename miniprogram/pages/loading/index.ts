@@ -1,5 +1,5 @@
 import { isSupportedOrDevtools, readSafeArea } from '../../utils/device';
-import { assetWebp, LOADING_ASSETS, ROOF_SCENE_ASSETS, ROOF_ASSETS } from '../../utils/asset-path';
+import { assetWebp, assetCdnBase, LOADING_ASSETS, ROOF_SCENE_ASSETS, ROOF_ASSETS } from '../../utils/asset-path';
 import { preloadImages } from '../../utils/preload';
 
 import { ensureSession } from '../../services/auth';
@@ -7,6 +7,11 @@ import { playTap, playBgm, preloadSfx, preloadBgm } from '../../services/sound';
 import { prefetchShowcase } from '../../services/showcase';
 import { prefetchShop } from '../../services/shop';
 import { prefetchGachaCatalog } from '../../services/gacha';
+
+/** 进度条米子变装池：原皮 + 4 变装共五选一，各 20% */
+const MI_SKINS = ['mi-1', 'mi-2', 'mi-3', 'mi-4'].map((n) =>
+  assetCdnBase(`loading/mi-skins/${n}`),
+);
 
 Page({
   data: {
@@ -22,6 +27,8 @@ Page({
     safeTop: 0,
     safeBottom: 0,
     sessionReady: false,
+    /** 进度条米子图标：默认空走原皮，命中概率时替换为随机变装米 */
+    barThumbSrc: '',
   },
 
   _bootDone: false,
@@ -29,6 +36,8 @@ Page({
   _targetLayerCount: 1,
   _navigated: false,
   _entering: false,
+  /** 本次启动的米子皮肤（onReady 时才写入 data，见下方注释） */
+  _miSkin: '' as string,
 
   onLoad() {
     if (!isSupportedOrDevtools()) {
@@ -41,12 +50,22 @@ Page({
       safeTop: safe.top,
       safeBottom: Math.max(safe.bottom, 0),
     });
+    // 本次启动的米子皮肤：原皮 + 4 变装五选一（各 20%），整段 loading 不变
+    // 注意：必须在 onReady 才 setData——组件 attached 阶段读到的 thumbSrc 若是初始值，
+    // 后续无变化不会触发组件 observer，皮肤不会被应用；onReady 在首次渲染后，
+    // 属性变化必然触发 observer 换图
+    this._miSkin =
+      Math.random() < 0.2 ? '' : MI_SKINS[Math.floor(Math.random() * MI_SKINS.length)];
 
     this.resolveAssets().then(() => this.bootstrap());
     // 音效/BGM 本地化与启动流程并行，不阻塞进度条；播放时未就绪的单个回落 CDN
     void preloadSfx();
     void preloadBgm();
     playBgm('loading');
+  },
+
+  onReady() {
+    this.setData({ barThumbSrc: this._miSkin });
   },
   async resolveAssets() {
     this.setData({

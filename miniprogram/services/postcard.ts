@@ -1,6 +1,6 @@
 import { call } from './api';
 import GAME from '../utils/constants';
-import { cacheDiaryEntry } from './diary';
+import { cacheDiaryEntry, normalizeTitle } from './diary';
 import { resolveDynamicAssetList } from '../utils/resolve-dynamic-asset';
 
 export type PigeonState = 'away' | 'mail' | 'idle';
@@ -83,10 +83,11 @@ function trimLocal(items: MailItem[]): MailItem[] {
 export async function syncMailbox(): Promise<MailboxSyncResult> {
   try {
     const res = await call<MailboxSyncResult>('postcard', { action: 'mailbox' });
-    const items = await resolveDynamicAssetList(sortMailItemsDesc(res.items || []), [
+    const resolved = (await resolveDynamicAssetList(sortMailItemsDesc(res.items || []), [
       'imageThumb',
       'imageFull',
-    ]);
+    ])) as MailItem[];
+    const items = resolved.map((i) => ({ ...i, title: normalizeTitle(i.title) }));
     writeLocal({
       items,
       lastMailboxOpenAt: res.lastMailboxOpenAt || 0,
@@ -101,7 +102,10 @@ export async function syncMailbox(): Promise<MailboxSyncResult> {
     };
   } catch {
     const local = readLocal();
-    const items = trimLocal(local.items);
+    const items = trimLocal(local.items).map((i) => ({
+      ...i,
+      title: normalizeTitle(i.title),
+    }));
     return {
       items,
       unreadCount: items.length,
@@ -117,10 +121,11 @@ export async function syncMailbox(): Promise<MailboxSyncResult> {
 export async function openMailbox(): Promise<MailboxSyncResult> {
   try {
     const res = await call<MailboxSyncResult>('postcard', { action: 'openMailbox' });
-    const items = await resolveDynamicAssetList(sortMailItemsDesc(res.items || []), [
+    const resolved = (await resolveDynamicAssetList(sortMailItemsDesc(res.items || []), [
       'imageThumb',
       'imageFull',
-    ]);
+    ])) as MailItem[];
+    const items = resolved.map((i) => ({ ...i, title: normalizeTitle(i.title) }));
     writeLocal({
       items,
       lastMailboxOpenAt: res.lastMailboxOpenAt || 0,

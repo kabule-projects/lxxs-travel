@@ -6,9 +6,9 @@
     <view class="fill-clip" style="width: {{progress}}%">
       <image class="fill-img" src="{{displayFill}}" mode="scaleToFill" />
     </view>
-    <!-- 米子图标：贴在已填充进度末端跟随 -->
+    <!-- 米子图标：贴在已填充进度末端跟随；传了 thumbSrc（变装米）时放大 10% -->
     <image
-      class="thumb-img"
+      class="thumb-img {{thumbSrc ? 'thumb-img--skin' : ''}}"
       src="{{displayThumb}}"
       mode="aspectFit"
       style="left: {{progress}}%"

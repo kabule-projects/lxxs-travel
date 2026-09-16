@@ -13,6 +13,15 @@
     <!-- 标包装饰：纯装饰贴图，盖在窗户图层之上，无交互 -->
     <image class="home-biao-bag" src="{{assets.biaoBag}}" mode="widthFix" />
 
+    <!-- 房间小猫：随机出现在床上/床脚/桌底，随机时长后换位置换一只；纯装饰无交互 -->
+    <image
+      wx:if="{{catSrc}}"
+      class="room-cat {{catShow ? 'room-cat--on' : ''}}"
+      style="{{catStyle}}"
+      src="{{catSrc}}"
+      mode="widthFix"
+    />
+
     <!-- 顶栏：双货币（同商店）+ 背包 / 设置；top 内联，避让右上角胶囊 -->
     <view class="home-hud" style="top: {{hudTop}}px">
       <view class="hud-side hud-side--left" aria-hidden="true"></view>

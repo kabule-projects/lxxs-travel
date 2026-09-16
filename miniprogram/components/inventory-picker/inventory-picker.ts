@@ -3,8 +3,13 @@ import {
   type InvCategory,
   type InvItemView,
 } from '../../services/inventory';
-import { COMMON_ASSETS, INVENTORY_ASSETS } from '../../utils/asset-path';
+import { COMMON_ASSETS, INVENTORY_ASSETS, assetCdnBase } from '../../utils/asset-path';
 import { resolveAsset } from '../../utils/resolve-assets';
+
+/** 加载动画：四只变装米子从左往右依次亮起再消失（复用 loading/mi-skins，纯 CSS 逐帧控制明暗） */
+const LOADING_CATS = ['mi-1', 'mi-2', 'mi-3', 'mi-4'].map((n) =>
+  assetCdnBase(`loading/mi-skins/${n}`),
+);
 
 Component({
   properties: {
@@ -23,6 +28,8 @@ Component({
     tabProp: '',
     tabPropOn: '',
     itemRowBg: '',
+    /** 加载动画的四只小猫 CDN 地址 */
+    loadingCats: LOADING_CATS,
   },
 
   lifetimes: {

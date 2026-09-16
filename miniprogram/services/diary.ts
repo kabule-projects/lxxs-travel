@@ -17,6 +17,11 @@ export interface DiaryEntry {
 
 const DIARY_KEY = 'lxxs_diary_local';
 
+/** 配置标题里的字面量 "\n"（json 转义残留）换成真实换行，避免直接显示反斜杠 n */
+export function normalizeTitle(t: string): string {
+  return (t || '').replace(/\\n/g, '\n');
+}
+
 function readLocalDiary(): DiaryEntry[] {
   try {
     const raw = wx.getStorageSync(DIARY_KEY) as DiaryEntry[] | '';
@@ -47,8 +52,9 @@ export async function listDiary(): Promise<DiaryEntry[]> {
       action: 'diary',
     });
     const items = await hydrateDiary(res.items || []);
-    writeLocalDiary(items);
-    return items;
+    const cleaned = items.map((e) => ({ ...e, title: normalizeTitle(e.title) }));
+    writeLocalDiary(cleaned);
+    return cleaned;
   } catch {
     return readLocalDiary();
   }
@@ -59,24 +65,27 @@ export function cacheDiaryEntry(entry: Partial<DiaryEntry> & { postcardId: strin
   const list = readLocalDiary();
   const idx = list.findIndex((e) => e.postcardId === entry.postcardId);
   const now = Date.now();
+  const clean = { ...entry, title: normalizeTitle(entry.title || '') };
   if (idx < 0) {
     list.push({
-      postcardId: entry.postcardId,
-      type: entry.type || 'postcard',
-      title: entry.title || '明信片',
-      rarity: entry.rarity || 'N',
-      imageThumb: entry.imageThumb || entry.imageFull || '',
-      imageFull: entry.imageFull || entry.imageThumb || '',
-      story: entry.story || '',
+      postcardId: clean.postcardId,
+      type: clean.type || 'postcard',
+      title: clean.title || '明信片',
+      rarity: clean.rarity || 'N',
+      imageThumb: clean.imageThumb || clean.imageFull || '',
+      imageFull: clean.imageFull || clean.imageThumb || '',
+      story: clean.story || '',
       firstClaimedAt: now,
       claimCount: 1,
     });
   } else {
     list[idx] = {
       ...list[idx],
-      ...entry,
-      imageThumb: entry.imageThumb ?? list[idx].imageThumb,
-      imageFull: entry.imageFull ?? list[idx].imageFull,
+      ...clean,
+      // 标题缺省时保留原值（claim 接口对重复领取可能不回传 title）
+      title: clean.title || list[idx].title,
+      imageThumb: clean.imageThumb ?? list[idx].imageThumb,
+      imageFull: clean.imageFull ?? list[idx].imageFull,
       claimCount: (list[idx].claimCount || 1) + 1,
     };
   }

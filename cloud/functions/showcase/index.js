@@ -1,14 +1,12 @@
 const cloud = require('wx-server-sdk');
 const { ok, fail } = require('./common/response');
-const { unlockShowcase } = require('./common/showcase'); 
+const { unlockShowcase, isShowcaseItem } = require('./common/showcase');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
 
 const PAGE_SIZE = 8;
-/** 可放入展示柜的物品类型（与 unlock 的准入规则一致） */
-const SHOWCASE_TYPES = ['souvenir', 'accessory', 'equipment'];
 
 async function getUser(openid) {
   const found = await db.collection('users').where({ openid }).limit(1).get();
@@ -72,7 +70,7 @@ async function listAll(openid) {
   for (const row of rows) {
     const itemId = row.itemId || row._id;
     const item = itemMap.get(itemId);
-    if (!item || item.enabled === false) continue;
+    if (!item || item.enabled === false || !isShowcaseItem(item)) continue;
     items.push({
       id: itemId,
       itemId,
@@ -105,12 +103,7 @@ async function unlock(openid, itemId, source) {
     .get();
   if (!itemRes.data.length) return fail('物品不存在', 'NOT_FOUND');
   const item = itemRes.data[0];
-  const canShow =
-    item.showcase === true ||
-    item.type === 'souvenir' ||
-    item.type === 'accessory' ||
-    item.type === 'equipment';
-  if (!canShow) {
+  if (!isShowcaseItem(item)) {
     return fail('该物品不可放入展示柜', 'NOT_SHOWCASE');
   }
 
@@ -130,11 +123,7 @@ async function unlockAll(targetOpenid) {
   // 拉取 items 主表全部物品，按准入规则过滤（enabled 未显式 false 视为有效）
   const res = await db.collection('items').limit(1000).get();
   const eligible = (res.data || []).filter(
-    (it) =>
-      it &&
-      it.id &&
-      it.enabled !== false &&
-      (it.showcase === true || SHOWCASE_TYPES.includes(it.type)),
+    (it) => it && it.id && it.enabled !== false && isShowcaseItem(it),
   );
 
   let added = 0;

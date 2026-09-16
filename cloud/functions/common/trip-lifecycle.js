@@ -1,4 +1,4 @@
-const { unlockShowcase } = require('./showcase');
+const { unlockShowcase, isShowcaseItem } = require('./showcase');
 const { addInventory } = require('./inventory');
 const { loadFoodPools } = require('./food-trip');
 
@@ -54,7 +54,19 @@ async function advanceTrip(db, _, trip, userDoc) {
         souvenirs = [sid];
         souvenirGranted = sid;
         await addInventory(db, _, trip.userId, sid, 1);
-        await unlockShowcase(db, trip.userId, sid, { source: 'trip' });
+        // 展示柜准入：仅 items.showcase===true 的伴手礼入柜，其余只进背包
+        try {
+          const itemRes = await db
+            .collection('items')
+            .where({ id: sid })
+            .limit(1)
+            .get();
+          if (isShowcaseItem(itemRes.data[0])) {
+            await unlockShowcase(db, trip.userId, sid, { source: 'trip' });
+          }
+        } catch (e) {
+          /* 查主表失败不阻断行程推进 */
+        }
       }
     }
   }
