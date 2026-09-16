@@ -274,10 +274,10 @@
 
 .desc-body {
   flex: 1;
-  margin-top: 8rpx;
-  font-size: 100%;
+  margin-top: 10rpx;
+  font-size: 110%;
   color: #6b5344;
-  line-height: 1.8;
+  line-height: 1.9;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
