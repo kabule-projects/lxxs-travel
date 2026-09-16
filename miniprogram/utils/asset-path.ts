@@ -125,10 +125,14 @@ export const GACHA_ASSETS = {
 export const SHOWCASE_ASSETS = {
   iconBack: 'icons/shop/back',
   iconGrid: 'icons/common/settings-grid',
+  /** 整页背景（柜体底板） */
+  pageBg: 'showcase/shelf-board',
   cabinet: 'showcase/cabinet',
   detailPanel: 'showcase/detail-panel',
   /** 详情弹窗内纪念品方块底图 */
   detailItemBg: 'showcase/detail-item-bg',
+  /** 新获得物品角标 */
+  newBadge: 'showcase/NEW',
 } as const;
 
 /** 日记：书脊/天气/吉祥物/笔记本均画进 diary-bg（frame+notebook 合并图层） */

@@ -17,17 +17,22 @@ interface SlotView {
   icon: string;
   description: string;
   empty: boolean;
+  /** 未点开过详情 → 叠加 NEW 角标 */
+  isNew: boolean;
 }
 
 interface ShelfPage {
   shelves: SlotView[][];
 }
 
+/** 已点开过详情的物品 id 列表（本地存储） */
+const VIEWED_KEY = 'showcase_viewed_items';
+
 function emptySlot(): SlotView {
-  return { id: '', name: '', icon: '', description: '', empty: true };
+  return { id: '', name: '', icon: '', description: '', empty: true, isNew: false };
 }
 
-function buildPages(items: ShowcaseItemView[]): {
+function buildPages(items: ShowcaseItemView[], viewed: Set<string>): {
   pages: ShelfPage[];
   totalPages: number;
 } {
@@ -51,6 +56,7 @@ function buildPages(items: ShowcaseItemView[]): {
             icon: item.icon,
             description: item.description,
             empty: false,
+            isNew: !viewed.has(item.id),
           });
         } else {
           row.push(emptySlot());
@@ -82,8 +88,12 @@ Page({
   },
 
   _items: [] as ShowcaseItemView[],
+  _viewed: new Set<string>(),
 
   onLoad() {
+    const rawViewed = wx.getStorageSync(VIEWED_KEY);
+    this._viewed = new Set(Array.isArray(rawViewed) ? (rawViewed as string[]) : []);
+
     const capsule = readCapsuleRect();
     const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     const screenW = info.windowWidth || 375;
@@ -91,8 +101,7 @@ Page({
     // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮（同 home/roof）
     this.setData({
       hudTop: capsule.bottom + 12,
-      // 柜子区：左 15%、上 26%、宽 70%（与原调试网格对位参数一致），高度 54% 容纳 4 行
-      cabStyle: `left: ${screenW * 0.15}px; top: ${screenH * 0.21}px; width: ${screenW * 0.7}px; height: ${screenH * 0.60}px;`,
+      cabStyle: `left: ${screenW * 0.15}px; top: ${screenH * 0.225}px; width: ${screenW * 0.7}px; height: ${screenH * 0.62}px;`,
     });
     this.loadAssets();
     this.reload();
@@ -105,7 +114,7 @@ Page({
 
   applyItems(items: ShowcaseItemView[]) {
     this._items = items || [];
-    const built = buildPages(this._items);
+    const built = buildPages(this._items, this._viewed);
     this.setData({
       pages: built.pages,
       totalPages: built.totalPages,
@@ -151,6 +160,13 @@ Page({
     const item = this._items.find((i) => i.id === id);
     if (!item) return;
     playTap();
+    // 点开详情即标记为已查看：NEW 角标消失并持久化
+    if (!this._viewed.has(id)) {
+      this._viewed.add(id);
+      wx.setStorageSync(VIEWED_KEY, [...this._viewed]);
+      const built = buildPages(this._items, this._viewed);
+      this.setData({ pages: built.pages });
+    }
     this.setData({
       detailVisible: true,
       detailTitle: item.name,

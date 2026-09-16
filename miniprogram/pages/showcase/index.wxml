@@ -1,5 +1,8 @@
 <view class="showcase">
-  <image class="showcase-page-bg" src="{{assets.cabinet}}" mode="aspectFill" />
+  <!-- 底层：整页背景 -->
+  <image class="showcase-page-bg" src="{{assets.pageBg}}" mode="aspectFill" />
+  <!-- 上层：柜子贴图（透明底，层板位置与物品定位对齐） -->
+  <image class="showcase-cabinet-bg" src="{{assets.cabinet}}" mode="aspectFill" />
 
   <!-- 顶栏：padding-top 内联，整体落到胶囊下方（同 home/roof） -->
   <view class="hud" style="padding-top: {{hudTop}}px">
@@ -36,6 +39,12 @@
                   wx:if="{{!cell.empty && cell.icon}}"
                   class="slot-icon"
                   src="{{cell.icon}}"
+                  mode="aspectFit"
+                />
+                <image
+                  wx:if="{{cell.isNew}}"
+                  class="slot-new"
+                  src="{{assets.newBadge}}"
                   mode="aspectFit"
                 />
               </view>

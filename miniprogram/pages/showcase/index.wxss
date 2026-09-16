@@ -18,6 +18,17 @@
   pointer-events: none;
 }
 
+/* 柜子贴图：全屏叠在背景之上、物品之下（z-index:1，swiper 为 2） */
+.showcase-cabinet-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
 .hud {
   position: relative;
   z-index: 5;
@@ -61,7 +72,8 @@
 /* 每行（共 4 行）：等分柜内高度，格子底对齐 */
 .shelf {
   position: relative;
-  flex: 1;
+  height: 280rpx;
+  margin-bottom: 24rpx;
   min-height: 0;
   display: flex;
   align-items: flex-end;
@@ -77,8 +89,9 @@
 }
 
 .slot {
-  width: 160rpx;
-  height: 160rpx;
+  position: relative;
+  width: 180rpx;
+  height: 180rpx;
   flex-shrink: 0;
   display: flex;
   align-items: flex-end;
@@ -86,13 +99,25 @@
   pointer-events: auto;
 }
 
+/* NEW 遮罩：尺寸/位置与物品 icon 完全重合（底对齐、水平居中） */
+.slot-new {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 220rpx;
+  height: 220rpx;
+  z-index: 2;
+  pointer-events: none;
+}
+
 .slot--empty {
   pointer-events: none;
 }
 
 .slot-icon {
-  width: 200rpx;
-  height: 200rpx;
+  width: 220rpx;
+  height: 220rpx;
 }
 
 .page-hint {

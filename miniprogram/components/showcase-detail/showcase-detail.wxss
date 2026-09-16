@@ -111,10 +111,10 @@
 }
 
 /* 底部确认按钮：复用扭蛋 btn-confirm 贴图，居中并贴向面板底部；
-   显式定高 = 面板宽 620rpx × 52% × 切图高宽比（btn-confirm 334×155），widthFix 加载前后同高不抖动 */
+   显式定高 = 面板宽 620rpx × 38% × 切图高宽比（btn-confirm 334×155），widthFix 加载前后同高不抖动 */
 .sc-detail-confirm {
   display: block;
-  width: 52%;
-  height: 150rpx;
+  width: 38%;
+  height: 110rpx;
   margin-top: auto;
 }
