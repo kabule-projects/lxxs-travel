@@ -1,4 +1,6 @@
 {
   "component": true,
-  "usingComponents": {}
+  "usingComponents": {
+    "redeem-modal": "/components/redeem-modal/redeem-modal"
+  }
 }

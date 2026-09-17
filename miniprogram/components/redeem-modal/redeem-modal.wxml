@@ -1,0 +1,32 @@
+<view class="rdm-root" wx:if="{{visible}}">
+  <view class="rdm-backdrop" catchtap="onClose">
+    <view class="rdm-panel" catchtap="onStop">
+      <image class="rdm-panel-bg" src="{{assets.panel}}" mode="widthFix" />
+
+      <!-- 输入槽位：贴图 929×294，槽位约 x52-877 / y86-165，按百分比对齐 -->
+      <view class="rdm-input-slot">
+        <image class="rdm-input-bg" src="{{assets.input}}" mode="widthFix" />
+        <input
+          class="rdm-input"
+          placeholder="请输入兑换码"
+          value="{{code}}"
+          maxlength="32"
+          bindinput="onInput"
+          confirm-type="done"
+          bindconfirm="onSubmit"
+        />
+      </view>
+
+      <view class="rdm-error" wx:if="{{errorMsg}}">{{errorMsg}}</view>
+
+      <image
+        class="rdm-confirm {{submitting ? 'rdm-confirm--disabled' : ''}}"
+        src="{{assets.confirm}}"
+        mode="widthFix"
+        catchtap="onSubmit"
+      />
+
+      <image class="rdm-close" src="{{assets.close}}" mode="widthFix" catchtap="onClose" />
+    </view>
+  </view>
+</view>

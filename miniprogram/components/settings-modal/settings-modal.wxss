@@ -121,3 +121,10 @@
   letter-spacing: 2rpx;
   margin-top: 4rpx;
 }
+
+/* 兑换码入口：贴图 819×99 长条按键（含文字），宽度占面板主要区域，高度随 widthFix */
+.sett-redeem-entry {
+  width: 72%;
+  display: block;
+  margin: 0 auto;
+}

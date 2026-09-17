@@ -38,6 +38,16 @@
           />
         </view>
 
+        <!-- 兑换码入口：贴图含文字，位于通知下方、用户ID上方 -->
+        <view class="sett-row">
+          <image
+            class="sett-redeem-entry"
+            src="{{assets.redeemEntry}}"
+            mode="widthFix"
+            catchtap="onOpenRedeem"
+          />
+        </view>
+
         <!-- id bar：贴图即整条 bar，文字叠在贴图居中区 -->
         <view class="sett-user-bar">
           <image class="sett-user-bar-bg" src="{{assets.userIdBar}}" mode="widthFix" />
@@ -51,4 +61,6 @@
       </view>
     </view>
   </view>
+
+  <redeem-modal visible="{{showRedeem}}" bind:close="onCloseRedeem" />
 </view>

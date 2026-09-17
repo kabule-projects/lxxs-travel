@@ -1,0 +1,6 @@
+{
+  "component": true,
+  "usingComponents": {
+    "icon-close": "/components/icon-close/icon-close"
+  }
+}

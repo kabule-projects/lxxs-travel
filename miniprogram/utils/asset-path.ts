@@ -219,6 +219,16 @@ export const SETTINGS_ASSETS = {
   notifyOnUnsel: 'settings/notification-on-us',
   notifyOffSel: 'settings/notification-off-selected',
   notifyOffUnsel: 'settings/notification-off-us',
+  /** 兑换码入口按键（贴图含文字） */
+  redeemEntry: 'settings/redeem-entry',
+} as const;
+
+/** 兑换弹窗切图：底含"请输入兑换码"标题与输入槽位，文字已烘焙 */
+export const REDEEM_ASSETS = {
+  panel: 'redeem/panel',
+  input: 'redeem/input',
+  confirm: 'redeem/confirm',
+  close: 'redeem/close',
 } as const;
 
 export const HOME_IDLE_ASSETS: Record<(typeof GAME.IDLE_POSES)[number], string> = {

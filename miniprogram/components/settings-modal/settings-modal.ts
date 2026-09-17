@@ -27,6 +27,7 @@ Component({
     /** 通知开关：本地持久化 + 订阅消息授权（见 services/notify） */
     notifyEnabled: getNotifyEnabled(),
     userId: '',
+    showRedeem: false,
     appVersion: GAME.APP_VERSION,
     assets: {
       panel: '',
@@ -37,6 +38,7 @@ Component({
       notifyOnUnsel: '',
       notifyOffSel: '',
       notifyOffUnsel: '',
+      redeemEntry: '',
     },
   },
 
@@ -57,6 +59,15 @@ Component({
 
   methods: {
     onStop() {},
+
+    onOpenRedeem() {
+      playTap();
+      this.setData({ showRedeem: true });
+    },
+
+    onCloseRedeem() {
+      this.setData({ showRedeem: false });
+    },
 
     onClose() {
       this.triggerEvent('close');

@@ -91,6 +91,15 @@ declare namespace WechatMiniprogram {
     enableAlertBeforeUnload?(options: { message: string }): void;
     disableAlertBeforeUnload?(): void;
     showToast(options: { title: string; icon?: string }): void;
+    showModal(options: {
+      title?: string;
+      content?: string;
+      showCancel?: boolean;
+      cancelText?: string;
+      confirmText?: string;
+      success?: (res: { confirm: boolean; cancel: boolean }) => void;
+      fail?: (err: unknown) => void;
+    }): void;
     showLoading(options: { title?: string; mask?: boolean }): void;
     hideLoading(): void;
     /** 订阅消息授权结果：各模板 id → accept / reject / ban 等 */
@@ -137,6 +146,7 @@ declare function clearInterval(id: number): void;
 
 declare function App<T extends WechatMiniprogram.IAnyObject>(options: T): void;
 declare function Page<T extends WechatMiniprogram.IAnyObject>(options: T): void;
+declare function Component<T extends WechatMiniprogram.IAnyObject>(options: T): void;
 declare function getApp<T extends WechatMiniprogram.IAnyObject>(): T;
 
 declare namespace WechatMiniprogram {
