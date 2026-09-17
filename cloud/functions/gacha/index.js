@@ -152,6 +152,8 @@ async function draw(openid, count, requestId) {
 
   const user = await getUser(openid);
   if (!user) return fail('用户不存在', 'NOT_FOUND');
+  // 教学模式由服务端按完成标志判定（未完成指引前抽奖即教学抽奖），不信任客户端入参
+  const guideMode = !user.guideCompletedAt;
 
   const totalCost = GACHA_COST * safeCount;
   const stars = user.stars || 0;
@@ -207,11 +209,12 @@ async function draw(openid, count, requestId) {
           rarity: r.rarity,
           firstObtainedAt: now,
           count: 1,
+          ...(guideMode ? { guide: true } : {}),
         },
       });
     }
     /** 扭蛋产出即背包道具：非消耗品，入 user_inventory 供背包携带 */
-    await addInventory(db, _, openid, r.gachaId, 1);
+    await addInventory(db, _, openid, r.gachaId, 1, guideMode ? { guide: true } : {});
   }
 
   const result = {

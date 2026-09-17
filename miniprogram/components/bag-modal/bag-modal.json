@@ -1,7 +1,9 @@
 {
   "component": true,
+  "styleIsolation": "apply-shared",
   "usingComponents": {
     "inventory-picker": "/components/inventory-picker/inventory-picker",
-    "icon-close": "/components/icon-close/icon-close"
+    "icon-close": "/components/icon-close/icon-close",
+    "guide-overlay": "/components/guide-overlay/guide-overlay"
   }
 }

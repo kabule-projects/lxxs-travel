@@ -1,6 +1,8 @@
 {
   "component": true,
+  "styleIsolation": "apply-shared",
   "usingComponents": {
-    "icon-close": "/components/icon-close/icon-close"
+    "icon-close": "/components/icon-close/icon-close",
+    "guide-overlay": "/components/guide-overlay/guide-overlay"
   }
 }

@@ -20,6 +20,7 @@ export interface UserProfile {
   pitySSR: number;
   pityUR: number;
   currentTripId?: string;
+  guideCompletedAt?: number | null;
   lastSpawnAt: number;
   nextSpawnAt: number;
   createdAt: number;
@@ -74,6 +75,11 @@ export async function call<T>(
 
 export async function login(): Promise<UserProfile> {
   return call<UserProfile>('login', { action: 'session' });
+}
+
+/** 新手指引完成（真实出发成功）回写，云端幂等 */
+export async function completeGuideApi(): Promise<{ guideCompletedAt: number }> {
+  return call<{ guideCompletedAt: number }>('login', { action: 'completeGuide' });
 }
 
 export async function ping(name: string): Promise<{ service: string; ts: number }> {

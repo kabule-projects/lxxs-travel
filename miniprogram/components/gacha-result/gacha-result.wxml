@@ -1,7 +1,7 @@
 <view class="gr-mask" wx:if="{{visible}}" catchtap="onClose">
   <view class="gr-panel" catchtap="onStop">
-    <image class="gr-panel-bg" src="{{panelBg}}" mode="scaleToFill" />
-    <icon-close class="gr-close" src="{{iconClose}}" size="{{64}}" bind:close="onClose" />
+    <image class="gr-panel-bg" src="{{panelBg}}" mode="aspectFill" />
+    <icon-close wx:if="{{!guideActive}}" class="gr-close" src="{{iconClose}}" size="{{64}}" bind:close="onClose" />
 
     <view wx:if="{{single}}" class="gr-single">
       <view
@@ -47,6 +47,15 @@
       </view>
     </view>
 
-    <image class="gr-confirm-img" src="{{btnConfirm}}" mode="widthFix" catchtap="onConfirm" />
+    <image class="gr-confirm-img guide-anchor-confirm" src="{{btnConfirm}}" mode="widthFix" catchtap="onConfirm" />
   </view>
+
+  <!-- 新手指引：强制确认（关闭按钮已隐藏，点遮罩暗区也不关闭） -->
+  <guide-overlay
+    visible="{{guideVisible}}"
+    holes="{{guideHoles}}"
+    hit-rect="{{guideHit}}"
+    text="{{guideText}}"
+    bind:blocked="onGuideBlocked"
+  />
 </view>

@@ -101,6 +101,8 @@ async function purchase(openid, itemId, requestId) {
 
   const user = await getUser(openid);
   if (!user) return fail('用户不存在', 'NOT_FOUND');
+  // 教学模式由服务端按完成标志判定（未完成指引前购买即教学购买），不信任客户端入参
+  const guideMode = !user.guideCompletedAt;
 
   const itemRes = await db
     .collection('items')
@@ -114,35 +116,40 @@ async function purchase(openid, itemId, requestId) {
   if (!(price >= 0)) return fail('价格无效', 'VALIDATION');
 
   const dayKey = businessDayKey();
-  // 先查再插存在并发空窗（两个请求同时过检查、同时插入），
+  // 教学购买不占用每日限购额度：不写 daily_purchases（星星照扣、库存照加）。
+  // 正式购买先查再插存在并发空窗（两个请求同时过检查、同时插入），
   // 唯一索引 userId+itemId+dayKey 才是可靠的并发闸：先插购买记录，撞唯一索引即今日已购
-  try {
-    await db.collection('daily_purchases').add({
-      data: {
-        userId: openid,
-        itemId,
-        dayKey,
-        price,
-        createdAt: Date.now(),
-      },
-    });
-  } catch (e) {
-    if (String((e && e.message) || e).includes('E11000')) {
-      return fail('今日已购买该商品', 'DAILY_LIMIT');
+  if (!guideMode) {
+    try {
+      await db.collection('daily_purchases').add({
+        data: {
+          userId: openid,
+          itemId,
+          dayKey,
+          price,
+          createdAt: Date.now(),
+        },
+      });
+    } catch (e) {
+      if (String((e && e.message) || e).includes('E11000')) {
+        return fail('今日已购买该商品', 'DAILY_LIMIT');
+      }
+      throw e;
     }
-    throw e;
   }
 
   const stars = user.stars || 0;
   if (stars < price) {
-    // 星星不足：回滚已插入的购买记录，避免占位导致今天无法再购买
-    try {
-      await db
-        .collection('daily_purchases')
-        .where({ userId: openid, itemId, dayKey })
-        .remove();
-    } catch {
-      /* 回滚失败不覆盖主错误 */
+    if (!guideMode) {
+      // 星星不足：回滚已插入的购买记录，避免占位导致今天无法再购买
+      try {
+        await db
+          .collection('daily_purchases')
+          .where({ userId: openid, itemId, dayKey })
+          .remove();
+      } catch {
+        /* 回滚失败不覆盖主错误 */
+      }
     }
     return fail('星星不足', 'INSUFFICIENT_STARS');
   }
@@ -160,7 +167,11 @@ async function purchase(openid, itemId, requestId) {
       .get();
     if (invRes.data.length) {
       await db.collection('user_inventory').doc(invRes.data[0]._id).update({
-        data: { count: _.inc(1), updatedAt: Date.now() },
+        data: {
+          count: _.inc(1),
+          updatedAt: Date.now(),
+          ...(guideMode ? { guide: true } : {}),
+        },
       });
     } else {
       await db.collection('user_inventory').add({
@@ -170,16 +181,19 @@ async function purchase(openid, itemId, requestId) {
           count: 1,
           createdAt: Date.now(),
           updatedAt: Date.now(),
+          ...(guideMode ? { guide: true } : {}),
         },
       });
     }
   } catch (e) {
-    // 扣款/入库失败：回滚购买记录与已扣星星，失败不覆盖主错误
+    // 扣款/入库失败：回滚已扣星星（教学模式无购买记录，只回滚余额），失败不覆盖主错误
     try {
-      await db
-        .collection('daily_purchases')
-        .where({ userId: openid, itemId, dayKey })
-        .remove();
+      if (!guideMode) {
+        await db
+          .collection('daily_purchases')
+          .where({ userId: openid, itemId, dayKey })
+          .remove();
+      }
       await db.collection('users').doc(user._id).update({
         data: { stars: stars },
       });

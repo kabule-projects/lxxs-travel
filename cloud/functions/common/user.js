@@ -26,6 +26,7 @@ function mapUserPublic(user) {
     pitySSR: user.pitySSR || 0,
     pityUR: user.pityUR || 0,
     currentTripId: user.currentTripId || null,
+    guideCompletedAt: user.guideCompletedAt || null,
     lastSpawnAt: user.lastSpawnAt || 0,
     nextSpawnAt: user.nextSpawnAt || 0,
     createdAt: user.createdAt || 0,

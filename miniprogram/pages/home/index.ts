@@ -17,6 +17,13 @@ import {
   clearTripBannerTimer,
   dismissReturnBanner,
 } from '../../services/trip-return';
+import * as guide from '../../services/guide';
+import {
+  refreshGuideHost,
+  notifyGuideBlocked,
+  setGuideBackGuard,
+} from '../../utils/guide-page';
+import type { GuideHole } from '../../components/guide-overlay/guide-overlay';
 
 type HomeAssets = Record<keyof typeof HOME_ASSETS, string>;
 
@@ -55,6 +62,11 @@ Page({
     catSrc: '',
     catStyle: '',
     catShow: false,
+    /** 新手指引遮罩 */
+    guideVisible: false,
+    guideHoles: [] as GuideHole[],
+    guideHit: null as { x: number; y: number; w: number; h: number } | null,
+    guideText: '',
   },
 
   _catTimer: 0 as number,
@@ -71,6 +83,10 @@ Page({
   _bannerTripId: null as string | null,
   /** 进入其他页面的预载/跳转进行中，防止连点堆叠 */
   _entering: false as boolean,
+  _offGuide: null as (() => void) | null,
+  _guideStep: '' as string,
+  _guideTimer: 0 as number,
+  _guideBlockedAt: 0 as number,
 
   onLoad() {
     const safe = readSafeArea();
@@ -85,6 +101,9 @@ Page({
     });
     this.loadAssets();
     this.bindEvents();
+    this._offGuide = guide.onChange(() => {
+      this.refreshGuide();
+    });
   },
 
   onUnload() {
@@ -93,6 +112,9 @@ Page({
     this._offStars?.();
     this._offReturned?.();
     this._offStarted?.();
+    this._offGuide?.();
+    if (this._guideTimer) clearTimeout(this._guideTimer);
+    setGuideBackGuard(false);
     clearTripBannerTimer();
     stopReturnWatch();
     this.stopCat();
@@ -103,6 +125,23 @@ Page({
     this.syncWallet();
     this.syncTripState();
     this.startCat();
+    this.healGuideBag();
+    // reLaunch 回小屋或首次落地：若指引进行到背包步则显示遮罩
+    this.refreshGuide();
+  },
+
+  /** 自愈：指引已在背包/picker 阶段但背包未开（异常回到小屋时），回到对应背包步并重新打开背包 */
+  healGuideBag() {
+    if (!guide.isActive() || this.data.showBag) return;
+    if (guide.isStep('bag-food', 'picker-food')) {
+      guide.advance('bag-food');
+      this.setData({ showBag: true });
+    } else if (guide.isStep('bag-prop', 'picker-prop')) {
+      guide.advance('bag-prop');
+      this.setData({ showBag: true });
+    } else if (guide.isStep('bag-depart')) {
+      this.setData({ showBag: true });
+    }
   },
 
   onHide() {
@@ -260,6 +299,14 @@ Page({
   },
 
   onTapBag() {
+    // 指引背包步：打开背包并推进到携带食物步（bag-modal 内部遮罩接管）
+    if (guide.isStep('home-bag')) {
+      playTap();
+      this.setData({ showBag: true });
+      guide.advance('bag-food');
+      return;
+    }
+    if (guide.isActive()) return;
     playTap();
     if (isTraveling()) {
       wx.showToast({ title: '小深出门旅行了', icon: 'none' });
@@ -269,6 +316,7 @@ Page({
   },
 
   onTapItems() {
+    if (guide.isActive()) return;
     playTap();
     this.setData({ showInv: true });
   },
@@ -282,15 +330,22 @@ Page({
   },
 
   onTapPrepare() {
+    // 指引中直接交由 onTapBag 判定（避免音效重复与被拦截态）
+    if (guide.isActive()) {
+      this.onTapBag();
+      return;
+    }
     playTap();
     this.onTapBag();
   },
 
   onCloseBag() {
+    if (guide.isActive()) return;
     this.setData({ showBag: false });
   },
 
   onTapSettings() {
+    if (guide.isActive()) return;
     playTap();
     this.setData({ showSettings: true });
   },
@@ -308,6 +363,10 @@ Page({
       await startTrip(loadout);
       this.setData({ showBag: false });
       setLocalTraveling(true);
+      // 真实出发成功：新手指引全部完成（本地落标志 + 云端幂等回写）
+      if (guide.isStep('bag-depart')) {
+        await guide.complete();
+      }
       emit(GameEvent.CHARACTER_HIDDEN);
     } catch (err) {
       wx.showToast({
@@ -318,16 +377,19 @@ Page({
   },
 
   onTapShop() {
+    if (guide.isActive()) return;
     playTap();
     this.enterAfterPreload('/pages/shop/index', Object.values(SHOP_ASSETS));
   },
 
   onTapGacha() {
+    if (guide.isActive()) return;
     playTap();
     navigateTo('/pages/gacha/index');
   },
 
   onTapShowcase() {
+    if (guide.isActive()) return;
     playSfx('showcase_open');
     this.enterAfterPreload('/pages/showcase/index', Object.values(SHOWCASE_ASSETS));
   },
@@ -351,6 +413,7 @@ Page({
 
   /** 点击窗户 → 进入屋顶页 */
   onTapWindow() {
+    if (guide.isActive()) return;
     playSfx('window');
     navigateTo('/pages/roof/index');
   },
@@ -359,7 +422,19 @@ Page({
   // onTapWardrobe() {}
 
   onTapDiary() {
+    if (guide.isActive()) return;
     playSfx('diary_open');
     navigateTo('/pages/diary/index');
+  },
+
+  /** 新手指引：按当前步骤刷新遮罩与开孔（home 宿主，仅 home-bag 步；bag/picker 步遮罩在组件内） */
+  refreshGuide() {
+    refreshGuideHost('home', this);
+    // 背包/picker 弹层也在 home 页之上，指引全程都需拦截系统返回
+    setGuideBackGuard(guide.isActive());
+  },
+
+  onGuideBlocked() {
+    notifyGuideBlocked(this);
   },
 });

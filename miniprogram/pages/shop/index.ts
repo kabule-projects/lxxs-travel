@@ -11,6 +11,14 @@ import {
   purchaseShop,
   type ShopItemView,
 } from '../../services/shop';
+import * as guide from '../../services/guide';
+import {
+  refreshGuideHost,
+  measureGuideHost,
+  notifyGuideBlocked,
+  setGuideBackGuard,
+} from '../../utils/guide-page';
+import type { GuideHole } from '../../components/guide-overlay/guide-overlay';
 
 type ShopAssets = Record<keyof typeof SHOP_ASSETS, string>;
 
@@ -48,9 +56,18 @@ Page({
     selectedDesc: '',
     buyEnabled: false,
     buying: false,
+    /** 新手指引遮罩 */
+    guideVisible: false,
+    guideHoles: [] as GuideHole[],
+    guideHit: null as { x: number; y: number; w: number; h: number } | null,
+    guideText: '',
   },
 
   _allItems: [] as ShopItemView[],
+  _offGuide: null as (() => void) | null,
+  _guideStep: '' as string,
+  _guideTimer: 0 as number,
+  _guideBlockedAt: 0 as number,
 
   onLoad() {
     const safe = readSafeArea();
@@ -70,11 +87,27 @@ Page({
     });
     this.loadAssets();
     this.reloadList();
+    this._offGuide = guide.onChange(() => {
+      this.refreshGuide();
+    });
   },
 
   onShow() {
     playBgm('room');
     this.setData({ stars: getStars(), riceStars: getRiceStars() });
+    // 从屋顶进入：屋顶放行商店后由商店承接为选物步骤
+    if (guide.isStep('roof-to-shop')) guide.advance('shop-select');
+    // 自愈：指引已到扭蛋阶段却回到商店（系统返回弹窗选了离开），自动带回扭蛋
+    if (guide.isStep('gacha-draw', 'gacha-result')) {
+      navigateTo('/pages/gacha/index');
+    }
+    this.refreshGuide();
+  },
+
+  onUnload() {
+    this._offGuide?.();
+    if (this._guideTimer) clearTimeout(this._guideTimer);
+    setGuideBackGuard(false);
   },
 
   async loadAssets() {
@@ -130,7 +163,9 @@ Page({
 
   async reloadList(preferPage = 0) {
     try {
-      const res = await listShop();
+      // 必须强制刷新：loading 阶段 prefetchShop 的缓存里带着进店前的旧余额，
+      // 新手指引中屋顶刚捡的星星会被缓存的 0 星回写覆盖，导致买不起土豆卡死流程
+      const res = await listShop(true);
       setStars(res.stars);
       this._allItems = res.items || [];
       const built = this.buildPages(this._allItems, preferPage);
@@ -143,6 +178,10 @@ Page({
       const selected =
         this._allItems.find((i) => i.id === this.data.selectedId) || null;
       this.applySelection(selected);
+      // 列表渲染后重测指引开孔（第一格依赖列表数据）
+      wx.nextTick(() => {
+        void measureGuideHost('shop', this);
+      });
     } catch (e) {
       wx.showToast({
         title: (e as Error).message || '商店加载失败',
@@ -152,16 +191,20 @@ Page({
   },
 
   onTapBack() {
+    if (guide.isActive()) return;
     playTap();
     navigateBack('/pages/home/index');
   },
 
   onTapGacha() {
+    // 指引中仅扭蛋入口步骤放行
+    if (guide.isActive() && !guide.isStep('shop-to-gacha')) return;
     playTap();
     navigateTo('/pages/gacha/index');
   },
 
   onTapSettings() {
+    if (guide.isActive()) return;
     playTap();
     this.setData({ showSettings: true });
   },
@@ -171,6 +214,7 @@ Page({
   },
 
   onTapBag() {
+    if (guide.isActive()) return;
     playTap();
     this.setData({ showInv: true });
   },
@@ -181,18 +225,35 @@ Page({
 
   onSwiperChange(e: WechatMiniprogram.CustomEvent) {
     const current = (e.detail as { current?: number }).current || 0;
+    // 指引中禁止翻页，弹回第一页
+    if (guide.isActive() && current !== 0) {
+      this.setData({ pageIndex: 0 });
+      return;
+    }
     this.setData({ pageIndex: current });
   },
 
   onTapItem(e: WechatMiniprogram.TouchEvent) {
-    playTap();
     const id = e.currentTarget.dataset.id as string;
     if (!id) return;
+    // 指引选物步：仅列表第一件（云端为 potato，本地兜底为种子首件）可点
+    if (guide.isStep('shop-select')) {
+      const anchorId = this._allItems[0]?.id;
+      if (id !== anchorId) return;
+      playTap();
+      const item = this._allItems.find((i: ShopItemView) => i.id === id) || null;
+      this.applySelection(item);
+      guide.advance('shop-buy');
+      return;
+    }
+    if (guide.isActive()) return;
+    playTap();
     const item = this._allItems.find((i) => i.id === id) || null;
     this.applySelection(item);
   },
 
   async onTapBuy() {
+    if (guide.isActive() && !guide.isStep('shop-buy')) return;
     if (!this.data.buyEnabled || this.data.buying || !this.data.selectedId) {
       return;
     }
@@ -216,6 +277,8 @@ Page({
       const selected = updated.find((i) => i.id === res.itemId) || null;
       this.applySelection(selected);
       wx.showToast({ title: '购买成功', icon: 'success' });
+      // 指引购买成功：引导去扭蛋
+      if (guide.isStep('shop-buy')) guide.advance('shop-to-gacha');
     } catch (e) {
       this.setData({ buying: false });
       wx.showToast({
@@ -223,5 +286,16 @@ Page({
         icon: 'none',
       });
     }
+  },
+
+  /** 新手指引：按当前步骤刷新遮罩与开孔（shop 宿主） */
+  refreshGuide() {
+    refreshGuideHost('shop', this);
+    setGuideBackGuard(guide.isHost('shop'));
+  },
+
+  /** 遮罩暗区被点击：节流提示 */
+  onGuideBlocked() {
+    notifyGuideBlocked(this);
   },
 });

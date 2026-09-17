@@ -1,6 +1,7 @@
 <view class="bag-mask" wx:if="{{visible}}" catchtap="onClose">
   <view class="bag-wrap" catchtap="onStop">
     <icon-close
+      wx:if="{{!guideActive}}"
       class="bag-close"
       src="{{iconClose}}"
       size="{{64}}"
@@ -82,5 +83,14 @@
     lock-tab="{{pickerLock}}"
     bind:close="onPickerClose"
     bind:select="onPickerSelect"
+  />
+
+  <!-- 新手指引：装食物 / 装道具 / 出发 三步的强制遮罩（picker 步由选择器内部遮罩接管） -->
+  <guide-overlay
+    visible="{{guideVisible}}"
+    holes="{{guideHoles}}"
+    hit-rect="{{guideHit}}"
+    text="{{guideText}}"
+    bind:blocked="onGuideBlocked"
   />
 </view>

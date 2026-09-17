@@ -7,6 +7,7 @@
     "inventory-picker": "/components/inventory-picker/inventory-picker",
     "mail-box-modal": "/components/mail-box-modal/mail-box-modal",
     "trip-banner": "/components/trip-banner/trip-banner",
-    "settings-modal": "/components/settings-modal/settings-modal"
+    "settings-modal": "/components/settings-modal/settings-modal",
+    "guide-overlay": "/components/guide-overlay/guide-overlay"
   }
 }

@@ -1,0 +1,122 @@
+.go-root {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  /* 根节点自身不吞触摸：只有遮挡条/全屏层接管事件，开孔处点击直接落到下层 UI */
+  pointer-events: none;
+}
+
+/* 测量完成前的全屏阻挡 */
+.go-full {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: auto;
+}
+
+/* 四块遮挡条（左右条内联覆盖 width；上下条依赖默认 100% 宽，必须显式给宽，否则塌成 0） */
+.go-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: auto;
+}
+
+/* 开孔：白边 + 外圈巨型阴影形成暗色罩；不接收触摸，放行原 UI */
+.go-hole {
+  position: absolute;
+  box-sizing: border-box;
+  border: 4rpx solid #ffffff;
+  box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.go-pulse {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  border: 4rpx solid rgba(255, 255, 255, 0.9);
+  animation: go-pulse 2.0s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes go-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  90% {
+    transform: scale(1.14);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.14);
+    opacity: 0;
+  }
+}
+
+.go-hole--shake {
+  animation: go-shake 0.32s ease;
+}
+
+@keyframes go-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6rpx);
+  }
+  50% {
+    transform: translateX(6rpx);
+  }
+  75% {
+    transform: translateX(-4rpx);
+  }
+}
+
+/* 文字气泡 */
+.go-bubble {
+  position: absolute;
+  box-sizing: border-box;
+  background: rgba(38, 26, 18, 0.96);
+  border-radius: 18rpx;
+  padding: 20rpx 26rpx;
+  pointer-events: none;
+}
+
+.go-bubble-text {
+  color: #ffffff;
+  font-size: 28rpx;
+  line-height: 1.55;
+  letter-spacing: 1rpx;
+}
+
+.go-bubble-arrow {
+  position: absolute;
+  width: 20rpx;
+  height: 20rpx;
+  background: rgba(38, 26, 18, 0.96);
+}
+
+/* 气泡在开孔下方：小三角朝上 */
+.go-bubble--below .go-bubble-arrow {
+  top: -9rpx;
+  transform: rotate(45deg);
+}
+
+/* 气泡在开孔上方：小三角朝下 */
+.go-bubble--above .go-bubble-arrow {
+  bottom: -9rpx;
+  transform: rotate(45deg);
+}

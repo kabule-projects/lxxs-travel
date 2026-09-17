@@ -36,7 +36,7 @@
       mode="aspectFit"
       bindload="onAnimLoad"
     />
-    <view class="machine-btn machine-btn--1" data-count="1" catchtap="onTapDraw" />
+    <view class="machine-btn machine-btn--1 guide-anchor-draw1" data-count="1" catchtap="onTapDraw" />
     <view class="machine-btn machine-btn--5" data-count="5" catchtap="onTapDraw" />
   </view>
 
@@ -53,6 +53,15 @@
 
   <view wx:if="{{spinning}}" class="spin-overlay" catchtap="onTapSkipSpin"></view>
   <view wx:if="{{spinning}}" class="spin-hint">点击屏幕跳过动画</view>
+
+  <!-- 新手指引强制遮罩（gacha-draw 步；gacha-result 步由结果弹窗内部遮罩接管） -->
+  <guide-overlay
+    visible="{{guideVisible}}"
+    holes="{{guideHoles}}"
+    hit-rect="{{guideHit}}"
+    text="{{guideText}}"
+    bind:blocked="onGuideBlocked"
+  />
 
   <gacha-result
     visible="{{showResult}}"

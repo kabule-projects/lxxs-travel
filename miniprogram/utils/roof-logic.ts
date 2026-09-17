@@ -12,6 +12,8 @@ export interface RoofStarView {
   x: number;
   y: number;
   rotate: number;
+  /** 新手指引播种的教学星 */
+  guide?: boolean;
   spawnAt: number;
   dropAt: number;
   remainText: string;

@@ -1,24 +1,31 @@
 <view class="roof">
   <image class="layer layer-bg" src="{{bgSrc}}" mode="widthFix" />
 
-  <!-- 星星：单一列表，空中倒计时 / 落下后堆在鸽子左下 -->
+  <!-- 星星：单一列表，空中倒计时 / 落下后堆在鸽子左下。
+       外包普通 view（guide-star-wrap）承载定位与指引测量类：
+       自定义组件宿主节点可能 0×0 量不到，普通 view 几何稳定可靠 -->
   <view class="sky-layer">
-    <star-item
+    <view
       wx:for="{{starItems}}"
       wx:key="id"
-      starId="{{item.id}}"
-      kind="{{item.status === 'pending' ? 'pending' : 'dropped'}}"
-      type="{{item.type}}"
-      src="{{item.type === 'rice' ? assets.starRice : assets.star}}"
-      glowSrc="{{assets.starGlow}}"
-      glowDelay="{{-index * 0.4}}"
-      left="{{item.displayLeft}}"
-      top="{{item.displayTop}}"
-      rotate="{{item.status === 'pending' ? 0 : item.rotate}}"
-      zIndex="{{item.status === 'pending' ? 4 : 5}}"
-      remainText="{{item.remainText}}"
-      bind:collect="onCollectStar"
-    />
+      class="guide-star-wrap {{item.status === 'dropped' ? 'guide-star--dropped' : ''}}"
+      style="left:{{item.displayLeft}}%;top:{{item.displayTop}}%;z-index:{{item.status === 'pending' ? 4 : 5}};"
+    >
+      <star-item
+        starId="{{item.id}}"
+        kind="{{item.status === 'pending' ? 'pending' : 'dropped'}}"
+        type="{{item.type}}"
+        src="{{item.type === 'rice' ? assets.starRice : assets.star}}"
+        glowSrc="{{assets.starGlow}}"
+        glowDelay="{{-index * 0.4}}"
+        left="{{0}}"
+        top="{{0}}"
+        rotate="{{item.status === 'pending' ? 0 : item.rotate}}"
+        zIndex="{{item.status === 'pending' ? 4 : 5}}"
+        remainText="{{item.remainText}}"
+        bind:collect="onCollectStar"
+      />
+    </view>
   </view>
 
   <!-- 屋顶底部角色装饰 -->
@@ -95,7 +102,13 @@
       />
     </view>
     <view class="footer-right">
-      <nav-icon src="{{assets.iconShop}}" label="商店" size="md" bind:tap="onTapShop" />
+      <nav-icon
+        class="guide-anchor-shop"
+        src="{{assets.iconShop}}"
+        label="商店"
+        size="md"
+        bind:tap="onTapShop"
+      />
       <nav-icon src="{{assets.iconHome}}" label="小屋" size="md" bind:tap="onTapHome" />
     </view>
   </view>
@@ -120,4 +133,13 @@
     bind:claim="onClaimMail"
   />
   <settings-modal visible="{{showSettings}}" bind:close="onCloseSettings" />
+
+  <!-- 新手指引强制遮罩（开孔外不可点） -->
+  <guide-overlay
+    visible="{{guideVisible}}"
+    holes="{{guideHoles}}"
+    hit-rect="{{guideHit}}"
+    text="{{guideText}}"
+    bind:blocked="onGuideBlocked"
+  />
 </view>

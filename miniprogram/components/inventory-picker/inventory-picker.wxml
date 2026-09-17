@@ -1,7 +1,7 @@
 <view class="inv-mask" wx:if="{{visible}}" catchtap="onClose">
   <view class="inv-panel" catchtap="onStop">
     <image class="inv-panel-bg" src="{{panelBg}}" mode="widthFix" />
-    <icon-close class="inv-close" src="{{iconClose}}" size="{{64}}" bind:close="onClose" />
+    <icon-close wx:if="{{!guideActive}}" class="inv-close" src="{{iconClose}}" size="{{64}}" bind:close="onClose" />
 
     <view class="inv-content">
       <view class="inv-tabs" wx:if="{{!lockTab}}">
@@ -26,7 +26,7 @@
         <view
           wx:for="{{items}}"
           wx:key="id"
-          class="inv-card"
+          class="inv-card {{index === 0 ? 'guide-anchor-pick0' : ''}}"
           data-id="{{item.id}}"
           catchtap="onTapItem"
         >
@@ -58,4 +58,13 @@
       </scroll-view>
     </view>
   </view>
+
+  <!-- 新手指引：picker-food / picker-prop 步仅第一件可点 -->
+  <guide-overlay
+    visible="{{guideVisible}}"
+    holes="{{guideHoles}}"
+    hit-rect="{{guideHit}}"
+    text="{{guideText}}"
+    bind:blocked="onGuideBlocked"
+  />
 </view>

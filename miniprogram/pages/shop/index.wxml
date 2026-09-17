@@ -32,7 +32,7 @@
         current="{{pageIndex}}"
         bindchange="onSwiperChange"
       >
-        <swiper-item wx:for="{{pages}}" wx:for-item="page" wx:key="index">
+        <swiper-item wx:for="{{pages}}" wx:for-item="page" wx:for-index="pageIndexItem" wx:key="index">
           <view class="shelf-page">
             <view
               wx:for="{{page.shelves}}"
@@ -47,7 +47,7 @@
                   wx:for-item="goods"
                   wx:for-index="ci"
                   wx:key="ci"
-                  class="shelf-slot {{goods.empty ? 'shelf-slot--empty' : ''}} {{selectedId === goods.id ? 'shelf-slot--on' : ''}} {{goods.boughtToday ? 'shelf-slot--sold' : ''}}"
+                  class="shelf-slot {{goods.empty ? 'shelf-slot--empty' : ''}} {{selectedId === goods.id ? 'shelf-slot--on' : ''}} {{goods.boughtToday ? 'shelf-slot--sold' : ''}} {{pageIndexItem === 0 && si === 0 && ci === 0 ? 'guide-anchor-cell' : ''}}"
                   data-id="{{goods.id}}"
                   bindtap="onTapItem"
                 >
@@ -84,7 +84,7 @@
       </view>
 
       <image
-        class="buy-btn-img"
+        class="buy-btn-img guide-anchor-buy"
         src="{{buyEnabled ? assets.btnBuy : assets.btnBuyDisabled}}"
         mode="widthFix"
         bindtap="onTapBuy"
@@ -94,9 +94,23 @@
     <!-- 右侧底部侧键：背包 / 扭蛋（大小/位置同 home/roof 底部按钮：96rpx、距右 32rpx、纵向间距 20rpx） -->
     <view class="side-btns" style="right: 32rpx; bottom: {{footBottom}}px">
       <image class="side-btn" src="{{assets.sideBtnBag}}" mode="aspectFit" bindtap="onTapBag" />
-      <image class="side-btn" src="{{assets.sideBtnGacha}}" mode="aspectFit" bindtap="onTapGacha" />
+      <image
+        class="side-btn guide-anchor-gacha"
+        src="{{assets.sideBtnGacha}}"
+        mode="aspectFit"
+        bindtap="onTapGacha"
+      />
     </view>
   </view>
+
+  <!-- 新手指引强制遮罩 -->
+  <guide-overlay
+    visible="{{guideVisible}}"
+    holes="{{guideHoles}}"
+    hit-rect="{{guideHit}}"
+    text="{{guideText}}"
+    bind:blocked="onGuideBlocked"
+  />
 
   <inventory-picker
     visible="{{showInv}}"

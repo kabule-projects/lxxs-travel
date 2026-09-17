@@ -11,13 +11,13 @@ async function getInvDoc(db, userId, itemId) {
   return res.data[0] || null;
 }
 
-async function addInventory(db, _, userId, itemId, delta = 1) {
+async function addInventory(db, _, userId, itemId, delta = 1, extra = {}) {
   const cmd = _;
   const doc = await getInvDoc(db, userId, itemId);
   const now = Date.now();
   if (doc) {
     await db.collection('user_inventory').doc(doc._id).update({
-      data: { count: cmd.inc(delta), updatedAt: now },
+      data: { count: cmd.inc(delta), updatedAt: now, ...extra },
     });
     return { itemId, count: (doc.count || 0) + delta };
   }
@@ -28,6 +28,7 @@ async function addInventory(db, _, userId, itemId, delta = 1) {
       count: delta,
       createdAt: now,
       updatedAt: now,
+      ...extra,
     },
   });
   return { itemId, count: delta };

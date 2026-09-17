@@ -13,6 +13,13 @@ import {
   type GachaDrawItem,
   type GachaDrawResult,
 } from '../../services/gacha';
+import * as guide from '../../services/guide';
+import {
+  refreshGuideHost,
+  notifyGuideBlocked,
+  setGuideBackGuard,
+} from '../../utils/guide-page';
+import type { GuideHole } from '../../components/guide-overlay/guide-overlay';
 
 type GachaAssets = Record<keyof typeof GACHA_ASSETS, string>;
 
@@ -38,6 +45,11 @@ Page({
     drawResults: [] as GachaDrawItem[],
     catalog: [] as GachaCatalogItem[],
     showSettings: false,
+    /** 新手指引遮罩 */
+    guideVisible: false,
+    guideHoles: [] as GuideHole[],
+    guideHit: null as { x: number; y: number; w: number; h: number } | null,
+    guideText: '',
   },
 
   _spinTimer: 0 as number,
@@ -49,6 +61,10 @@ Page({
   /** 本次抽奖的进行中 Promise（与动图并行发起，动图播完/跳过时 await 它） */
   _drawPromise: null as Promise<GachaDrawResult> | null,
   _offStars: null as (() => void) | null,
+  _offGuide: null as (() => void) | null,
+  _guideStep: '' as string,
+  _guideTimer: 0 as number,
+  _guideBlockedAt: 0 as number,
 
   onLoad() {
     const safe = readSafeArea();
@@ -63,17 +79,30 @@ Page({
     this._offStars = on(GameEvent.STARS_UPDATED, () => {
       this.syncWallet();
     });
+    this._offGuide = guide.onChange(() => {
+      this.refreshGuide();
+    });
   },
 
   onShow() {
     playBgm('room');
     this.syncWallet();
+    // 从商店进入：商店放行扭蛋后承接为单抽步骤
+    if (guide.isStep('shop-to-gacha')) guide.advance('gacha-draw');
+    // 自愈：结果确认步却回到扭蛋页（如系统返回后页面重建，结果弹窗已不存在）→ 退回单抽步重来
+    if (guide.isStep('gacha-result') && !this.data.showResult) {
+      guide.advance('gacha-draw');
+    }
+    this.refreshGuide();
   },
 
   onUnload() {
     if (this._spinTimer) clearTimeout(this._spinTimer);
     if (this._animTimer) clearTimeout(this._animTimer);
     this._offStars?.();
+    this._offGuide?.();
+    if (this._guideTimer) clearTimeout(this._guideTimer);
+    setGuideBackGuard(false);
   },
 
   syncWallet() {
@@ -108,11 +137,13 @@ Page({
   },
 
   onTapBack() {
+    if (guide.isActive()) return;
     playTap();
     navigateBack('/pages/shop/index');
   },
 
   onTapSettings() {
+    if (guide.isActive()) return;
     playTap();
     this.setData({ showSettings: true });
   },
@@ -125,6 +156,8 @@ Page({
     if (this.data.spinning || this.data.showResult) return;
     const count = Number(e.currentTarget.dataset.count) as 1 | 5;
     if (count !== 1 && count !== 5) return;
+    // 指引单抽步：五连拒绝
+    if (guide.isActive() && !(guide.isStep('gacha-draw') && count === 1)) return;
     playSfx('gacha_coin');
     const { stars } = this.data;
     const cost = gachaCost(count);
@@ -171,6 +204,8 @@ Page({
     try {
       const res = await this._drawPromise;
       setStars(res.stars);
+      // 指引：先推进到结果确认步（页面遮罩隐藏，结果弹窗内部遮罩接管），再展示弹窗
+      if (guide.isStep('gacha-draw')) guide.advance('gacha-result');
       // 动图播完：移除动图层，静态图本就常驻（恢复可见），衔接奖品弹窗
       playSfx('gacha_result');
       this.setData({
@@ -199,15 +234,23 @@ Page({
   },
 
   onCloseResult() {
+    if (guide.isActive()) return;
     this.setData({ showResult: false, drawResults: [] });
   },
 
   onConfirmResult() {
     playTap();
     this.setData({ showResult: false, drawResults: [] });
+    // 指引确认奖品：回 home 继续背包教学
+    if (guide.isStep('gacha-result')) {
+      setGuideBackGuard(false);
+      guide.advance('home-bag');
+      wx.reLaunch({ url: '/pages/home/index' });
+    }
   },
 
   async onTapPrizes() {
+    if (guide.isActive()) return;
     playTap();
     await this.reloadCatalog();
     this.setData({ showPrizes: true });
@@ -215,5 +258,21 @@ Page({
 
   onClosePrizes() {
     this.setData({ showPrizes: false });
+  },
+
+  /** 新手指引：gacha-draw 步由页面遮罩负责，gacha-result 步交给结果弹窗内部遮罩 */
+  refreshGuide() {
+    if (guide.isStep('gacha-result')) {
+      if (this.data.guideVisible) this.setData({ guideVisible: false });
+      // 结果步仍需拦截系统返回（弹窗组件内遮罩不负责页面返回）
+      setGuideBackGuard(true);
+      return;
+    }
+    refreshGuideHost('gacha', this);
+    setGuideBackGuard(guide.isHost('gacha'));
+  },
+
+  onGuideBlocked() {
+    notifyGuideBlocked(this);
   },
 });

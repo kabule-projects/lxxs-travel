@@ -1,7 +1,15 @@
 import { ROOF_SCENE_ASSETS, ROOF_ASSETS, SHOP_ASSETS } from '../../utils/asset-path';
 import { resolveAsset, resolveAssetMap } from '../../utils/resolve-assets';
 import { readSafeArea, readCapsuleRect } from '../../utils/device';
-import { getRiceStars, getStars, setRiceStars, setStars, isTraveling } from '../../store/user';
+import { getProfile, getRiceStars, getStars, setRiceStars, setStars, isTraveling } from '../../store/user';
+import * as guide from '../../services/guide';
+import {
+  refreshGuideHost,
+  measureGuideHost,
+  notifyGuideBlocked,
+  setGuideBackGuard,
+} from '../../utils/guide-page';
+import type { GuideHole } from '../../components/guide-overlay/guide-overlay';
 import { playSfx, playTap, playBgm } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
 import { collectRoofStar, syncRoof } from '../../services/roof';
@@ -59,6 +67,11 @@ Page({
     mailFull: false,
     showTravelBanner: false,
     travelBannerMode: 'depart' as 'depart' | 'return',
+    /** 新手指引遮罩 */
+    guideVisible: false,
+    guideHoles: [] as GuideHole[],
+    guideHit: null as { x: number; y: number; w: number; h: number } | null,
+    guideText: '',
   },
 
   _tick: 0 as number,
@@ -73,6 +86,18 @@ Page({
   _bannerTripId: null as string | null,
   /** 进入商店的预载/跳转进行中，防止连点堆叠 */
   _entering: false as boolean,
+  /** 新手指引状态订阅退订函数 */
+  _offGuide: null as (() => void) | null,
+  /** sync 返回的未收取教学星数量 */
+  _guideDropped: 0,
+  /** 本次指引会话中已真实拾取的教学星数（捡满 9 颗才允许离开 roof-stars 步） */
+  _guideCollected: 0,
+  /** 教学星总数：8 普通 + 1 米（与云端/本地播种口径一致） */
+  _guideTotal: 9,
+  /** 上一次渲染的指引步骤，步骤切换时先全屏阻挡再重测，防旧孔闪现 */
+  _guideStep: '' as string,
+  _guideTimer: 0 as number,
+  _guideBlockedAt: 0 as number,
 
   onLoad() {
     const safe = readSafeArea();
@@ -85,6 +110,9 @@ Page({
     });
     this.loadAssets();
     this.bindTripEvents();
+    this._offGuide = guide.onChange(() => {
+      this.refreshGuide();
+    });
   },
 
   bindTripEvents() {
@@ -159,6 +187,17 @@ Page({
 
   onShow() {
     playBgm('roof');
+    // 未完成指引的用户冷启动落到屋顶即激活，固定从首步开始
+    if (guide.initFromProfile(getProfile())) {
+      guide.start();
+    }
+    // 自愈：指引已进行到商店阶段却回到屋顶（用户在系统返回弹窗选了离开），自动带回商店
+    if (
+      guide.isStep('shop-select', 'shop-buy', 'shop-to-gacha', 'gacha-draw', 'gacha-result')
+    ) {
+      navigateTo('/pages/shop/index');
+    }
+    this.refreshGuide();
     this.setData({
       stars: getStars(),
       riceStars: getRiceStars(),
@@ -184,6 +223,9 @@ Page({
     this._offReturned?.();
     this._offStarted?.();
     this._offVisible?.();
+    this._offGuide?.();
+    if (this._guideTimer) clearTimeout(this._guideTimer);
+    setGuideBackGuard(false);
     clearTripBannerTimer();
     stopReturnWatch();
   },
@@ -242,11 +284,20 @@ Page({
       const dropped = (res.dropped || []).map((s) => withRemain(s, now));
       this._pending = pending;
       this._dropped = dropped;
+      // 教学星剩余数：优先用 sync 计数，旧云函数兜底按 dropped guide 标记统计
+      this._guideDropped =
+        typeof res.guideDropped === 'number'
+          ? res.guideDropped
+          : dropped.filter((s) => s.guide).length;
       this.setData({
         stars: res.stars,
         riceStars: res.riceStars,
         starItems: mergeRoofStars(pending, dropped),
       });
+      // 注意：roof-stars 步绝不能因 sync 返回 0 颗教学星而自动跳过——
+      // 老账号/云函数未更新时教学星可能尚未播种或标记缺失，自动跳步会让玩家看不到完整流程。
+      // 该步只允许由 onCollectStar 捡满 9 颗真实教学星推进。
+      this.refreshGuide();
     } catch (e) {
       console.warn('[roof] sync fail', e);
     }
@@ -286,6 +337,8 @@ Page({
     if (!id) return;
     const target = this._dropped.find((s) => s.id === id);
     if (!target) return;
+    // 指引中只允许拾取教学星（遮罩已物理限制，handler 双保险）
+    if (guide.isStep('roof-stars') && !target.guide) return;
 
     playSfx('star');
     const prevDropped = this._dropped;
@@ -303,6 +356,20 @@ Page({
         this.showPlusOne();
         emit(GameEvent.STAR_COLLECTED, { id, type: res.type });
       }
+      if (guide.isStep('roof-stars')) {
+        // 能走到这里说明拾取的是教学星（非教学星在开头已被拦截）
+        this._guideCollected += 1;
+        const remain = this._dropped.filter((s) => s.guide).length;
+        this._guideDropped = remain;
+        if (this._guideCollected >= this._guideTotal) {
+          // 只有真实捡满 9 颗才推进，避免任何 sync 时序误跳步
+          guide.advance('roof-to-shop');
+        } else {
+          wx.nextTick(() => {
+            void measureGuideHost('roof', this);
+          });
+        }
+      }
     } catch {
       this._dropped = prevDropped;
       this.setData({
@@ -313,6 +380,7 @@ Page({
   },
 
   onTapItems() {
+    if (guide.isActive()) return;
     playTap();
     this.setData({ showInv: true });
   },
@@ -330,6 +398,7 @@ Page({
   },
 
   onTapSettings() {
+    if (guide.isActive()) return;
     playTap();
     this.setData({ showSettings: true });
   },
@@ -339,6 +408,7 @@ Page({
   },
 
   async onTapPigeon() {
+    if (guide.isActive()) return;
     playTap();
     if (this.data.flyAway) return;
     if (this.data.pigeonState === 'away') {
@@ -401,6 +471,7 @@ Page({
   },
 
   onTapPrepare() {
+    if (guide.isActive()) return;
     playTap();
     if (isTraveling()) {
       wx.showToast({ title: '小深出门旅行了', icon: 'none' });
@@ -454,6 +525,8 @@ Page({
   },
 
   async onTapShop() {
+    // 指引中仅屋顶商店步骤放行
+    if (guide.isActive() && !guide.isStep('roof-to-shop')) return;
     if (this._entering) return;
     this._entering = true;
     playTap();
@@ -470,7 +543,23 @@ Page({
   },
 
   onTapHome() {
+    if (guide.isActive()) return;
     playTap();
     navigateBack('/pages/home/index');
+  },
+
+  /** 新手指引：按当前步骤刷新遮罩与开孔（roof 宿主） */
+  refreshGuide() {
+    // 每次（重新）进入捡星步骤：重置本会话拾取计数
+    if (guide.isStep('roof-stars') && this._guideStep !== 'roof-stars') {
+      this._guideCollected = 0;
+    }
+    refreshGuideHost('roof', this);
+    setGuideBackGuard(guide.isHost('roof'));
+  },
+
+  /** 遮罩暗区被点击：节流提示（开孔抖动由组件处理） */
+  onGuideBlocked() {
+    notifyGuideBlocked(this);
   },
 });

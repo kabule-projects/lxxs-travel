@@ -3,6 +3,7 @@ import { call } from './api';
 import { isCloudConfigured } from '../config/cloud';
 import { getStars, setStars } from '../store/user';
 import { emit, GameEvent } from '../utils/event-bus';
+import * as guide from './guide';
 import { resolveDynamicAsset } from '../utils/resolve-dynamic-asset';
 import { preloadImages } from '../utils/preload';
 
@@ -239,7 +240,9 @@ function localPurchase(itemId: string): ShopPurchaseResult {
     throw err;
   }
   const local = readLocal();
-  if (local.boughtIds.includes(itemId)) {
+  // 教学购买不占用每日限购额度（与云函数口径一致）
+  const guideMode = guide.isActive();
+  if (!guideMode && local.boughtIds.includes(itemId)) {
     const err = new Error('今日已购买该商品') as Error & { code?: string };
     err.code = 'DAILY_LIMIT';
     throw err;
@@ -252,8 +255,10 @@ function localPurchase(itemId: string): ShopPurchaseResult {
   }
   const nextStars = stars - item.price;
   setStars(nextStars);
-  local.boughtIds.push(itemId);
-  writeLocal(local);
+  if (!guideMode) {
+    local.boughtIds.push(itemId);
+    writeLocal(local);
+  }
   bumpInventory(itemId);
   emit(GameEvent.INVENTORY_CHANGED, { itemId, delta: 1 });
   return {

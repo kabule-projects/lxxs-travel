@@ -1,5 +1,6 @@
 import GAME from '../utils/constants';
 import { call } from './api';
+import { GUIDE_COMPLETED_KEY } from './guide';
 import {
   makeId,
   randomPilePos,
@@ -16,6 +17,8 @@ export interface RoofSyncResult {
   stars: number;
   riceStars: number;
   nextSpawnAt: number;
+  /** 未收取的教学星数量（指引中屋顶步骤完成判定） */
+  guideDropped?: number;
   pending: RoofStarView[];
   dropped: RoofStarView[];
 }
@@ -24,9 +27,15 @@ interface LocalState {
   stars: number;
   riceStars: number;
   nextSpawnAt: number;
+  /** 本地兜底教学星播种幂等标志 */
+  guideSeeded?: boolean;
   pending: Array<Omit<RoofStarView, 'remainText'>>;
   dropped: Array<Omit<RoofStarView, 'remainText'>>;
 }
+
+/** 教学播种：8 颗普通星 + 1 颗米星（与云函数 roof 口径一致） */
+const GUIDE_NORMAL_STARS = 8;
+const GUIDE_TOTAL_STARS = 9;
 
 function readLocal(): LocalState {
   try {
@@ -60,9 +69,18 @@ function hydrate(state: LocalState, now: number): RoofSyncResult {
     stars: state.stars,
     riceStars: state.riceStars,
     nextSpawnAt: state.nextSpawnAt,
+    guideDropped: state.dropped.filter((s) => s.guide).length,
     pending: state.pending.map((s) => withRemain(s, now)),
     dropped: state.dropped.map((s) => withRemain(s, now)),
   };
+}
+
+function isGuideUnfinished(): boolean {
+  try {
+    return !wx.getStorageSync(GUIDE_COMPLETED_KEY);
+  } catch {
+    return true;
+  }
 }
 
 function localSync(walletStars: number, walletRice: number): RoofSyncResult {
@@ -70,6 +88,26 @@ function localSync(walletStars: number, walletRice: number): RoofSyncResult {
   const state = readLocal();
   state.stars = walletStars;
   state.riceStars = walletRice;
+
+  // 未完成指引且本运行周期尚未播种：一次性注入 8 普通 + 1 米（start() 已清本地缓存）
+  if (isGuideUnfinished() && !state.guideSeeded) {
+    for (let i = 0; i < GUIDE_TOTAL_STARS; i += 1) {
+      state.dropped.push({
+        id: makeId(),
+        type: i < GUIDE_NORMAL_STARS ? 'normal' : 'rice',
+        status: 'dropped',
+        guide: true,
+        skyX: 0,
+        skyY: 0,
+        ...randomPilePos(state.dropped.length),
+        spawnAt: now,
+        dropAt: now,
+      });
+    }
+    state.guideSeeded = true;
+    // 教学期间抑制普通星刷新，保持画面只有 9 颗教学星
+    state.nextSpawnAt = now + GAME.STAR_INTERVAL_MIN_MS;
+  }
 
   const nextPending = [];
   for (const star of state.pending) {

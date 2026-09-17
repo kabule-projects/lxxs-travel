@@ -87,6 +87,9 @@ declare namespace WechatMiniprogram {
       fail?: (err: unknown) => void;
     }): void;
     navigateBack(options?: { fail?: (err: unknown) => void }): void;
+    /** 新手指引期间拦截系统/导航栏返回（基础库 2.12.0+，低版本静默失败） */
+    enableAlertBeforeUnload?(options: { message: string }): void;
+    disableAlertBeforeUnload?(): void;
     showToast(options: { title: string; icon?: string }): void;
     showLoading(options: { title?: string; mask?: boolean }): void;
     hideLoading(): void;
@@ -98,6 +101,15 @@ declare namespace WechatMiniprogram {
       complete?: (res: Record<string, 'accept' | 'reject' | 'ban' | string>) => void;
     }): void;
     nextTick(cb: () => void): void;
+    /** 节点测量（新手指引遮罩定位用） */
+    createSelectorQuery(): {
+      in(component: unknown): {
+        select(selector: string): { boundingClientRect(): unknown };
+        selectAll(selector: string): { boundingClientRect(): unknown };
+        exec(cb: (res: unknown[]) => void): void;
+      };
+    };
+    onWindowResize?(cb: (res: { windowWidth: number; windowHeight: number }) => void): void;
     createInnerAudioContext?(): {
       src: string;
       volume: number;

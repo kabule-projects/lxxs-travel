@@ -1,0 +1,44 @@
+<view wx:if="{{visible}}" class="go-root">
+  <!-- 首次测量完成前：全屏不可点，防旧屏闪烁误触 -->
+  <view wx:if="{{fullBlock}}" class="go-full" catchtap="onBlocked"></view>
+
+  <block wx:else>
+    <!-- 交互层：放行矩形四周四块遮挡条，吞掉开孔外点击 -->
+    <view class="go-bar" catchtap="onBlocked" style="height:{{bar.top}}px;"></view>
+    <view
+      class="go-bar"
+      catchtap="onBlocked"
+      style="top:{{bar.bottomY}}px;height:{{bar.bottom}}px;"
+    ></view>
+    <view
+      class="go-bar"
+      catchtap="onBlocked"
+      style="top:{{bar.midY}}px;width:{{bar.left}}px;height:{{bar.midH}}px;"
+    ></view>
+    <view
+      class="go-bar"
+      catchtap="onBlocked"
+      style="top:{{bar.midY}}px;left:{{bar.rightX}}px;width:{{bar.right}}px;height:{{bar.midH}}px;"
+    ></view>
+
+    <!-- 视觉层：开孔白边 + 外圈巨大 box-shadow 形成半透明黑罩；不接收触摸 -->
+    <view
+      wx:for="{{holes}}"
+      wx:key="index"
+      class="go-hole {{shake ? 'go-hole--shake' : ''}}"
+      style="left:{{item.x}}px;top:{{item.y}}px;width:{{item.w}}px;height:{{item.h}}px;border-radius:{{item.r || 12}}px;"
+    >
+      <view class="go-pulse" style="border-radius:{{item.r || 12}}px;"></view>
+    </view>
+
+    <!-- 文字气泡 -->
+    <view
+      wx:if="{{bubble.show}}"
+      class="go-bubble {{bubble.below ? 'go-bubble--below' : 'go-bubble--above'}}"
+      style="left:{{bubble.x}}px;top:{{bubble.y}}px;width:{{bubble.w}}px;"
+    >
+      <view class="go-bubble-text">{{text}}</view>
+      <view class="go-bubble-arrow" style="left:{{bubble.arrowX}}px;"></view>
+    </view>
+  </block>
+</view>

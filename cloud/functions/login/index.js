@@ -30,6 +30,8 @@ async function createUser(openid) {
     pitySR: 0,
     pitySSR: 0,
     pityUR: 0,
+    guideCompletedAt: null,
+    guideSeededAt: null,
     lastSpawnAt: now,
     nextSpawnAt: now + 600_000,
     createdAt: now,
@@ -37,6 +39,19 @@ async function createUser(openid) {
   };
   const addRes = await db.collection('users').add({ data: doc });
   return { ...doc, _id: addRes._id };
+}
+
+/** 新手指引完成回写（真实出发成功后调用），幂等 */
+async function completeGuide(openid) {
+  const user = await getUserByOpenid(db, openid);
+  if (!user) return fail('用户不存在', 'NOT_FOUND');
+  const ts = user.guideCompletedAt || Date.now();
+  if (!user.guideCompletedAt) {
+    await db.collection('users').doc(user._id).update({
+      data: { guideCompletedAt: ts },
+    });
+  }
+  return ok({ guideCompletedAt: ts });
 }
 
 /** 按 openid 静默登录；首访自动建号，无需头像昵称授权 */
@@ -88,6 +103,8 @@ async function register(openid, profile) {
     pitySR: 0,
     pitySSR: 0,
     pityUR: 0,
+    guideCompletedAt: null,
+    guideSeededAt: null,
     lastSpawnAt: now,
     nextSpawnAt: now + 600_000,
     createdAt: now,
@@ -108,6 +125,8 @@ exports.main = async (event) => {
         return ok({ service: 'login', ts: Date.now() });
       case 'register':
         return await register(OPENID, event.profile || event);
+      case 'completeGuide':
+        return await completeGuide(OPENID);
       case 'session':
       default:
         return await session(OPENID);

@@ -62,7 +62,7 @@
 
     <!-- 底栏：准备 + 商店 / 扭蛋；bottom 内联，贴安全区上沿 -->
     <view class="home-footer" style="bottom: {{footerBottom}}px">
-      <view class="footer-left">
+      <view class="footer-left guide-anchor-bag">
         <image
           wx:if="{{assets.btnPrepare}}"
           class="btn-prepare-img"
@@ -97,4 +97,13 @@
     bind:select="onSelectInv"
   />
   <settings-modal visible="{{showSettings}}" bind:close="onCloseSettings" />
+
+  <!-- 新手指引强制遮罩 -->
+  <guide-overlay
+    visible="{{guideVisible}}"
+    holes="{{guideHoles}}"
+    hit-rect="{{guideHit}}"
+    text="{{guideText}}"
+    bind:blocked="onGuideBlocked"
+  />
 </view>

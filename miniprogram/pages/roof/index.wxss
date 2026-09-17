@@ -28,9 +28,22 @@
   top: 0;
   right: 0;
   bottom: 0;
-  /* 高于鸽子(z6)/角色(z5)：落星堆在帽子旁时保证可点；容器本身不拦截点击，只有星星可命中 */
-  z-index: 7;
+  /* 高于鸽子/帽子(z8)与角色(z5)：星星始终显示在鸽子和帽子之上；
+     容器本身不拦截点击，只有星星可命中；顶栏/底栏(z20)仍在最上 */
+  z-index: 9;
   pointer-events: none;
+}
+
+/* 星星定位包裹层：与星体左上角同坐标；自身不拦截点击（星子节点正常命中）。
+   落星给真实尺寸供新手指引测量开孔；空中待落星尺寸 0 即可（不参与测量） */
+.guide-star-wrap {
+  position: absolute;
+  pointer-events: none;
+}
+
+.guide-star-wrap.guide-star--dropped {
+  width: 72rpx;
+  height: 72rpx;
 }
 
 /* ── 屋顶底部角色装饰（纵向位置按屏幕高度百分比，随屏比漂移小） ── */
@@ -124,7 +137,8 @@
   position: absolute;
   right: 5%;
   bottom: 24%;
-  /* z8 压过星星层(z7)：容器本身不吃点击，只有 .pigeon-hit 热区命中，方块透明区不挡星星 */
+  /* z8 低于星星层(z9)：星星堆在帽子旁时盖在鸽子/帽子之上；
+     容器本身不吃点击，只有 .pigeon-hit 热区命中，方块透明区不挡星星 */
   z-index: 8;
   width: 180rpx;
   height: 180rpx;
