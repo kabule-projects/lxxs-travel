@@ -8,7 +8,7 @@
         <image class="rdm-input-bg" src="{{assets.input}}" mode="widthFix" />
         <input
           class="rdm-input"
-          placeholder="请输入兑换码"
+          placeholder="{{placeholder}}"
           value="{{code}}"
           maxlength="32"
           bindinput="onInput"

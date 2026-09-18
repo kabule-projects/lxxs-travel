@@ -198,6 +198,8 @@ Page({
 
   onTapGacha() {
     // 指引中仅扭蛋入口步骤放行
+    // 防御：购买后的 advance 可能因时序未生效
+    if (guide.isStep('shop-buy')) guide.advance('shop-to-gacha');
     if (guide.isActive() && !guide.isStep('shop-to-gacha')) return;
     playTap();
     navigateTo('/pages/gacha/index');
@@ -236,6 +238,8 @@ Page({
   onTapItem(e: WechatMiniprogram.TouchEvent) {
     const id = e.currentTarget.dataset.id as string;
     if (!id) return;
+    // 防御：onShow 的 advance 可能因某种时序未生效，点击时补推进
+    if (guide.isStep('roof-to-shop')) guide.advance('shop-select');
     // 指引选物步：仅列表第一件（云端为 potato，本地兜底为种子首件）可点
     if (guide.isStep('shop-select')) {
       const anchorId = this._allItems[0]?.id;
@@ -253,6 +257,8 @@ Page({
   },
 
   async onTapBuy() {
+    // 防御：onShow 或 onTapItem 的 advance 可能因时序未生效
+    if (guide.isStep('shop-select')) guide.advance('shop-buy');
     if (guide.isActive() && !guide.isStep('shop-buy')) return;
     if (!this.data.buyEnabled || this.data.buying || !this.data.selectedId) {
       return;
@@ -262,8 +268,10 @@ Page({
     try {
       const res = await purchaseShop(this.data.selectedId);
       setStars(res.stars);
+      // 教学购买不占每日额度：不标记 boughtToday，避免土豆变半透明
+      const guideActive = guide.isActive();
       const updated = this._allItems.map((i) =>
-        i.id === res.itemId ? { ...i, boughtToday: true } : i,
+        guideActive ? i : i.id === res.itemId ? { ...i, boughtToday: true } : i,
       );
       this._allItems = updated;
       const built = this.buildPages(updated, this.data.pageIndex);

@@ -11,6 +11,7 @@ Component({
   data: {
     code: '',
     errorMsg: '',
+    placeholder: '请输入兑换码',
     submitting: false,
     assets: {
       panel: '',
@@ -30,7 +31,7 @@ Component({
 
   observers: {
     visible(v: boolean) {
-      if (v) this.setData({ code: '', errorMsg: '', submitting: false });
+      if (v) this.setData({ code: '', errorMsg: '', placeholder: '请输入兑换码', submitting: false });
     },
   },
 
@@ -43,16 +44,13 @@ Component({
     },
 
     onInput(e: { detail: { value: string } }) {
-      this.setData({ code: e.detail.value, errorMsg: '' });
+      this.setData({ code: e.detail.value, errorMsg: '', placeholder: '请输入兑换码' });
     },
 
     async onSubmit() {
       if (this.data.submitting) return;
       const code = this.data.code.trim();
-      if (!code) {
-        this.setData({ errorMsg: '请输入兑换码' });
-        return;
-      }
+      if (!code) return;
       playTap();
       this.setData({ submitting: true, errorMsg: '' });
       try {
@@ -68,9 +66,13 @@ Component({
       } catch (e) {
         const codeErr = (e as Error & { code?: string }).code;
         const msg = (e as Error).message || '兑换失败，请稍后再试';
-        if (codeErr === 'NOT_FOUND_CODE') this.setData({ errorMsg: '兑换码不存在' });
-        else if (codeErr === 'ALREADY_USED') this.setData({ errorMsg: '该兑换码已兑换' });
-        else this.setData({ errorMsg: msg });
+        if (codeErr === 'NOT_FOUND_CODE') {
+          this.setData({ code: '', errorMsg: '', placeholder: '兑换码不存在，请重新输入' });
+        } else if (codeErr === 'ALREADY_USED') {
+          this.setData({ errorMsg: '该兑换码已兑换' });
+        } else {
+          this.setData({ errorMsg: msg });
+        }
       } finally {
         this.setData({ submitting: false });
       }

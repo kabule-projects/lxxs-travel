@@ -312,6 +312,11 @@ export async function listShop(force = false): Promise<ShopListResult> {
 /** 购买成功后把 boughtToday/余额同步进缓存，下次进商店不会显示可再买 */
 function markBoughtInCache(itemId: string, stars: number) {
   if (!cache) return;
+  // 教学购买不占每日额度：不标记 boughtToday
+  if (guide.isActive()) {
+    cache = { ...cache, stars };
+    return;
+  }
   cache = {
     ...cache,
     stars,

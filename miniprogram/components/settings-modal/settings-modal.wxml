@@ -39,7 +39,7 @@
         </view>
 
         <!-- 兑换码入口：贴图含文字，位于通知下方、用户ID上方 -->
-        <view class="sett-row">
+        <view class="sett-row sett-row--redeem">
           <image
             class="sett-redeem-entry"
             src="{{assets.redeemEntry}}"

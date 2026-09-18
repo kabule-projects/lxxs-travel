@@ -220,12 +220,12 @@ export const SETTINGS_ASSETS = {
   notifyOffSel: 'settings/notification-off-selected',
   notifyOffUnsel: 'settings/notification-off-us',
   /** 兑换码入口按键（贴图含文字） */
-  redeemEntry: 'settings/redeem-entry',
+  redeemEntry: 'settings/redeem-btn',
 } as const;
 
 /** 兑换弹窗切图：底含"请输入兑换码"标题与输入槽位，文字已烘焙 */
 export const REDEEM_ASSETS = {
-  panel: 'redeem/panel',
+  panel: 'settings/redeem-panel',
   input: 'redeem/input',
   confirm: 'redeem/confirm',
   close: 'redeem/close',

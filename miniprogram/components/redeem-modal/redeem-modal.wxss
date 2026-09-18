@@ -1,20 +1,26 @@
 /* 兑换弹窗：布局全部按贴图 929×294 的百分比定位，面板宽度锁定则高度固定不错位 */
 .rdm-root {
   position: fixed;
-  inset: 0;
-  z-index: 120;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 130;
 }
 
 .rdm-backdrop {
   position: absolute;
-  inset: 0;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* 面板宽 76%，高度 = 宽 × 294/929 由底图 widthFix 撑开，内部绝对定位 */
+/* 面板宽 76% (= 570rpx)，高 = 570 × 294/929 ≈ 180rpx；显式定高防图片未加载时塌陷 */
 .rdm-panel {
   position: relative;
   width: 76%;
@@ -23,19 +29,21 @@
 .rdm-panel-bg {
   width: 100%;
   display: block;
+  height: 180rpx;
 }
 
 /* 输入槽位：x 52/929 ≈ 5.6% 起、宽 825/929 ≈ 88.8%；y 86/294 ≈ 29.3% 起 */
 .rdm-input-slot {
   position: absolute;
   left: 5.6%;
-  top: 29.3%;
+  top: 26%;
   width: 88.8%;
 }
 
 .rdm-input-bg {
   width: 100%;
   display: block;
+  height: 49rpx;
 }
 
 /* input 叠在输入框贴图上，垂直居中 */
@@ -61,13 +69,14 @@
   color: #d05555;
 }
 
-/* 确认键 171/929 ≈ 18.4% 宽，底部留白区居中 */
+/* 确认键 171×76，宽 22% (= 125rpx)，高 = 125 × 76/171 ≈ 56rpx */
 .rdm-confirm {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  top: 66%;
+  top: 60%;
   width: 22%;
+  height: 56rpx;
 }
 
 .rdm-confirm--disabled {
@@ -79,4 +88,5 @@
   top: -24rpx;
   right: -16rpx;
   width: 48rpx;
+  height: 48rpx;
 }

@@ -37,10 +37,11 @@
   position: absolute;
   left: 8%;
   right: 8%;
-  top: 22%;
+  top: 22.5%;
   bottom: 6%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .sett-row {
@@ -49,8 +50,15 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-bottom: 64rpx;
+  margin-bottom: 62rpx;
   margin-right: 23%;
+}
+
+/* 兑换码入口行：居中全宽，缩减下边距 */
+.sett-row--redeem {
+  justify-content: center;
+  margin-right: 0;
+  margin-bottom: 16rpx;
 }
 
 .sett-toggle {
@@ -63,6 +71,7 @@
 .sett-row--notify {
   justify-content: center;
   margin-right: -20%;
+  margin-bottom: 35rpx;
   gap: 24rpx;
 }
 
@@ -84,7 +93,7 @@
   display: block;
   width: 100%;
   /* 显式定高 = 内容区宽（600rpx × 84% = 504rpx）× 切图高宽比（user-id-bar 824×156），防抖动 */
-  height: 95rpx;
+  height: 110rpx;
 }
 
 .sett-user-id {
@@ -103,28 +112,25 @@
 .sett-footer {
   position: relative;
   z-index: 1;
-  margin-top: 32rpx;
+  margin-top: 16rpx;
   text-align: center;
 }
 
 .sett-version {
   display: block;
-  font-size: 22rpx;
+  font-size: 19rpx;
   color: #8a7463;
-  line-height: 1.6;
+  line-height: 1.0;
 }
 
 .sett-brand {
   display: block;
-  font-size: 20rpx;
+  font-size: 19rpx;
   color: #a08878;
   letter-spacing: 2rpx;
-  margin-top: 4rpx;
 }
 
-/* 兑换码入口：贴图 819×99 长条按键（含文字），宽度占面板主要区域，高度随 widthFix */
+/* 兑换码入口：
 .sett-redeem-entry {
-  width: 72%;
-  display: block;
-  margin: 0 auto;
+  width: 500rpx;
 }

@@ -53,7 +53,10 @@ Component({
 
   observers: {
     visible(v: boolean) {
-      if (v) this.refreshPrefs();
+      if (v) {
+        this.setData({ showRedeem: false });
+        this.refreshPrefs();
+      }
     },
   },
 

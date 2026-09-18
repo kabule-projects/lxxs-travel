@@ -188,20 +188,41 @@ export function isCompletedLocally(): boolean {
 
 /**
  * 用登录会话初始化完成状态。
- * @returns 是否需要激活指引（未完成）；已完成（云端或本地标志）返回 false
+ * 云端 profile 可用时以云端为准（null=未完成 → 激活指引）；
+ * 仅当 profile 缺失（离线/未登录）时用本地标志兜底。
+ * @returns 是否需要激活指引（未完成）；已完成返回 false
  */
 export function initFromProfile(profile?: UserProfile | null): boolean {
-  if (profile?.guideCompletedAt || isCompletedLocally()) {
-    state.completed = true;
-    state.active = false;
-    state.step = null;
-    try {
-      if (profile?.guideCompletedAt) {
+  // 本会话已由 complete() 标记完成：不再重新评估，避免缓存 profile 尚未刷新导致误激活
+  if (state.completed) return false;
+  // 云端 profile 可用：以云端为准
+  if (profile) {
+    if (profile.guideCompletedAt) {
+      state.completed = true;
+      state.active = false;
+      state.step = null;
+      try {
         wx.setStorageSync(GUIDE_COMPLETED_KEY, profile.guideCompletedAt);
+      } catch {
+        /* ignore */
       }
+      return false;
+    }
+    // 云端明确说未完成（guideCompletedAt 为 null）：
+    // 清除可能陈旧的本地完成标志，确保指引能正常激活
+    try {
+      wx.setStorageSync(GUIDE_COMPLETED_KEY, '');
     } catch {
       /* ignore */
     }
+    state.completed = false;
+    return true;
+  }
+  // profile 缺失（离线/未登录）：用本地标志兜底
+  if (isCompletedLocally()) {
+    state.completed = true;
+    state.active = false;
+    state.step = null;
     return false;
   }
   return true;
