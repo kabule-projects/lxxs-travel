@@ -50,7 +50,8 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-bottom: 62rpx;
+  /* 行距收紧：为兑换码入口行腾出空间，防内容溢出裁掉底部用户ID */
+  margin-bottom: 50rpx;
   margin-right: 23%;
 }
 
@@ -71,7 +72,7 @@
 .sett-row--notify {
   justify-content: center;
   margin-right: -20%;
-  margin-bottom: 35rpx;
+  margin-bottom: 28rpx;
   gap: 24rpx;
 }
 
@@ -130,7 +131,8 @@
   letter-spacing: 2rpx;
 }
 
-/* 兑换码入口：
+/* 兑换码入口：贴图 819×99 长条按键（含文字），宽度固定 500rpx，高度随 widthFix */
 .sett-redeem-entry {
   width: 500rpx;
 }
+

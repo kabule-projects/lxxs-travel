@@ -11,7 +11,7 @@
     "minifyWXSS": true,
     "minifyWXML": true,
     "coverView": true,
-    "cloudEnv": "cloud1-d9ghjbijh5aa24e10",
+    "cloudEnv": "cloud1-d2g64dostc23dfbce",
     "packNpmRelationList": [],
     "babelSetting": {
       "ignore": [],
@@ -29,7 +29,7 @@
     ],
     "condition": false
   },
-  "appid": "wxb93b7693a8da4f56",
+  "appid": "wx262c8a3324c81fa5",
   "projectname": "lxxs-travel",
   "libVersion": "3.7.0",
   "srcMiniprogramRoot": "miniprogram/",
@@ -38,8 +38,8 @@
   "packOptions": {
     "ignore": [
       {
-        "type": "folder",
-        "value": "assets"
+        "value": "assets",
+        "type": "folder"
       }
     ],
     "include": []
