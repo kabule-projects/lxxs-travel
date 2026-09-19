@@ -77,9 +77,33 @@ export async function login(): Promise<UserProfile> {
   return call<UserProfile>('login', { action: 'session' });
 }
 
-/** 新手指引完成（真实出发成功）回写，云端幂等 */
-export async function completeGuideApi(): Promise<{ guideCompletedAt: number }> {
-  return call<{ guideCompletedAt: number }>('login', { action: 'completeGuide' });
+/** 新手奖励明信片（图鉴入库，firstUnlock=false 表示图鉴里已有） */
+export interface GuideRewardPostcard {
+  postcardId: string;
+  title: string;
+  rarity: string;
+  type: string;
+  imageThumb: string;
+  imageFull: string;
+  firstUnlock: boolean;
+}
+
+export interface GuideCompleteResult {
+  guideCompletedAt: number;
+  /** true=本次之前已领过（或并发抢占失败），不发奖 */
+  alreadyClaimed: boolean;
+  reward: {
+    stars: number;
+    riceStars: number;
+    postcard: GuideRewardPostcard | null;
+  } | null;
+  /** 发放后的最新钱包（仅首次发放时下发） */
+  wallet?: { stars: number; riceStars: number };
+}
+
+/** 新手指引完成（真实出发成功）回写：首次完成发放新手奖励，云端幂等 */
+export async function completeGuideApi(): Promise<GuideCompleteResult> {
+  return call<GuideCompleteResult>('login', { action: 'completeGuide' });
 }
 
 export async function ping(name: string): Promise<{ service: string; ts: number }> {

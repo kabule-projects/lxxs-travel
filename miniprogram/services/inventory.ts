@@ -2,7 +2,7 @@ import { call } from './api';
 import { setRiceStars, setStars } from '../store/user';
 import { resolveDynamicAsset } from '../utils/resolve-dynamic-asset';
 
-export type InvCategory = 'food' | 'prop';
+export type InvCategory = 'food' | 'prop' | 'souvenir';
 
 export interface InvItemView {
   id: string;
@@ -191,7 +191,11 @@ export async function fetchOwned(
         ...i,
         category:
           i.category ||
-          (i.type === 'food' ? 'food' : ('prop' as InvCategory)),
+          (i.type === 'food'
+            ? 'food'
+            : i.type === 'souvenir'
+              ? 'souvenir'
+              : ('prop' as InvCategory)),
       }));
     }
   } catch (e) {

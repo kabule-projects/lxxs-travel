@@ -21,6 +21,8 @@ Component({
     visible: { type: Boolean, value: false },
     results: { type: Array, value: [] },
     iconStar: { type: String, value: '' },
+    /** 面板顶部标题（如教程完成奖励）；为空不渲染 */
+    title: { type: String, value: '' },
   },
 
   data: {

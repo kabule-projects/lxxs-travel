@@ -121,17 +121,17 @@
     },
     {
       "id": "souvenir_cake_knife",
-      "type": "accessory",
+      "type": "souvenir",
       "name": "蛋糕刀",
       "icon": "cloud://cloud1-d2g64dostc23dfbce.636c-cloud1-d2g64dostc23dfbce-1491327870/content/items/cake_knife.webp",
       "description": "买蛋糕送的，这有啥用？你看看？",
-      "showcase": true,
+      "showcase": false,
       "enabled": true,
       "shopSort": 960
     },
     {
       "id": "souvenir_kitchen_knife",
-      "type": "accessory",
+      "type": "souvenir",
       "name": "菜刀",
       "icon": "cloud://cloud1-d2g64dostc23dfbce.636c-cloud1-d2g64dostc23dfbce-1491327870/content/items/kitchen_knife.webp",
       "description": "切蛋糕神器。注意切之前不要切生食不要拍姜蒜哈！",

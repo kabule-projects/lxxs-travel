@@ -8,6 +8,8 @@ export const TRIP_BANNER_MS = 5000;
 export interface TripBannerState {
   visible: boolean;
   mode: 'depart' | 'return' | null;
+  /** mode=return 时：本行程是否带回了纪念品（决定用哪张回家提示图） */
+  returnHasSouvenir?: boolean;
 }
 
 export interface TripSyncView {
@@ -101,6 +103,7 @@ export async function resolveTripSyncView(): Promise<TripSyncView> {
       banner: {
         visible: true,
         mode: 'return',
+        returnHasSouvenir: (trip.souvenirs?.length ?? 0) > 0,
       },
       showCharacter: true,
       sync,

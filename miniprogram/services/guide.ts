@@ -1,4 +1,4 @@
-import { completeGuideApi } from './api';
+import { completeGuideApi, type GuideCompleteResult } from './api';
 import type { UserProfile } from './api';
 import { emit, on, GameEvent } from '../utils/event-bus';
 
@@ -272,9 +272,10 @@ export function advance(next?: GuideStep): void {
   emitChanged();
 }
 
-/** 指引完成（真实出发成功）：本地立即生效，云端回写失败不阻断 */
-export async function complete(): Promise<void> {
-  if (state.completed) return;
+/** 指引完成（真实出发成功）：本地立即生效，云端回写失败不阻断。
+ *  @returns 云端结果（含首次完成的新手奖励）；离线/失败返回 null，下次启动由云端幂等兜底 */
+export async function complete(): Promise<GuideCompleteResult | null> {
+  if (state.completed) return null;
   state.completed = true;
   state.active = false;
   state.step = null;
@@ -285,9 +286,10 @@ export async function complete(): Promise<void> {
   }
   emitChanged();
   try {
-    await completeGuideApi();
+    return await completeGuideApi();
   } catch {
     /* 本地标志已兜底，下次启动重试由云端幂等处理 */
+    return null;
   }
 }
 

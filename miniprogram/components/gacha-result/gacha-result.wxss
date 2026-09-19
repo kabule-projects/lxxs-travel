@@ -35,6 +35,20 @@
   z-index: 2;
 }
 
+/* 面板顶部标题（可选，如教程完成奖励）；位于奖品格区（top 20%）之上的留白带 */
+.gr-title {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: 7.5%;
+  z-index: 1;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #7a5230;
+}
+
 /* 奖品格区：top/bottom 对齐底图上的内容区，按需微调 */
 .gr-single {
   position: absolute;

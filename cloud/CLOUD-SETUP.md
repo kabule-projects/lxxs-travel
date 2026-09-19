@@ -255,7 +255,7 @@ gm_audit
 | destinations | enabled ↑ | 否 | 出行抽样 |
 | postcards | id ↑ | 是 | |
 | postcards | enabled ↑ | 否 | |
-| game_config | key ↑ | 是 | trip 配置 |
+| game_config | key ↑ | 是 | trip / memo 配置 |
 | user_inventory | userId ↑, itemId ↑ | 是 | 背包 |
 | user_showcase | userId ↑, itemId ↑ | 是 | 展示柜去重 |
 | user_showcase | userId ↑, obtainedAt ↑ | 否 | 列表排序（**必建**） |
@@ -265,6 +265,7 @@ gm_audit
 | roof_stars | userId ↑, status ↑ | 否 | 屋顶 sync |
 | trips | userId ↑, status ↑ | 否 | 当前旅行查询 |
 | daily_purchases | userId ↑, itemId ↑, dayKey ↑ | 是 | 每日限购 |
+| memos | userId ↑, dateKey ↑ | 是 | 备忘录每日一条（并发闸 + 列表排序） |
 | idempotency | key ↑ | 是 | 幂等 |
 | copy_pool | type ↑, enabled ↑ | 否 | 文案池 |
 | gacha_pool | enabled ↑ | 否 | 奖池列表 |
@@ -314,7 +315,8 @@ cloud/functions/
 | shop | ✅ | 商店 |
 | inventory | ✅ | 背包 |
 | trip | ✅ | 出行 |
-| postcard | ✅ | 信箱 / 日记 |
+| postcard | ✅ | 信箱 / 日记（图片页） |
+| memo | ✅ | 备忘录（日记本-日记页，每日一条） |
 | showcase | ✅ | 展示柜 |
 | wardrobe | ✅ | 衣柜 |
 | gacha | ✅ | 扭蛋 |
@@ -340,6 +342,8 @@ npx tcb fn invoke <函数名> --params '{"action":"list"}' -e cloud1-d9ghjbijh5a
 ```
 
 （CLI 调用不带 openid，能返回"未获取 openid"即说明新代码已生效；若改了 common，先跑 `node scripts/sync-cloud-common.js`。）
+
+> 补充：项目根目录已放置 `cloudbaserc.json`（声明 envId / functionRoot / 全部函数清单）。**新建函数时**它能让 CLI 正确定位代码目录（否则会打包根目录，云端报 `ZipCodeFmt / entryfile did not find`）；在函数目录内更新已有函数不受它影响。新增函数后记得把函数名补进 `cloudbaserc.json` 的 `functions` 列表，并跑 `node scripts/sync-cloud-common.js` 同步 common 副本。
 
 ### 7.3 部署后冒烟测试
 
@@ -631,6 +635,7 @@ npm run dev
 | 出行 | trip | start / sync / claimHome / farewell | trips, users, items, destinations, postcards, game_config, user_inventory, user_showcase, copy_pool, idempotency |
 | 鸽子信箱 | postcard | mailbox / openMailbox / markSeen / claim | trips, user_postcards, users |
 | 日记 | postcard | diary | user_postcards, postcards |
+| 备忘录（日记页） | memo | get / save / list | memos, users, game_config |
 | 展示柜 | showcase | list / unlock | user_showcase, items |
 | 衣柜 | wardrobe | list | user_outfits |
 | 扭蛋 | gacha | catalog / draw | gacha_pool, user_gacha, users |

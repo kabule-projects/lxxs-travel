@@ -67,6 +67,8 @@ Page({
     mailFull: false,
     showTravelBanner: false,
     travelBannerMode: 'depart' as 'depart' | 'return',
+    /** 回家横幅是否带回纪念品（切换两种回家提示图） */
+    travelBannerHasSouvenir: true,
     /** 新手指引遮罩 */
     guideVisible: false,
     guideHoles: [] as GuideHole[],
@@ -117,9 +119,11 @@ Page({
 
   bindTripEvents() {
     this._offReturned = on(GameEvent.TRIP_RETURNED, (payload) => {
-      const trip = (payload as { trip?: { _id?: string; status?: string } })?.trip;
+      const trip = (payload as {
+        trip?: { _id?: string; status?: string; souvenirs?: string[] };
+      })?.trip;
       if (trip?.status === 'returned' && trip._id) {
-        this.showReturnBanner(trip._id);
+        this.showReturnBanner(trip._id, (trip.souvenirs?.length ?? 0) > 0);
       }
     });
     this._offStarted = on(GameEvent.TRIP_STARTED, (payload) => {
@@ -145,11 +149,12 @@ Page({
     });
   },
 
-  showReturnBanner(tripId: string) {
+  showReturnBanner(tripId: string, hasSouvenir: boolean) {
     this._bannerTripId = tripId;
     this.setData({
       showTravelBanner: true,
       travelBannerMode: 'return',
+      travelBannerHasSouvenir: hasSouvenir,
       charShenVisible: true,
     });
     runReturnBannerFlow(tripId, () => {
@@ -176,7 +181,7 @@ Page({
       const view = await resolveTripSyncView();
       const { banner, sync } = view;
       if (banner.mode === 'return' && sync.trip?._id) {
-        this.showReturnBanner(sync.trip._id);
+        this.showReturnBanner(sync.trip._id, banner.returnHasSouvenir ?? false);
         return;
       }
       this.setData({ showTravelBanner: false });

@@ -46,6 +46,7 @@ async function listInventory(db, userId) {
 function toCategory(type) {
   if (type === 'food') return 'food';
   if (type === 'accessory' || type === 'equipment') return 'prop';
+  if (type === 'souvenir') return 'souvenir';
   return 'other';
 }
 

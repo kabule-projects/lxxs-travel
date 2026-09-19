@@ -58,7 +58,7 @@
       aria-label="日记"
     ></view>
 
-    <trip-banner visible="{{showTravelBanner}}" mode="{{travelBannerMode}}" bind:dismiss="onBannerDismiss" />
+    <trip-banner visible="{{showTravelBanner}}" mode="{{travelBannerMode}}" return-has-souvenir="{{travelBannerHasSouvenir}}" bind:dismiss="onBannerDismiss" />
 
     <!-- 底栏：准备 + 商店 / 扭蛋；bottom 内联，贴安全区上沿 -->
     <view class="home-footer" style="bottom: {{footerBottom}}px">
@@ -97,6 +97,15 @@
     bind:select="onSelectInv"
   />
   <settings-modal visible="{{showSettings}}" bind:close="onCloseSettings" />
+
+  <!-- 教程完成新手奖励：复用扭蛋五连结果面板 -->
+  <gacha-result
+    visible="{{showGuideReward}}"
+    results="{{guideRewardResults}}"
+    title="小深出门了，这是他留给你的小礼物，请收下"
+    bind:close="onCloseGuideReward"
+    bind:confirm="onCloseGuideReward"
+  />
 
   <!-- 新手指引强制遮罩 -->
   <guide-overlay

@@ -291,6 +291,21 @@
       ],
       "unique": true,
       "name": "path_asc_unique"
+    },
+    {
+      "collection": "memos",
+      "fields": [
+        {
+          "name": "userId",
+          "order": "asc"
+        },
+        {
+          "name": "dateKey",
+          "order": "asc"
+        }
+      ],
+      "unique": true,
+      "name": "userId_dateKey_asc_unique"
     }
   ]
 }

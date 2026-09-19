@@ -21,6 +21,7 @@
 | roof_stars | 屋顶星星 |
 | trips | 旅行实例（含预抽明信片与投递时刻） |
 | daily_purchases | UTC+8 每日限购 |
+| memos | 备忘录（日记本-日记页）：`{ userId, dateKey(UTC+8 YYYY-MM-DD), content, editCount, starsGranted, riceGranted, createdAt, updatedAt }`；每用户每天一条（唯一索引 userId+dateKey），首次记录发奖，编辑不限次不重复发奖；奖励参数见 `game_config` key=`memo`（stars / riceStarRate / riceStars / maxLength） |
 | idempotency | 幂等 |
 | gm_audit | GM 日志 |
 | asset_manifest | 资源 |

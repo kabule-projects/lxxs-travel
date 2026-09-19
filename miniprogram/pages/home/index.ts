@@ -1,13 +1,16 @@
 import { HOME_ASSETS, SHOP_ASSETS, SHOWCASE_ASSETS, assetCdnBase } from '../../utils/asset-path';
 import { preloadAssetKeys } from '../../utils/preload';
-import { resolveAssetMap } from '../../utils/resolve-assets';
+import { resolveAsset, resolveAssetMap } from '../../utils/resolve-assets';
+import { resolveDynamicAsset } from '../../utils/resolve-dynamic-asset';
 import { readSafeArea, readCapsuleRect } from '../../utils/device';
 import { emit, GameEvent, on } from '../../utils/event-bus';
-import { getRiceStars, getStars, isTraveling } from '../../store/user';
+import { getRiceStars, getStars, isTraveling, setStars, setRiceStars } from '../../store/user';
 import { playSfx, playTap, playBgm } from '../../services/sound';
 import { navigateTo } from '../../utils/nav';
 import { startTrip, type TripLoadout } from '../../services/trip';
 import { setLocalTraveling } from '../../services/postcard';
+import type { GuideCompleteResult } from '../../services/api';
+import type { GachaResultItem } from '../../components/gacha-result/gacha-result';
 import {
   resolveTripSyncView,
   runReturnBannerFlow,
@@ -50,6 +53,8 @@ Page({
     riceStars: 0,
     showTravelBanner: false,
     travelBannerMode: 'depart' as 'depart' | 'return',
+    /** 回家横幅是否带回纪念品（切换两种回家提示图） */
+    travelBannerHasSouvenir: true,
     /** 顶栏 top：胶囊按钮底边 + 间距，避开右上角关闭/菜单 */
     hudTop: 0,
     /** 底栏 bottom：安全区上沿 + 间距 */
@@ -58,6 +63,9 @@ Page({
     showBag: false,
     showInv: false,
     showSettings: false,
+    /** 教程完成新手奖励弹窗（复用扭蛋结果面板） */
+    showGuideReward: false,
+    guideRewardResults: [] as GachaResultItem[],
     /** 房间小猫：当前贴图 / 定位内联样式 / 是否淡入显示 */
     catSrc: '',
     catStyle: '',
@@ -170,7 +178,7 @@ Page({
   applyTripSyncView(view: Awaited<ReturnType<typeof resolveTripSyncView>>) {
     const { banner, sync } = view;
     if (banner.mode === 'return' && sync.trip?._id) {
-      this.showReturnBanner(sync.trip._id);
+      this.showReturnBanner(sync.trip._id, banner.returnHasSouvenir ?? false);
       return;
     }
     this.setData({
@@ -189,11 +197,12 @@ Page({
     });
   },
 
-  showReturnBanner(tripId: string) {
+  showReturnBanner(tripId: string, hasSouvenir: boolean) {
     this._bannerTripId = tripId;
     this.setData({
       showTravelBanner: true,
       travelBannerMode: 'return',
+      travelBannerHasSouvenir: hasSouvenir,
     });
     runReturnBannerFlow(tripId, () => {
       this.setData({ showTravelBanner: false });
@@ -227,9 +236,11 @@ Page({
       this.syncWallet();
     });
     this._offReturned = on(GameEvent.TRIP_RETURNED, (payload) => {
-      const trip = (payload as { trip?: { _id?: string; status?: string } })?.trip;
+      const trip = (payload as {
+        trip?: { _id?: string; status?: string; souvenirs?: string[] };
+      })?.trip;
       if (trip?.status === 'returned' && trip._id) {
-        this.showReturnBanner(trip._id);
+        this.showReturnBanner(trip._id, (trip.souvenirs?.length ?? 0) > 0);
       }
     });
     this._offStarted = on(GameEvent.TRIP_STARTED, (payload) => {
@@ -365,7 +376,10 @@ Page({
       setLocalTraveling(true);
       // 真实出发成功：新手指引全部完成（本地落标志 + 云端幂等回写）
       if (guide.isStep('bag-depart')) {
-        await guide.complete();
+        const completed = await guide.complete();
+        if (completed && !completed.alreadyClaimed && completed.reward) {
+          void this.showGuideReward(completed);
+        }
       }
       emit(GameEvent.CHARACTER_HIDDEN);
     } catch (err) {
@@ -374,6 +388,57 @@ Page({
         icon: 'none',
       });
     }
+  },
+
+  /** 教程完成奖励：9 星星 + 1 米子星 + 1 明信片，用扭蛋结果面板展示 */
+  async showGuideReward(res: GuideCompleteResult) {
+    try {
+      const reward = res.reward;
+      if (!reward) return;
+      const [starIcon, riceIcon] = await Promise.all([
+        resolveAsset('roof/star'),
+        resolveAsset('roof/star-rice'),
+      ]);
+      const results: GachaResultItem[] = [
+        {
+          gachaId: 'guide_stars',
+          name: `星星 ×${reward.stars}`,
+          icon: starIcon,
+          rarity: 'N',
+          duplicate: false,
+        },
+        {
+          gachaId: 'guide_rice',
+          name: `米子星 ×${reward.riceStars}`,
+          icon: riceIcon,
+          rarity: 'SSR',
+          duplicate: false,
+        },
+      ];
+      if (reward.postcard) {
+        const icon = await resolveDynamicAsset(reward.postcard.imageThumb);
+        results.push({
+          gachaId: 'guide_postcard',
+          name: reward.postcard.title,
+          icon,
+          rarity: reward.postcard.rarity || 'SR',
+          duplicate: false,
+        });
+      }
+      if (res.wallet) {
+        setStars(res.wallet.stars);
+        setRiceStars(res.wallet.riceStars);
+        emit(GameEvent.STARS_UPDATED);
+      }
+      playSfx('gacha_result');
+      this.setData({ guideRewardResults: results, showGuideReward: true });
+    } catch {
+      /* 弹窗展示失败不阻断主流程，奖励已入库 */
+    }
+  },
+
+  onCloseGuideReward() {
+    this.setData({ showGuideReward: false, guideRewardResults: [] });
   },
 
   onTapShop() {

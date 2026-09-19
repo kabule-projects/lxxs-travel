@@ -1,0 +1,26 @@
+{
+  "$schema": "https://static.cloudbase.net/cli/cloudbaserc.schema.json",
+  "envId": "cloud1-d2g64dostc23dfbce",
+  "functionRoot": "cloud/functions",
+  "functions": [
+    { "name": "admin", "runtime": "Nodejs20.19" },
+    { "name": "gacha", "runtime": "Nodejs20.19" },
+    { "name": "gm", "runtime": "Nodejs20.19" },
+    { "name": "inventory", "runtime": "Nodejs20.19" },
+    { "name": "login", "runtime": "Nodejs20.19" },
+    { "name": "manifest", "runtime": "Nodejs20.19" },
+    { "name": "memo", "timeout": 20, "runtime": "Nodejs20.19" },
+    { "name": "notify", "runtime": "Nodejs20.19" },
+    { "name": "postcard", "runtime": "Nodejs20.19" },
+    { "name": "redeem", "runtime": "Nodejs20.19" },
+    { "name": "roof", "runtime": "Nodejs20.19" },
+    { "name": "scheduler", "runtime": "Nodejs20.19" },
+    { "name": "shop", "runtime": "Nodejs20.19" },
+    { "name": "showcase", "runtime": "Nodejs20.19" },
+    { "name": "stubCat", "runtime": "Nodejs20.19" },
+    { "name": "stubCheckin", "runtime": "Nodejs20.19" },
+    { "name": "stubTable", "runtime": "Nodejs20.19" },
+    { "name": "trip", "runtime": "Nodejs20.19" },
+    { "name": "wardrobe", "runtime": "Nodejs20.19" }
+  ]
+}

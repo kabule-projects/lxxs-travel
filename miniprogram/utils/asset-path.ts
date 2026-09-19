@@ -191,8 +191,10 @@ export const DEPART_ASSETS = {
 export const TRIP_ASSETS = {
   /** 出门提示整图（文案在图上） */
   bannerDepart: 'shared/trip-banner',
-  /** 回家提示整图（文案在图上） */
+  /** 回家提示整图·带回纪念品（文案在图上） */
   bannerReturn: 'shared/trip-banner-return',
+  /** 回家提示整图·空着手回来（文案在图上） */
+  bannerReturnEmpty: 'shared/trip-banner-return-empty',
 } as const;
 
 export const PROFILE_ASSETS = {

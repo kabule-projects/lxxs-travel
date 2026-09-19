@@ -2,6 +2,7 @@
   <view class="gr-panel" catchtap="onStop">
     <image class="gr-panel-bg" src="{{panelBg}}" mode="aspectFill" />
     <icon-close wx:if="{{!guideActive}}" class="gr-close" src="{{iconClose}}" size="{{64}}" bind:close="onClose" />
+    <view wx:if="{{title}}" class="gr-title">{{title}}</view>
 
     <view wx:if="{{single}}" class="gr-single">
       <view
