@@ -1,63 +1,59 @@
 <view class="sett-root" wx:if="{{visible}}">
   <view class="sett-backdrop" catchtap="onClose">
     <view class="sett-panel" catchtap="onStop">
-      <image class="sett-panel-bg" src="{{assets.panel}}" mode="widthFix" />
+      <image class="sett-panel-bg" src="{{assets.panel}}" mode="scaleToFill" />
 
-      <view class="sett-content">
-        <view class="sett-row">
-          <image
-            class="sett-toggle"
-            src="{{musicEnabled ? assets.toggleOn : assets.toggleOff}}"
-            mode="widthFix"
-            catchtap="onToggleMusic"
-          />
-        </view>
+      <!-- 所有热区按 settings/panel 切图（1029×1369）的相对坐标标定，
+           面板宽高双锁，热区随面板等比缩放，任何机型位置一致 -->
 
-        <view class="sett-row">
-          <image
-            class="sett-toggle"
-            src="{{sfxEnabled ? assets.toggleOn : assets.toggleOff}}"
-            mode="widthFix"
-            catchtap="onToggleSfx"
-          />
-        </view>
+      <!-- 音乐：右脸行中心 y≈25.1%；开关落在左侧角色与右脸之间 -->
+      <image
+        class="sett-toggle sett-toggle--music"
+        src="{{musicEnabled ? assets.toggleOn : assets.toggleOff}}"
+        mode="scaleToFill"
+        catchtap="onToggleMusic"
+      />
 
-        <!-- 通知：开/关两个按钮常驻同显，各自按状态切 selected/unselected 贴图；真实订阅逻辑未接 -->
-        <view class="sett-row sett-row--notify">
-          <image
-            class="sett-notify-btn"
-            src="{{notifyEnabled ? assets.notifyOnSel : assets.notifyOnUnsel}}"
-            mode="widthFix"
-            catchtap="onNotifyOn"
-          />
-          <image
-            class="sett-notify-btn"
-            src="{{!notifyEnabled ? assets.notifyOffSel : assets.notifyOffUnsel}}"
-            mode="widthFix"
-            catchtap="onNotifyOff"
-          />
-        </view>
+      <!-- 音效：右脸行中心 y≈41.2% -->
+      <image
+        class="sett-toggle sett-toggle--sfx"
+        src="{{sfxEnabled ? assets.toggleOn : assets.toggleOff}}"
+        mode="scaleToFill"
+        catchtap="onToggleSfx"
+      />
 
-        <!-- 兑换码入口：贴图含文字，位于通知下方、用户ID上方 -->
-        <view class="sett-row sett-row--redeem">
-          <image
-            class="sett-redeem-entry"
-            src="{{assets.redeemEntry}}"
-            mode="widthFix"
-            catchtap="onOpenRedeem"
-          />
-        </view>
+      <!-- 通知：开/关两个按钮常驻同显，各自按状态切 selected/unselected 贴图；
+           与「通知」文字行中心 y≈57.5% 对齐；真实订阅逻辑未接 -->
+      <image
+        class="sett-notify-btn sett-notify--on"
+        src="{{notifyEnabled ? assets.notifyOnSel : assets.notifyOnUnsel}}"
+        mode="scaleToFill"
+        catchtap="onNotifyOn"
+      />
+      <image
+        class="sett-notify-btn sett-notify--off"
+        src="{{!notifyEnabled ? assets.notifyOffSel : assets.notifyOffUnsel}}"
+        mode="scaleToFill"
+        catchtap="onNotifyOff"
+      />
 
-        <!-- id bar：贴图即整条 bar，文字叠在贴图居中区 -->
-        <view class="sett-user-bar">
-          <image class="sett-user-bar-bg" src="{{assets.userIdBar}}" mode="widthFix" />
-          <text class="sett-user-id">用户ID : {{userId || '—'}}</text>
-        </view>
+      <!-- 兑换码入口：贴图含文字，居中于通知与用户ID之间 -->
+      <image
+        class="sett-redeem-entry"
+        src="{{assets.redeemEntry}}"
+        mode="scaleToFill"
+        catchtap="onOpenRedeem"
+      />
 
-        <view class="sett-footer">
-          <text class="sett-version">版本 : {{appVersion}}</text>
-          <text class="sett-brand">SHENSHEN'S JOURNEYS</text>
-        </view>
+      <!-- id bar：贴图即整条 bar，文字叠在贴图居中区 -->
+      <view class="sett-user-bar">
+        <image class="sett-user-bar-bg" src="{{assets.userIdBar}}" mode="scaleToFill" />
+        <text class="sett-user-id">用户ID : {{userId || '—'}}</text>
+      </view>
+
+      <view class="sett-footer">
+        <text class="sett-version">版本 : {{appVersion}}</text>
+        <text class="sett-brand">SHENSHEN'S JOURNEYS</text>
       </view>
     </view>
   </view>

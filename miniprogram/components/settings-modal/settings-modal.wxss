@@ -19,82 +19,86 @@
   justify-content: center;
 }
 
-/* 面板由贴图定形（1029×1369 竖版）：宽 600rpx、高按切图比例显式定（→ 798rpx），
-   widthFix 加载前后同高不抖动；尺寸/圆角/边框全部来自贴图 */
+/* 面板宽高双锁（600×798rpx = 切图 1029×1369 等比）：
+   容器尺寸不依赖任何远程图片的加载时机/widthFix 行为，首帧即定型，
+   热区坐标所有机型、平台完全一致 */
 .sett-panel {
   position: relative;
   width: 600rpx;
-}
-
-.sett-panel-bg {
-  display: block;
-  width: 100%;
   height: 798rpx;
 }
 
-/* 内容区相对贴图百分比定位；top 需让开贴图内嵌的标题 */
-.sett-content {
+.sett-panel-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 音乐/音效开关（toggle 切图 261×111）：宽 25%，高 8%。
+   水平落在左角色与右脸之间（left 47.5%，右缘 72.5%）；
+   垂直按底图两行中心 y 25.1% / 41.2% 标定 */
+.sett-toggle {
+  position: absolute;
+  width: 25%;
+  height: 8%;
+  z-index: 1;
+}
+
+.sett-toggle--music {
+  left: 47.5%;
+  top: 22.5%;
+}
+
+.sett-toggle--sfx {
+  left: 47.5%;
+  top: 38%;
+}
+
+/* 通知开/关按钮（notification-* 168×108）：各宽 16%、高 7.7%、间距 4%，
+   与底图「通知」行中心 y≈57.5% 对齐 */
+.sett-notify-btn {
+  position: absolute;
+  width: 16%;
+  height: 7.7%;
+  z-index: 1;
+}
+
+.sett-notify--on {
+  left: 40%;
+  top: 53.6%;
+}
+
+.sett-notify--off {
+  left: 60%;
+  top: 53.6%;
+}
+
+/* 兑换码入口（redeem-btn 819×99，贴图含文字）：宽 83.3%、高 7.6%，水平居中 */
+.sett-redeem-entry {
+  position: absolute;
+  left: 50%;
+  top: 64%;
+  transform: translateX(-50%);
+  width: 83.3%;
+  height: 7.6%;
+  z-index: 1;
+}
+
+/* user-id-bar（824×156）：贴图即整条 bar，宽 84%、高 12%，文字绝对居中叠放 */
+.sett-user-bar {
   position: absolute;
   left: 8%;
-  right: 8%;
-  top: 22.5%;
-  bottom: 6%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.sett-row {
-  position: relative;
+  top: 73.5%;
+  width: 84%;
+  height: 12%;
   z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  /* 行距收紧：为兑换码入口行腾出空间，防内容溢出裁掉底部用户ID */
-  margin-bottom: 50rpx;
-  margin-right: 23%;
-}
-
-/* 兑换码入口行：居中全宽，缩减下边距 */
-.sett-row--redeem {
-  justify-content: center;
-  margin-right: 0;
-  margin-bottom: 16rpx;
-}
-
-.sett-toggle {
-  /* toggle 大小：width 定宽；显式定高 = 150rpx × 切图高宽比（toggle-on 261×111 / off 262×111），防抖动 */
-  width: 150rpx;
-  height: 64rpx;
-}
-
-/* 通知行：开/关两按钮同显居中 */
-.sett-row--notify {
-  justify-content: center;
-  margin-right: -20%;
-  margin-bottom: 28rpx;
-  gap: 24rpx;
-}
-
-.sett-notify-btn {
-  /* 单个通知按钮大小：width 定宽；显式定高 = 96rpx × 切图高宽比（notification-* 168×108），防抖动 */
-  width: 96rpx;
-  height: 62rpx;
-}
-
-/* user-bar：贴图即整条 bar（widthFix 定形），文字绝对居中叠放 */
-.sett-user-bar {
-  position: relative;
-  z-index: 1;
-  margin-top: auto;
-  width: 100%;
 }
 
 .sett-user-bar-bg {
-  display: block;
   width: 100%;
-  /* 显式定高 = 内容区宽（600rpx × 84% = 504rpx）× 切图高宽比（user-id-bar 824×156），防抖动 */
-  height: 110rpx;
+  height: 100%;
 }
 
 .sett-user-id {
@@ -111,9 +115,11 @@
 }
 
 .sett-footer {
-  position: relative;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 86.8%;
   z-index: 1;
-  margin-top: 16rpx;
   text-align: center;
 }
 
@@ -126,13 +132,8 @@
 
 .sett-brand {
   display: block;
+  margin-top: 6rpx;
   font-size: 19rpx;
   color: #a08878;
   letter-spacing: 2rpx;
 }
-
-/* 兑换码入口：贴图 819×99 长条按键（含文字），宽度固定 500rpx，高度随 widthFix */
-.sett-redeem-entry {
-  width: 500rpx;
-}
-
