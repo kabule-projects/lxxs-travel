@@ -48,7 +48,7 @@
       </view>
     </view>
 
-    <image class="gr-confirm-img guide-anchor-confirm" src="{{btnConfirm}}" mode="widthFix" catchtap="onConfirm" />
+    <image class="gr-confirm-img guide-anchor-confirm" src="{{btnConfirm}}" mode="scaleToFill" catchtap="onConfirm" />
   </view>
 
   <!-- 新手指引：强制确认（关闭按钮已隐藏，点遮罩暗区也不关闭） -->
