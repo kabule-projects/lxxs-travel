@@ -1,5 +1,6 @@
 {
   "navigationStyle": "custom",
+  "backgroundColor": "#ce824c",
   "usingComponents": {
     "nav-icon": "/components/nav-icon/nav-icon",
     "star-counter": "/components/star-counter/star-counter",

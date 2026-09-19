@@ -76,9 +76,9 @@
 
     <!-- 底部：木纹背景板 + 简介文字 + 购买按钮 -->
     <view class="footer-layer" style="bottom: {{footBottom}}px">
-      <image class="wood-board" src="{{assets.woodBoard}}" mode="widthFix" />
-
-      <view class="desc-text">
+      <!-- 木夹板与文案共用一个切图比例定位盒：文字坐标随板等比缩放，与板上横线恒对齐 -->
+      <view class="desc-board">
+        <image class="wood-board" src="{{assets.woodBoard}}" mode="scaleToFill" />
         <view class="desc-title">{{selectedName || '选择一件商品'}}</view>
         <view class="desc-body">{{selectedDesc || '点货架上的物品查看简介'}}</view>
       </view>

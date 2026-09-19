@@ -1,7 +1,10 @@
+/* 高度走 page(height:100%) 百分比链而非 100vh：部分机型 100vh ≠ 实际窗高，
+   会导致底部露出前置页、fixed 遮罩被裁切留白。
+   底色放在下层背景副本上（见 .shop-page-bg--back），根容器本身不着色 */
 .shop {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -14,16 +17,18 @@
   z-index: 0;
 }
 
-/* 背景副本：叠在主背景下方，从顶部 0 开始填充主背景 top:4% 留出的空隙 */
+/* 背景副本：叠在主背景下方，从顶部 0 开始填充主背景 top:4% 留出的空隙。
+   底色（page-bg 底部地板色）放在这层：CDN 背景图未加载/转场瞬间整屏已是该色，不露前置页 */
 .shop-page-bg--back {
   top: 0;
   z-index: -1;
+  background: #ce824c;
 }
 
 .shop-overlay {
   position: relative;
   z-index: 1;
-  min-height: 100vh;
+  height: 100%;
 }
 
 /* ── 顶栏（布局同 home/gacha）；top 由内联样式给定，避让右上角胶囊 ── */
@@ -237,34 +242,40 @@
   z-index: 4;
 }
 
-/* 木纹背景板：垫在商品名/介绍文本下方，覆盖 desc-text 区域；
-   显式定高 = footer 内容宽（屏宽 90%）× 82% × 切图高宽比（wood-board 1514×814），widthFix 加载前后同高不抖动 */
-.wood-board {
+/* 木夹板 + 文案共用定位盒：宽 82%（随屏宽缩放），高 298rpx = 切图 1514×814 等比。
+   板与文字同盒 → 任何机型文字与板上横线的相对位置恒定 */
+.desc-board {
   position: absolute;
   left: -2%;
   top: 8%;
   width: 82%;
   height: 298rpx;
   z-index: 1;
+}
+
+.wood-board {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
 }
 
-.desc-text {
+/* 商品名：位于纸张内框上沿（7.4%）与第 1 条横线（28.0%）之间的标题栏，垂直居中。
+   盒高（12.2% ≈ 36.4rpx）必须 ≥ 行高（line-height:1 = 36rpx），
+   否则 overflow:hidden 会把 36rpx 字形的上边缘裁掉 */
+.desc-title {
   position: absolute;
-  left: 9%;
-  right: 29%;
-  top: 15%;
-  bottom: 12%;
+  left: 12%;
+  right: 11%;
+  top: 16%;
+  height: 12.2%;
   z-index: 2;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  padding: 8rpx 12rpx;
-  box-sizing: border-box;
-}
-
-.desc-title {
-  font-size: 120%;
+  align-items: center;
+  font-size: 36rpx;
+  line-height: 1;
   font-weight: 700;
   color: #3f2e22;
   overflow: hidden;
@@ -272,12 +283,19 @@
   white-space: nowrap;
 }
 
+/* 简介：3 行行心分别落在夹板第 1/2/3 条横线（切图 y 28.0% / 47.7% / 67.1%）。
+   行距锁定 = 横线间距 160/814 ≈ 19.7% 盒高（58.5rpx）；字号用 rpx 不用 %，
+   避免旧写法 font-size:110%（随设备 px 基准漂移）导致文字与横线错位 */
 .desc-body {
-  flex: 1;
-  margin-top: 10rpx;
-  font-size: 110%;
+  position: absolute;
+  left: 12%;
+  right: 11%;
+  top: 32%;
+  height: 59%;
+  z-index: 2;
+  font-size: 36rpx;
   color: #6b5344;
-  line-height: 1.9;
+  line-height: 58rpx;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;

@@ -187,7 +187,7 @@
   transform: translateX(-50%);
   z-index: 1;
   display: block;
-  width: 48%;
+  width: 36%;
   /* 显式定高 = 面板宽 640.5rpx × 48% × 切图高宽比（btn-confirm 334×155），widthFix 加载前后同高不抖动 */
   height: 143rpx;
 }

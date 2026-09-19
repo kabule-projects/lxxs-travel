@@ -11,7 +11,6 @@
   justify-content: center;
 }
 
-/* 面板复用 gacha/result-panel 切图（1181×1359，奶白圆角面板）：宽度占屏 85.4% */
 .gp-panel {
   position: relative;
   width: 85.4%;
