@@ -86,14 +86,18 @@
   display: block;
 }
 
-/* 动图：与静态图同尺寸盒子叠放，挂载即可见（动图播放器从首帧起播；
-   先 opacity:0 隐藏会让播放时钟抢先于显示，露出时已播到结尾）。
-   首帧解码前图层为透明，下方静态图兜底；bindload 后静态图加 --hide 隐藏，无空档 */
+/* 动图：与静态图同尺寸盒子叠放，加载期间 opacity:0 隐藏；
+   bindload 后延迟 1 帧再 --anim-on 显示，让动画从首帧稳定起播 */
 .machine-img--anim {
   position: absolute;
   left: 0;
   top: 0;
   z-index: 2;
+  opacity: 0;
+}
+
+.machine-img--anim-on {
+  opacity: 1;
 }
 
 .machine-img--hide {

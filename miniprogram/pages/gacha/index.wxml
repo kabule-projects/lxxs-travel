@@ -21,9 +21,9 @@
     </view>
   </view>
 
-  <!-- 扭蛋机：宽度铺满屏幕、垂直居中。静态图常驻；抽奖时动图直接叠在同一盒子里，
-       挂载即可见（播放器必从首帧起播；若先 opacity:0 隐藏，播放时钟会抢先走过一段）；
-       bindload 首帧就位后再隐藏静态图，未解码期间由静态图兜底，无空档 -->
+  <!-- 扭蛋机：宽度铺满屏幕、垂直居中。静态图常驻；抽奖时动图叠在同一盒子里，
+       opacity:0 隐藏加载中的动图；bindload 后延迟 1 帧再显示（让动画从首帧稳定起播，
+       避免 image 组件先渲染尾帧导致"先播结尾再完整播"），同时隐藏静态图，无空档 -->
   <view class="machine-wrap">
     <image
       class="machine-img {{spinning && animReady ? 'machine-img--hide' : ''}}"
@@ -32,7 +32,7 @@
     />
     <image
       wx:if="{{spinning}}"
-      class="machine-img machine-img--anim"
+      class="machine-img machine-img--anim {{animReady ? 'machine-img--anim-on' : ''}}"
       src="{{animSrc}}"
       mode="aspectFit"
       bindload="onAnimLoad"

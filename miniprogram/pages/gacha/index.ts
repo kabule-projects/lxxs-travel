@@ -121,14 +121,17 @@ Page({
     });
   },
 
-  /** 动图加载完成：同一帧隐藏静态图、显示动图，并从这一刻起计时（动画真正开始播） */
+  /** 动图首帧加载完成：延迟 1 帧时长再显示，让动画从首帧稳定起播，避免先露尾帧 */
   onAnimLoad() {
     if (!this.data.spinning || this.data.animReady) return;
-    this.setData({ animReady: true });
-    const count = this._spinCount === 5 ? 5 : 1;
-    this._animTimer = setTimeout(() => {
-      this.finishSpin();
-    }, ANIM_MS[count]) as unknown as number;
+    setTimeout(() => {
+      if (!this.data.spinning || this.data.animReady) return;
+      this.setData({ animReady: true });
+      const count = this._spinCount === 5 ? 5 : 1;
+      this._animTimer = setTimeout(() => {
+        this.finishSpin();
+      }, ANIM_MS[count]) as unknown as number;
+    }, 166);
   },
 
   async reloadCatalog() {
@@ -179,11 +182,12 @@ Page({
 
   startSpin(count: 1 | 5) {
     const { assets } = this.data;
-    // 动图层挂载即可见（播放器从首帧起播），animReady=false 时静态图兜底；
-    // bindload 后才隐藏静态图并启动动画计时；抽奖请求并行发起
+    // 动图 opacity:0 隐藏加载；onAnimLoad 时清空再设回 src 强制重建，
+    // 确保动画从首帧起播（而非从 src 设置时刻偏移到结尾）。抽奖请求并行发起
     playSfx('gacha_drop');
     this._drawPromise = drawGacha(count);
     this._spinCount = count;
+    this._animReloaded = false;
     this.setData({
       spinning: true,
       animReady: false,
@@ -202,28 +206,21 @@ Page({
     if (this._animTimer) clearTimeout(this._animTimer);
     this._spinTimer = 0;
     this._animTimer = 0;
+    // 动画播完/跳过：立即移除动图层切回静态图，避免在 await 抽奖结果期间动图继续循环多播
+    this.setData({ spinning: false, animReady: false, animSrc: '' });
     try {
       const res = await this._drawPromise;
       setStars(res.stars);
       // 指引：先推进到结果确认步（页面遮罩隐藏，结果弹窗内部遮罩接管），再展示弹窗
       if (guide.isStep('gacha-draw')) guide.advance('gacha-result');
-      // 动图播完：移除动图层，静态图本就常驻（恢复可见），衔接奖品弹窗
       playSfx('gacha_result');
       this.setData({
-        spinning: false,
-        animReady: false,
-        animSrc: '',
         stars: res.stars,
         drawResults: res.results,
         showResult: true,
       });
       this.reloadCatalog();
     } catch (e) {
-      this.setData({
-        spinning: false,
-        animReady: false,
-        animSrc: '',
-      });
       wx.showToast({
         title: (e as Error).message || '抽取失败',
         icon: 'none',
