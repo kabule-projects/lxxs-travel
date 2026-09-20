@@ -7,7 +7,6 @@
       <view class="sc-detail-title">{{title}}</view>
       <!-- 小方块：底部物品背景 + 顶部纪念品图 -->
       <view class="sc-detail-image">
-        <image class="sc-detail-item-bg" src="{{itemBg}}" mode="aspectFill" />
         <image
           wx:if="{{image}}"
           class="sc-detail-img"
