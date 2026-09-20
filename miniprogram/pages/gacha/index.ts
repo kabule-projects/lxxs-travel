@@ -121,17 +121,14 @@ Page({
     });
   },
 
-  /** 动图首帧加载完成：延迟 1 帧时长再显示，让动画从首帧稳定起播，避免先露尾帧 */
+  /** 动图首帧加载完成：显示动图并启动播放计时（每次 src 带时间戳，必从首帧起播） */
   onAnimLoad() {
     if (!this.data.spinning || this.data.animReady) return;
-    setTimeout(() => {
-      if (!this.data.spinning || this.data.animReady) return;
-      this.setData({ animReady: true });
-      const count = this._spinCount === 5 ? 5 : 1;
-      this._animTimer = setTimeout(() => {
-        this.finishSpin();
-      }, ANIM_MS[count]) as unknown as number;
-    }, 166);
+    this.setData({ animReady: true });
+    const count = this._spinCount === 5 ? 5 : 1;
+    this._animTimer = setTimeout(() => {
+      this.finishSpin();
+    }, ANIM_MS[count]) as unknown as number;
   },
 
   async reloadCatalog() {
@@ -182,16 +179,17 @@ Page({
 
   startSpin(count: 1 | 5) {
     const { assets } = this.data;
-    // 动图 opacity:0 隐藏加载；onAnimLoad 时清空再设回 src 强制重建，
-    // 确保动画从首帧起播（而非从 src 设置时刻偏移到结尾）。抽奖请求并行发起
+    // 动图 opacity:0 隐藏加载。animSrc 加时间戳参数：强制 image 组件不复用
+    // 上次缓存的动画播放状态（否则第二次起会从上次停止的位置≈结尾继续播）。
+    // CDN 忽略 query 参数，HTTP 层面仍命中缓存，不会真正重新下载
     playSfx('gacha_drop');
     this._drawPromise = drawGacha(count);
     this._spinCount = count;
-    this._animReloaded = false;
+    const baseSrc = count === 5 ? assets.machineFive : assets.machineOne;
     this.setData({
       spinning: true,
       animReady: false,
-      animSrc: count === 5 ? assets.machineFive : assets.machineOne,
+      animSrc: `${baseSrc}?_t=${Date.now()}`,
     });
     // 兜底：动图加载失败/超慢时也不卡死，最多 ANIM_MS+5s 后收尾
     this._spinTimer = setTimeout(() => {
