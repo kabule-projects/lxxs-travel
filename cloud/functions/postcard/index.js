@@ -40,18 +40,31 @@ async function getUser(openid) {
   return found.data[0] || null;
 }
 
-async function loadActiveTrips(openid) {
-  const tripsRes = await db
-    .collection('trips')
-    .where({
-      userId: openid,
-      status: _.in(['traveling', 'returned']),
-    })
-    .limit(20)
-    .get();
+/**
+ * 加载信箱需要的全部行程：
+ * - traveling/returned：正常推进（明信片到期投递、到期归来发伴手礼）
+ * - at_home：已确认回家的历史行程不再推进，但其中 delivered 未收的信仍须留在信箱。
+ *   否则 claimHome 后鸽子提示与信件会一起消失（未读信被孤儿化，再也无法收取）
+ */
+async function loadMailTrips(openid) {
+  const [activeRes, homeRes] = await Promise.all([
+    db
+      .collection('trips')
+      .where({
+        userId: openid,
+        status: _.in(['traveling', 'returned']),
+      })
+      .limit(20)
+      .get(),
+    db
+      .collection('trips')
+      .where({ userId: openid, status: 'at_home' })
+      .limit(50)
+      .get(),
+  ]);
 
   const trips = [];
-  for (const raw of tripsRes.data || []) {
+  for (const raw of activeRes.data || []) {
     const advanced = await advanceTrip(
       db,
       _,
@@ -59,6 +72,9 @@ async function loadActiveTrips(openid) {
       null,
     );
     trips.push(advanced.trip);
+  }
+  for (const raw of homeRes.data || []) {
+    trips.push({ ...raw, _id: raw._id });
   }
   return trips;
 }
@@ -76,7 +92,7 @@ async function mailboxSync(openid) {
   const user = await getUser(openid);
   if (!user) return fail('用户不存在', 'NOT_FOUND');
 
-  const trips = await loadActiveTrips(openid);
+  const trips = await loadMailTrips(openid);
   const { items } = await collectAndTrimUnread(db, _, openid, trips);
   // 展示字段（type/title/rarity/imageThumb/imageFull/story）覆盖为 postcards 主表现值；
   // tripId/instanceId/deliverAt/status 等行程字段仍保留 trips 内嵌快照
@@ -103,11 +119,14 @@ async function mailboxSync(openid) {
     user.currentTripId &&
     trips.some((t) => t._id === user.currentTripId && t.status === 'traveling')
   );
-  /** 本次行程是否已送回过信（含已收的）：决定旅行中鸽子是否常驻在家 */
-  const hasDelivered = trips.some((t) =>
-    (t.postcards || []).some(
+  /** 本次行程是否已送回过信（含已收的）：决定旅行中鸽子是否常驻在家。
+   *  只看当前行程——历史 at_home 行程的投递记录不能影响新行程的鸽子外出态 */
+  const currentTrip = trips.find((t) => t._id === user.currentTripId);
+  const hasDelivered = !!(
+    currentTrip &&
+    (currentTrip.postcards || []).some(
       (p) => p.status === 'delivered' || p.status === 'claimed',
-    ),
+    )
   );
 
   const pigeonState = resolvePigeonState({

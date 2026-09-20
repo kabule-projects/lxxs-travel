@@ -179,7 +179,8 @@ Page({
 
   startSpin(count: 1 | 5) {
     const { assets } = this.data;
-    // 动图先隐藏加载（animReady=false），bindload 后才隐藏静态图并启动动画计时；抽奖请求并行发起
+    // 动图层挂载即可见（播放器从首帧起播），animReady=false 时静态图兜底；
+    // bindload 后才隐藏静态图并启动动画计时；抽奖请求并行发起
     playSfx('gacha_drop');
     this._drawPromise = drawGacha(count);
     this._spinCount = count;
