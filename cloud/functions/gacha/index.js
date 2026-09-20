@@ -142,6 +142,41 @@ async function collection(openid) {
   return ok({ items, total: items.length });
 }
 
+const LOCK_TTL_MS = 60 * 1000;
+
+/**
+ * 抢占抽取锁：同一用户同时只允许一个进行中的抽取流程。
+ * 锁带 TTL：异常残留（函数超时/崩溃）超过 60s 可被下一次抽取接管，避免永久锁死。
+ * @returns {boolean} true=抢到锁
+ */
+async function acquireDrawLock(user) {
+  const now = Date.now();
+  const res = await db
+    .collection('users')
+    .where({ _id: user._id, gachaBusy: null })
+    .update({ data: { gachaBusy: now } });
+  if (res.stats && res.stats.updated === 1) return true;
+  // 未抢到：检查是否残留死锁，超时则接管
+  const fresh = await db.collection('users').doc(user._id).get();
+  const busyAt = fresh.data && fresh.data.gachaBusy;
+  if (typeof busyAt === 'number' && now - busyAt > LOCK_TTL_MS) {
+    const steal = await db
+      .collection('users')
+      .where({ _id: user._id, gachaBusy: busyAt })
+      .update({ data: { gachaBusy: now } });
+    return !!(steal.stats && steal.stats.updated === 1);
+  }
+  return false;
+}
+
+async function releaseDrawLock(user) {
+  try {
+    await db.collection('users').doc(user._id).update({ data: { gachaBusy: null } });
+  } catch (e) {
+    /* 释放失败等 TTL 兜底 */
+  }
+}
+
 async function draw(openid, count, requestId) {
   const safeCount = count === GACHA_MULTI ? GACHA_MULTI : 1;
   if (!requestId) return fail('缺少 requestId', 'VALIDATION');
@@ -152,6 +187,19 @@ async function draw(openid, count, requestId) {
 
   const user = await getUser(openid);
   if (!user) return fail('用户不存在', 'NOT_FOUND');
+
+  // 流程锁：上一次抽取没收尾（进行中）时拒绝，保证"一个流程完了才能下一次"
+  if (!(await acquireDrawLock(user))) {
+    return fail('正在抽取中，请稍候', 'DRAW_IN_PROGRESS');
+  }
+  try {
+    return await doDraw(openid, user, safeCount, idemKey);
+  } finally {
+    await releaseDrawLock(user);
+  }
+}
+
+async function doDraw(openid, user, safeCount, idemKey) {
   // 教学模式由服务端按完成标志判定（未完成指引前抽奖即教学抽奖），不信任客户端入参
   const guideMode = !user.guideCompletedAt;
 

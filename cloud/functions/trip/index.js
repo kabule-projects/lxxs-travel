@@ -205,8 +205,34 @@ async function startTrip(openid, loadout, requestId) {
 
 /** 推进明信片投递 + 到期归来发伴手礼入展示柜 */
 async function syncTrip(openid) {
-  const user = await getUser(openid);
-  if (!user || !user.currentTripId) {
+  let user = await getUser(openid);
+  if (!user) return ok({ trip: null, delivered: [], souvenirGranted: null });
+
+  // 自愈：currentTripId 脱钩但存在未确认的归来（异常退出/并发/旧数据），
+  // 重新挂回最近一趟 returned，保证"回家播报"可达；否则这类行程永远卡死无人认领。
+  if (!user.currentTripId) {
+    try {
+      const orphan = await db
+        .collection('trips')
+        .where({ userId: openid, status: 'returned' })
+        .limit(10)
+        .get();
+      const latest = (orphan.data || []).reduce(
+        (a, b) => ((b.endAt || 0) > (a.endAt || 0) ? b : a),
+        null,
+      );
+      if (latest) {
+        await db.collection('users').doc(user._id).update({
+          data: { currentTripId: latest._id },
+        });
+        user = { ...user, currentTripId: latest._id };
+      }
+    } catch (e) {
+      /* 自愈失败不阻断同步 */
+    }
+  }
+
+  if (!user.currentTripId) {
     return ok({ trip: null, delivered: [], souvenirGranted: null });
   }
 
@@ -235,6 +261,51 @@ async function syncTrip(openid) {
 
 async function currentTrip(openid) {
   return syncTrip(openid);
+}
+
+/**
+ * 快速跳过旅行：把当前行程快进到"刚好结束"——
+ * 未投递明信片即刻送达、endAt 拨到现在，然后走正常 advanceTrip 收尾
+ *（归来 + 发伴手礼 + 订阅通知），效果与自然结束完全一致。
+ * 只接受 traveling 状态；returned/at_home 走正常 sync/claimHome 流程。
+ */
+async function skipTrip(openid) {
+  const user = await getUser(openid);
+  if (!user || !user.currentTripId) {
+    return fail('没有进行中的旅行', 'NO_TRIP');
+  }
+  const docRes = await db.collection('trips').doc(user.currentTripId).get();
+  const trip = docRes.data;
+  if (!trip) return fail('旅行不存在', 'NOT_FOUND');
+  if (trip.status !== 'traveling') {
+    return fail('旅行未在进行中', 'BAD_STATE');
+  }
+
+  const now = Date.now();
+  const postcards = (trip.postcards || []).map((p) =>
+    p.status === 'pending' ? { ...p, deliverAt: now } : p,
+  );
+  await db.collection('trips').doc(trip._id).update({
+    data: {
+      postcards,
+      postcardStatus: postcards.map((p) => p.status),
+      endAt: now,
+      updatedAt: now,
+      skippedAt: now,
+    },
+  });
+
+  const advanced = await advanceTrip(
+    db,
+    _,
+    { ...trip, postcards, endAt: now, _id: trip._id },
+    user,
+  );
+  return ok({
+    trip: advanced.trip,
+    delivered: advanced.delivered,
+    souvenirGranted: advanced.souvenirGranted,
+  });
 }
 
 async function doClaimHome(openid) {
@@ -297,6 +368,8 @@ exports.main = async (event) => {
         return await currentTrip(OPENID);
       case 'claimHome':
         return await doClaimHome(OPENID);
+      case 'skip':
+        return await skipTrip(OPENID);
       case 'farewell':
         return await farewell();
       default:

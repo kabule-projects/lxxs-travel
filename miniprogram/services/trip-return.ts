@@ -88,17 +88,8 @@ export async function resolveTripSyncView(): Promise<TripSyncView> {
 
   if (trip.status === 'returned') {
     stopReturnWatch();
-    // 该行程的回家横幅已展示过，但 claim 计时器可能因页面跳转被 onUnload 清掉，
-    // 导致行程永远停在 returned、每次进页面都重复弹横幅。
-    // 这里直接补收尾（claimHome），不再重复展示。
-    if (returnHandledTripId === trip._id) {
-      finishReturnFlow(trip._id, () => {});
-      return {
-        banner: { visible: false, mode: null },
-        showCharacter: true,
-        sync,
-      };
-    }
+    // 已回来未确认：每次都展示回家横幅（点确认或 5 秒后 claimHome → at_home，自然不再播）。
+    // 不可加"本会话展示过就跳过"的守卫：退出再进（热启动）会因此吞掉播报并静默确认。
     return {
       banner: {
         visible: true,

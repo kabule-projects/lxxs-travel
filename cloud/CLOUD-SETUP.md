@@ -632,7 +632,7 @@ npm run dev
 | 屋顶星星 | roof | sync / collect | users, roof_stars |
 | 商店 | shop | list / purchase / talk | items, users, user_inventory, daily_purchases, idempotency, copy_pool |
 | 背包 | inventory | list | user_inventory, items |
-| 出行 | trip | start / sync / claimHome / farewell | trips, users, items, destinations, postcards, game_config, user_inventory, user_showcase, copy_pool, idempotency |
+| 出行 | trip | start / sync / claimHome / farewell / skip | trips, users, items, destinations, postcards, game_config, user_inventory, user_showcase, copy_pool, idempotency |
 | 鸽子信箱 | postcard | mailbox / openMailbox / markSeen / claim | trips, user_postcards, users |
 | 日记 | postcard | diary | user_postcards, postcards |
 | 备忘录（日记页） | memo | get / save / list | memos, users, game_config |
