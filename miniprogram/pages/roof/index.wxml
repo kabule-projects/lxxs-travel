@@ -41,7 +41,7 @@
     <image
       wx:if="{{pigeonReady && pigeonState !== 'away' && !flyAway}}"
       class="pigeon-img {{pigeonState === 'mail' ? 'pigeon-img--mail' : ''}}"
-      src="{{pigeonState === 'mail' ? assets.pigeonMail : assets.pigeon}}"
+      src="{{mailFull ? assets.pigeonAngry : (pigeonState === 'mail' ? assets.pigeonMail : assets.pigeon)}}"
       mode="aspectFit"
     />
     <!-- 起飞动图：flyAway 窗口内插入，从调定的起始位（left/top/width）直接播放飞出动画 -->
