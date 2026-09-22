@@ -39,6 +39,8 @@ Component({
     bodyText: '',
     paragraphs: [] as string[],
     signText: DEFAULT_SIGN,
+    /** 字号基准：信纸渲染宽 × 5%，正文中所有 em 尺寸随信纸等比缩放 */
+    fontBase: 15,
     assets: {
       paper: '',
     } as LetterAssets,
@@ -64,6 +66,7 @@ Component({
         this.properties.story as string,
         this.properties.signature as string,
       );
+      this.measurePaper();
       if (this.properties.autoClaim && !this._claimedThisOpen) {
         this._claimedThisOpen = true;
         this.triggerEvent('claim');
@@ -93,6 +96,19 @@ Component({
         bodyText: parsed.body,
         paragraphs,
         signText: (signature || '').trim() || parsed.sign,
+      });
+    },
+
+    /** 测量信纸实际渲染宽度，按比例设定字号基准，使文字排版锁定信纸坐标系 */
+    measurePaper() {
+      wx.nextTick(() => {
+        this.createSelectorQuery()
+          .select('.dl-paper')
+          .boundingClientRect((rect: { width?: number } | null) => {
+            const w = rect && rect.width;
+            if (w) this.setData({ fontBase: w * 0.05 });
+          })
+          .exec();
       });
     },
 

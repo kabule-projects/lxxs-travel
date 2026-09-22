@@ -6,7 +6,7 @@
         class="dl-paper"
         style="background-image: url('{{assets.paper}}')"
       >
-        <view class="dl-paper-content">
+        <view class="dl-paper-content" style="font-size: {{fontBase}}px">
           <text class="dl-date" wx:if="{{dateText}}">{{dateText}}</text>
           <view class="dl-story">
             <text wx:for="{{paragraphs}}" wx:key="index" class="dl-story-p">{{item}}</text>
