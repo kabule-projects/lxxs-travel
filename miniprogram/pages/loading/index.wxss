@@ -6,27 +6,36 @@
   background: #2a1f4e;
 }
 
-.layer {
+/* 舞台：与背景图渲染盒完全一致——宽 100%、按切图比例显式定高
+   （loading-bg 828×1792，750rpx 宽 → 1623rpx）、垂直居中，上下溢出由 .scene 裁掉。
+   按钮/进度条以舞台为坐标系按百分比定位，屏幕比例变化时永远锚定背景图同一位置 */
+.stage {
   position: absolute;
   left: 0;
-  width: 100%;
-}
-
-/* 宽度适配 + 垂直居中：高度按切图比例显式定（loading-bg 828×1792，750rpx 宽 → 1623rpx），
-   widthFix 加载前后同高不抖动，上下溢出裁掉 */
-.layer-bg {
   top: 50%;
-  z-index: 0;
+  width: 100%;
   height: 1623rpx;
   transform: translateY(-50%);
 }
 
-/* 进度条占位：与 .enter-zone 完全同位（top 75.5%），加载中占着按钮的位置 */
+.layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+
+.layer-bg {
+  z-index: 0;
+  height: 100%;
+}
+
+/* 进度条占位：与 .enter-zone 完全同位（相对背景图 top 75.5%），加载中占着按钮的位置 */
 .loading-slot {
   position: absolute;
   left: 0;
   right: 0;
-  top: 75.5%;
+  top: 81%;
   z-index: 4;
   display: flex;
   justify-content: center;
@@ -38,7 +47,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 75.5%;
+  top: 81%;
   z-index: 4;
   display: flex;
   justify-content: center;

@@ -24,7 +24,6 @@ Page({
     bgSrc: '',
     btnEnterSrc: '',
     btnEnterDisabledSrc: '',
-    safeTop: 0,
     safeBottom: 0,
     sessionReady: false,
     /** 进度条米子图标：默认空走原皮，命中概率时替换为随机变装米 */
@@ -47,7 +46,6 @@ Page({
 
     const safe = readSafeArea();
     this.setData({
-      safeTop: safe.top,
       safeBottom: Math.max(safe.bottom, 0),
     });
     // 本次启动的米子皮肤：原皮 + 4 变装五选一（各 20%），整段 loading 不变

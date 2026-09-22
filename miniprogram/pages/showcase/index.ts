@@ -101,7 +101,7 @@ Page({
     // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮（同 home/roof）
     this.setData({
       hudTop: capsule.bottom + 12,
-      cabStyle: `left: ${screenW * 0.15}px; top: ${screenH * 0.225}px; width: ${screenW * 0.7}px; height: ${screenH * 0.62}px;`,
+      cabStyle: `left: ${screenW * 0.15}px; top: ${screenH * 0.22}px; width: ${screenW * 0.7}px; height: ${screenH * 0.635}px;`,
     });
     this.loadAssets();
     this.reload();
