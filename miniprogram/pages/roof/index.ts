@@ -14,6 +14,7 @@ import { playSfx, playTap, playBgm } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
 import { collectRoofStar, syncRoof } from '../../services/roof';
 import { formatRemain, mergeRoofStars, withRemain, type RoofStarDisplay, type RoofStarView } from '../../utils/roof-logic';
+import { toastCloudError } from '../../utils/net-error';
 import GAME from '../../utils/constants';
 import { emit, GameEvent, on } from '../../utils/event-bus';
 import { startTrip, claimHome, type TripLoadout } from '../../services/trip';
@@ -30,7 +31,6 @@ import {
 import {
   claimMail,
   openMailbox,
-  setLocalTraveling,
   syncMailbox,
   type MailItem,
   type PigeonState,
@@ -118,13 +118,9 @@ Page({
   },
 
   bindTripEvents() {
-    this._offReturned = on(GameEvent.TRIP_RETURNED, (payload) => {
-      const trip = (payload as {
-        trip?: { _id?: string; status?: string; souvenirs?: string[] };
-      })?.trip;
-      if (trip?.status === 'returned' && trip._id) {
-        this.showReturnBanner(trip._id, (trip.souvenirs?.length ?? 0) > 0);
-      }
+    this._offReturned = on(GameEvent.TRIP_RETURNED, () => {
+      // 到点唤醒：回家横幅统一由 syncTripState → resolveTripSyncView 展示，这里只重同步
+      void this.syncTripState();
     });
     this._offStarted = on(GameEvent.TRIP_STARTED, (payload) => {
       const endAt = (payload as { endAt?: number })?.endAt;
@@ -186,7 +182,7 @@ Page({
       }
       this.setData({ showTravelBanner: false });
     } catch {
-      /* ignore */
+      toastCloudError('roof-trip', '网络异常，旅行状态同步失败');
     }
   },
 
@@ -231,7 +227,8 @@ Page({
     this._offGuide?.();
     if (this._guideTimer) clearTimeout(this._guideTimer);
     setGuideBackGuard(false);
-    clearTripBannerTimer();
+    // 注意：不能清横幅定时器——它是模块级的，负责 5 秒后自动收下回家行程，
+    // 页面卸载时清掉会导致行程永远停在 returned、横幅反复弹出
     stopReturnWatch();
   },
 
@@ -281,7 +278,7 @@ Page({
 
   async syncFromServer() {
     try {
-      const res = await syncRoof(getStars(), getRiceStars());
+      const res = await syncRoof();
       const now = Date.now();
       setStars(res.stars);
       setRiceStars(res.riceStars);
@@ -305,6 +302,7 @@ Page({
       this.refreshGuide();
     } catch (e) {
       console.warn('[roof] sync fail', e);
+      toastCloudError('roof-sync', '网络异常，星星加载失败', 30_000);
     }
   },
 
@@ -323,6 +321,7 @@ Page({
     } catch {
       // 同步失败也解除隐藏，避免鸽子永远不出现
       this.setData({ pigeonReady: true });
+      toastCloudError('roof-mail', '网络异常，信箱同步失败', 30_000);
     }
   },
 
@@ -375,6 +374,8 @@ Page({
           });
         }
       }
+      // 捡完立刻补货：库存制下由 sync 马上补齐下一批，不用等落地节奏
+      void this.syncFromServer();
     } catch {
       this._dropped = prevDropped;
       this.setData({
@@ -431,8 +432,9 @@ Page({
         mailCap,
         mailFull: mailItems.length >= mailCap,
       });
-    } catch {
+    } catch (e) {
       this.setData({ showMailbox: true });
+      toastCloudError('roof-mail', (e as Error).message || '信箱打开失败');
     }
   },
 
@@ -507,7 +509,6 @@ Page({
   /** 出发成功后的统一收尾：关背包、鸽飞走、隐藏小深、弹出门口横幅 */
   applyDepartSuccess() {
     this.setData({ showBag: false, flyAway: true, charShenVisible: false });
-    setLocalTraveling(true);
     emit(GameEvent.CHARACTER_HIDDEN);
     this.showDepartBanner();
     this._flyTimer = setTimeout(() => {

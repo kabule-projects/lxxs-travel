@@ -13,13 +13,6 @@ export interface WardrobeListResult {
 }
 
 export async function listWardrobe(): Promise<WardrobeListResult> {
-  try {
-    return await call<WardrobeListResult>('wardrobe', { action: 'list' });
-  } catch {
-    return {
-      empty: true,
-      message: '衣柜还是空的，扭蛋服装将在后续版本出现',
-      items: [],
-    };
-  }
+  // 云端连不上直接抛错，由页面提示用户
+  return call<WardrobeListResult>('wardrobe', { action: 'list' });
 }

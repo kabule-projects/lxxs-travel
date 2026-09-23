@@ -54,6 +54,9 @@ async function startTrip(openid, loadout, requestId) {
     return fail('参数错误', 'VALIDATION');
   }
   const bento = (loadout.bento || '').trim();
+  if (!bento) {
+    return fail('小深不能空着肚子出门，先装一份食物吧', 'NEED_FOOD');
+  }
 
   if (requestId) {
     const idemKey = `trip:${openid}:${requestId}`;

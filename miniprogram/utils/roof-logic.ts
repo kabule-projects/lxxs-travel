@@ -89,10 +89,6 @@ export function rollRice(): boolean {
   return Math.random() < GAME.RICE_STAR_RATE;
 }
 
-export function rollInterval(): number {
-  return randomBetween(GAME.STAR_INTERVAL_MIN_MS, GAME.STAR_INTERVAL_MAX_MS);
-}
-
 export function makeId(): string {
   return `s_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
 }

@@ -3,6 +3,7 @@ import { assetWebp, assetCdnBase, LOADING_ASSETS, ROOF_SCENE_ASSETS, ROOF_ASSETS
 import { preloadImages } from '../../utils/preload';
 
 import { ensureSession } from '../../services/auth';
+import { getProfile } from '../../store/user';
 import { playTap, playBgm, preloadSfx, preloadBgm } from '../../services/sound';
 import { prefetchShowcase } from '../../services/showcase';
 import { prefetchShop } from '../../services/shop';
@@ -119,10 +120,23 @@ Page({
       await this.tickProgress(85, '同步数据…');
       this.setData({ sessionReady: true });
     } catch (e) {
-      console.warn('[loading] session fallback', e);
-      await ensureSession();
-      this.setData({ sessionReady: true });
-      await this.tickProgress(85, '同步数据…');
+      console.warn('[loading] session fail', e);
+      // 云端连不上：直接报错并给重试入口，不再回落本地身份继续（避免本地/云端数据打架）
+      // GM（admin）额外看到原始错误信息，便于现场定位
+      const profile = getProfile();
+      const rawMsg = (e as Error)?.message ? String((e as Error).message) : '';
+      const content =
+        profile?.gm && rawMsg
+          ? `无法连接服务器，请检查网络后重试\n${rawMsg}`
+          : '无法连接服务器，请检查网络后重试';
+      wx.showModal({
+        title: '连接失败',
+        content,
+        showCancel: false,
+        confirmText: '重试',
+        success: () => wx.reLaunch({ url: '/pages/loading/index' }),
+      });
+      return;
     }
 
     this._bootDone = true;

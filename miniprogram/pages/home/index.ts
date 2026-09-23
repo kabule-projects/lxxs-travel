@@ -7,8 +7,8 @@ import { emit, GameEvent, on } from '../../utils/event-bus';
 import { getRiceStars, getStars, isTraveling, setStars, setRiceStars } from '../../store/user';
 import { playSfx, playTap, playBgm } from '../../services/sound';
 import { navigateTo } from '../../utils/nav';
+import { toastCloudError } from '../../utils/net-error';
 import { startTrip, type TripLoadout } from '../../services/trip';
-import { setLocalTraveling } from '../../services/postcard';
 import type { GuideCompleteResult } from '../../services/api';
 import type { GachaResultItem } from '../../components/gacha-result/gacha-result';
 import {
@@ -123,7 +123,8 @@ Page({
     this._offGuide?.();
     if (this._guideTimer) clearTimeout(this._guideTimer);
     setGuideBackGuard(false);
-    clearTripBannerTimer();
+    // 注意：不能清横幅定时器——它是模块级的，负责 5 秒后自动收下回家行程，
+    // 页面卸载时清掉会导致行程永远停在 returned、横幅反复弹出
     stopReturnWatch();
     this.stopCat();
   },
@@ -171,7 +172,7 @@ Page({
         wx.showToast({ title: '收到伴手礼', icon: 'none' });
       }
     } catch {
-      /* ignore */
+      toastCloudError('home-trip', '网络异常，旅行状态同步失败');
     }
   },
 
@@ -235,13 +236,9 @@ Page({
     this._offStars = on(GameEvent.STARS_UPDATED, () => {
       this.syncWallet();
     });
-    this._offReturned = on(GameEvent.TRIP_RETURNED, (payload) => {
-      const trip = (payload as {
-        trip?: { _id?: string; status?: string; souvenirs?: string[] };
-      })?.trip;
-      if (trip?.status === 'returned' && trip._id) {
-        this.showReturnBanner(trip._id, (trip.souvenirs?.length ?? 0) > 0);
-      }
+    this._offReturned = on(GameEvent.TRIP_RETURNED, () => {
+      // 到点唤醒：回家横幅统一由 syncTripState → resolveTripSyncView 展示，这里只重同步
+      void this.syncTripState();
     });
     this._offStarted = on(GameEvent.TRIP_STARTED, (payload) => {
       const endAt = (payload as { endAt?: number })?.endAt;
@@ -373,7 +370,6 @@ Page({
     try {
       await startTrip(loadout);
       this.setData({ showBag: false });
-      setLocalTraveling(true);
       // 真实出发成功：新手指引全部完成（本地落标志 + 云端幂等回写）
       if (guide.isStep('bag-depart')) {
         const completed = await guide.complete();

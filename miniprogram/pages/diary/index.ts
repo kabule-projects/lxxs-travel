@@ -115,7 +115,16 @@ Page({
   },
 
   async reload() {
-    const allEntries = sortByClaimTime(await listDiary());
+    let allEntries;
+    try {
+      allEntries = sortByClaimTime(await listDiary());
+    } catch (e) {
+      wx.showToast({
+        title: (e as Error).message || '日记加载失败',
+        icon: 'none',
+      });
+      return;
+    }
     const present = new Set(allEntries.map((e) => e.type));
     const tabs = POSTCARD_TYPE_ORDER.filter((t) => present.has(t)).map((type) => ({
       type,

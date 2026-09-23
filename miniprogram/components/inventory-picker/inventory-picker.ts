@@ -13,6 +13,7 @@ import {
   type GuideHostCtx,
 } from '../../utils/guide-page';
 import type { GuideHole } from '../guide-overlay/guide-overlay';
+import { toastCloudError } from '../../utils/net-error';
 
 /** 加载动画：四只变装米子从左往右依次亮起再消失（复用 loading/mi-skins，纯 CSS 逐帧控制明暗） */
 const LOADING_CATS = ['mi-1', 'mi-2', 'mi-3', 'mi-4'].map((n) =>
@@ -127,8 +128,8 @@ Component({
             void measureGuideHost('inventory-picker', this as unknown as GuideHostCtx);
           });
         }
-      } catch (e) {
-        // 网络错误时静默降级为空列表，由用户重试
+      } catch {
+        toastCloudError('inv-picker', '网络异常，背包加载失败');
       } finally {
         if (seq === this._refreshSeq) {
           this.setData({ loading: false });
@@ -148,7 +149,7 @@ Component({
         if (seq !== this._refreshSeq) return;
         this.setData({ items });
       } catch {
-        /* ignore: 列表为空就是失败提示 */
+        toastCloudError('inv-picker', '网络异常，背包加载失败');
       } finally {
         if (seq === this._refreshSeq) {
           this.setData({ loading: false });

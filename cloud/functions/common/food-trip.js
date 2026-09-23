@@ -2,8 +2,9 @@
  * 旅行抽样 v2：food_pools 食物概率体系（目的地已废弃）。
  * 数据约定见 seed/food-pools.json：
  *   kind=food    每种食物一份：lostRate / basicRate / basicPool / rarePool
+ *                + souvenirBasicPool / souvenirRarePool（纪念品按行绑定，缺省回落全局池）
  *   kind=propBond 道具与专属食物绑定：bondedFood / bondedBonus / otherBonus
- *   kind=config  riceStarBonus / lostPostcardId / souvenirBasicPool / souvenirRarePool
+ *   kind=config  riceStarBonus / lostPostcardId / souvenirBasicPool / souvenirRarePool（全局兜底）
  */
 
 const { weightedPick, makeInstanceId, buildPostcardInstances } = require('./trip-engine');
@@ -91,11 +92,14 @@ function planFoodTrip({
       })
     : [];
 
-  // 伴手礼：仅成功且该食物未标记 noSouvenir 时，基础/稀有 70/30
+  // 伴手礼：仅成功且该食物未标记 noSouvenir 时，基础/稀有 70/30。
+  // 严格按行产出：优先用该食物自己的纪念品池（图右表逐行绑定），食物未配置才回落全局池
   let souvenirId = null;
   if (!lost && !foodPoolDoc.noSouvenir) {
     const useBasic = Math.random() < SOUVENIR_BASIC_RATE;
-    const pool = useBasic ? config.souvenirBasicPool : config.souvenirRarePool;
+    const pool = useBasic
+      ? foodPoolDoc.souvenirBasicPool || config.souvenirBasicPool
+      : foodPoolDoc.souvenirRarePool || config.souvenirRarePool;
     const ids = (pool || []).filter(Boolean);
     souvenirId = ids.length ? ids[Math.floor(Math.random() * ids.length)] : null;
   }

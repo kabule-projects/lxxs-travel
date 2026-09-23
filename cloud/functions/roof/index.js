@@ -2,9 +2,12 @@ const cloud = require('wx-server-sdk');
 const { ok, fail } = require('./common/response');
 const {
   STAR_INTERVAL_MIN_MS,
-  STAR_INTERVAL_MAX_MS,
-  STAR_PENDING_CAP,
   STAR_DROPPED_CAP,
+  STAR_TOTAL_CAP,
+  STAR_SPAWN_GAP_MIN_MS,
+  STAR_SPAWN_GAP_MAX_MS,
+  STAR_DROP_MIN_MS,
+  STAR_DROP_MAX_MS,
   randomInterval,
   randomSkyPos,
   randomPilePos,
@@ -133,28 +136,33 @@ async function syncStars(openid) {
     pending = pending.filter((s) => s._id !== star._id);
   }
 
+  // 随机节奏生成：到 nextSpawnAt 才生成 1 颗，间隔随机 8~40min，同屏总量封顶 STAR_TOTAL_CAP。
+  // 新星在天上停留 10min~4h 随机后落地，数量自然涨落，不时刻保持满额。
+  // 指引期间抑制普通星刷新，保持画面只有 9 颗教学星。
   let guard = 0;
-  while (now >= nextSpawnAt && pending.length < STAR_PENDING_CAP && guard < 8) {
-    guard += 1;
-    const sky = randomSkyPos(pending.length);
-    const doc = {
-      userId: openid,
-      type: isRice() ? 'rice' : 'normal',
-      status: 'pending',
-      ...sky,
-      x: 0,
-      y: 0,
-      rotate: 0,
-      spawnAt: now,
-      dropAt: now + randomInterval(STAR_INTERVAL_MIN_MS, STAR_INTERVAL_MAX_MS),
-    };
-    const addRes = await db.collection('roof_stars').add({ data: doc });
-    pending.push({ ...doc, _id: addRes._id });
-    nextSpawnAt = now + randomInterval(STAR_INTERVAL_MIN_MS, STAR_INTERVAL_MAX_MS);
-  }
-
-  if (pending.length >= STAR_PENDING_CAP && now >= nextSpawnAt) {
-    nextSpawnAt = now + randomInterval(STAR_INTERVAL_MIN_MS, STAR_INTERVAL_MAX_MS);
+  if (!inGuide) {
+    while (
+      now >= nextSpawnAt &&
+      pending.length + dropped.length < STAR_TOTAL_CAP &&
+      guard < 8
+    ) {
+      guard += 1;
+      const sky = randomSkyPos(pending.length);
+      const doc = {
+        userId: openid,
+        type: isRice() ? 'rice' : 'normal',
+        status: 'pending',
+        ...sky,
+        x: 0,
+        y: 0,
+        rotate: 0,
+        spawnAt: now,
+        dropAt: now + randomInterval(STAR_DROP_MIN_MS, STAR_DROP_MAX_MS),
+      };
+      const addRes = await db.collection('roof_stars').add({ data: doc });
+      pending.push({ ...doc, _id: addRes._id });
+      nextSpawnAt = now + randomInterval(STAR_SPAWN_GAP_MIN_MS, STAR_SPAWN_GAP_MAX_MS);
+    }
   }
 
   // 首次激活指引：一次性播种 8 普通 + 1 米（guideSeededAt 幂等）

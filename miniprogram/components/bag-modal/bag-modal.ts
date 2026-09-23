@@ -194,6 +194,14 @@ Component({
       // 指引中只有出发步可点 GO
       if (guide.isActive() && !guide.isStep('bag-depart')) return;
       const { food, riceStar, props } = this.data;
+      // 必须带食物才能出发（服务端 NEED_FOOD 双保险）
+      if (!food) {
+        wx.showToast({
+          title: '小深不能空着肚子出门，先装一份食物吧～',
+          icon: 'none',
+        });
+        return;
+      }
       const propIds = props
         .filter(Boolean)
         .map((p) => (p as SlotItem).id)
@@ -202,8 +210,7 @@ Component({
       this.setData({ pickerVisible: false });
       this.triggerEvent('depart', {
         loadout: {
-          // 允许空手出门：服务端走 food_pools 的 empty 配置（80% 迷路、无伴手礼）
-          bento: food ? food.id : '',
+          bento: food.id,
           riceStar: !!riceStar,
           props: propIds,
         },

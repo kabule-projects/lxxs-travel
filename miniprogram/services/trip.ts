@@ -1,14 +1,7 @@
 import { call } from './api';
-import { consumeItems, readInventoryCounts } from './inventory';
-import {
-  getRiceStars,
-  getProfile,
-  patchProfile,
-  setRiceStars,
-} from '../store/user';
+import { consumeItems } from './inventory';
+import { getRiceStars, patchProfile, setRiceStars } from '../store/user';
 import { emit, GameEvent } from '../utils/event-bus';
-import GAME from '../utils/constants';
-import { pushLocalDeliveredMail, type MailItem } from './postcard';
 
 export interface TripLoadout {
   bento: string;
@@ -23,142 +16,6 @@ export interface TripStartResult {
   startAt: number;
   endAt: number;
   usedRiceStar: boolean;
-}
-
-const TRIP_KEY = 'lxxs_trip_local';
-
-interface LocalTripPostcard {
-  instanceId: string;
-  postcardId: string;
-  type: MailItem['type'];
-  status: 'pending' | 'delivered' | 'claimed';
-  deliverAt: number;
-  title: string;
-  rarity: string;
-  imageThumb: string;
-  imageFull: string;
-  story: string;
-  isNew: boolean;
-}
-
-function makeLocalPostcards(
-  tripId: string,
-  startAt: number,
-  endAt: number,
-  foodName: string,
-): LocalTripPostcard[] {
-  const duration = Math.max(1, endAt - startAt);
-  const deliverAt = startAt + Math.floor(duration * 0.4);
-  return [
-    {
-      instanceId: `local_pm_${startAt}`,
-      postcardId: 'pc_local_park',
-      type: 'letter',
-      status: 'pending',
-      deliverAt,
-      title: foodName || '旅途明信片',
-      rarity: 'N',
-      imageThumb: '',
-      imageFull: '',
-      story: '今天天气很好，风轻轻吹过树叶。\n——旅行小深',
-      isNew: true,
-    },
-  ];
-}
-
-function advanceLocalPostcards(
-  tripId: string,
-  postcards: LocalTripPostcard[],
-): { postcards: LocalTripPostcard[]; delivered: MailItem[] } {
-  const now = Date.now();
-  const delivered: MailItem[] = [];
-  const next = postcards.map((p) => {
-    if (p.status !== 'pending' || p.deliverAt > now) return p;
-    const mail: MailItem = {
-      tripId,
-      instanceId: p.instanceId,
-      postcardId: p.postcardId,
-      type: p.type,
-      title: p.title,
-      rarity: p.rarity,
-      imageThumb: p.imageThumb,
-      imageFull: p.imageFull,
-      story: p.story,
-      deliverAt: p.deliverAt,
-      isNew: true,
-    };
-    delivered.push(mail);
-    pushLocalDeliveredMail(mail);
-    return { ...p, status: 'delivered' as const };
-  });
-  return { postcards: next, delivered };
-}
-
-function localStart(loadout: TripLoadout): TripStartResult {
-  const profile = getProfile();
-  if (profile?.currentTripId) {
-    const err = new Error('深深正在旅行中') as Error & { code?: string };
-    err.code = 'ALREADY_TRAVELING';
-    throw err;
-  }
-  if (loadout.riceStar && getRiceStars() < 1) {
-    const err = new Error('没有米字星') as Error & { code?: string };
-    err.code = 'NO_RICE_STAR';
-    throw err;
-  }
-
-  const propIds = (loadout.props || []).filter(Boolean).slice(0, GAME.BAG_PROP_SLOTS);
-  /** 道具（扭蛋产出）可随行但非消耗品：只校验持有，不扣库存 */
-  const counts = readInventoryCounts();
-  const ownsProps = propIds.every((id) => (counts[id] || 0) >= 1);
-  const okConsume = ownsProps && consumeItems([loadout.bento]);
-  if (!okConsume) {
-    const err = new Error('物品库存不足') as Error & { code?: string };
-    err.code = 'NO_STOCK';
-    throw err;
-  }
-
-  const usedRice = !!loadout.riceStar;
-  if (usedRice) {
-    setRiceStars(Math.max(0, getRiceStars() - 1));
-  }
-
-  const startAt = Date.now();
-  /** 本地联调：2–6 小时量级，缩短为 2–5 分钟便于测试 */
-  const durationMs = (2 + Math.random() * 3) * 60 * 1000;
-  const endAt = startAt + durationMs;
-  const tripId = `local_trip_${startAt}`;
-  const result: TripStartResult = {
-    tripId,
-    foodId: 'local_food',
-    foodName: '本地便当',
-    startAt,
-    endAt,
-    usedRiceStar: usedRice,
-  };
-
-  const postcards = makeLocalPostcards(
-    tripId,
-    startAt,
-    endAt,
-    result.foodName,
-  );
-
-  try {
-    wx.setStorageSync(TRIP_KEY, {
-      ...result,
-      loadout,
-      status: 'traveling',
-      postcards,
-    });
-  } catch {
-    /* ignore */
-  }
-
-  patchProfile({ currentTripId: tripId });
-  emit(GameEvent.TRIP_STARTED, result);
-  emit(GameEvent.INVENTORY_CHANGED, { reason: 'trip_start' });
-  return result;
 }
 
 export async function startTrip(loadout: TripLoadout): Promise<TripStartResult> {
@@ -193,8 +50,8 @@ export async function startTrip(loadout: TripLoadout): Promise<TripStartResult> 
     ) {
       throw e;
     }
-    console.warn('[trip] start 云端失败，回落本地', e);
-    return localStart(loadout);
+    // 云端失败直接抛错，不再本地模拟行程（避免本地/云端数据互相打架）
+    throw e;
   }
 }
 
@@ -209,7 +66,7 @@ export async function fetchFarewell(): Promise<string> {
     const res = await call<{ text: string }>('trip', { action: 'farewell' });
     if (res?.text) return res.text;
   } catch {
-    /* local */
+    /* 文案兜底，不涉及数据 */
   }
   return fallback[Math.floor(Math.random() * fallback.length)];
 }
@@ -221,6 +78,8 @@ export interface TripSyncResult {
     foodName?: string;
     endAt?: number;
     souvenirs?: string[];
+    /** true=本趟带回的纪念品是新品（前端据此播"带礼物回家"横幅）；false=已拥有；老数据无此字段 */
+    souvenirNew?: boolean;
   } | null;
   delivered: unknown[];
   souvenirGranted?: string | null;
@@ -234,100 +93,20 @@ export async function syncTrip(): Promise<TripSyncResult> {
     } else if (res.trip._id) {
       patchProfile({ currentTripId: res.trip._id });
     }
-    if (res.trip?.status === 'returned') {
-      emit(GameEvent.TRIP_RETURNED, res);
-    }
+    // 注意：这里不能 emit TRIP_RETURNED——调用方 resolveTripSyncView 才是横幅唯一展示入口，
+    // 事件先行显示会先把"已展示"守卫置上，导致 resolveTripSyncView 判定为已处理而把横幅压掉
     return res;
-  } catch {
-    return localSyncTrip();
-  }
-}
-
-function localSyncTrip(): TripSyncResult {
-  try {
-    const raw = wx.getStorageSync(TRIP_KEY) as {
-      tripId?: string;
-      status?: string;
-      endAt?: number;
-      foodName?: string;
-      souvenirs?: string[];
-      postcards?: LocalTripPostcard[];
-    } | '';
-    if (!raw || typeof raw !== 'object' || !raw.tripId) {
-      patchProfile({ currentTripId: undefined });
-      return { trip: null, delivered: [] };
-    }
-    const now = Date.now();
-    let status = raw.status || 'traveling';
-    const tripId = raw.tripId;
-    let postcards = Array.isArray(raw.postcards) ? raw.postcards : [];
-    if (!postcards.length && raw.endAt) {
-      postcards = makeLocalPostcards(
-        tripId,
-        now - 60000,
-        raw.endAt,
-        raw.foodName || '',
-      );
-    }
-    const advanced = advanceLocalPostcards(tripId, postcards);
-    postcards = advanced.postcards;
-    if (advanced.delivered.length) {
-      advanced.delivered.forEach(() => {
-        emit(GameEvent.POSTCARD_DELIVERED);
-      });
-    }
-    if (status === 'traveling' && raw.endAt && now >= raw.endAt) {
-      status = 'returned';
-    }
-    wx.setStorageSync(TRIP_KEY, { ...raw, status, postcards });
-    const trip = {
-      _id: tripId,
-      status,
-      endAt: raw.endAt,
-      foodName: raw.foodName,
-      souvenirs: raw.souvenirs || [],
-    };
-    if (status === 'at_home' || !trip) {
-      patchProfile({ currentTripId: undefined });
-    } else {
-      patchProfile({ currentTripId: tripId });
-    }
-    if (status === 'returned') {
-      emit(GameEvent.TRIP_RETURNED, { trip, delivered: advanced.delivered });
-    }
-    return { trip, delivered: advanced.delivered };
-  } catch {
-    return { trip: null, delivered: [] };
+  } catch (e) {
+    // 云端连不上直接抛错，不再回落本地模拟行程
+    throw e;
   }
 }
 
 export async function claimHome(): Promise<{ tripId: string; souvenirs: string[] }> {
-  try {
-    const res = await call<{ tripId: string; souvenirs: string[] }>('trip', {
-      action: 'claimHome',
-    });
-    patchProfile({ currentTripId: undefined });
-    emit(GameEvent.CHARACTER_VISIBLE);
-    emit(GameEvent.TRIP_RETURNED, res);
-    return res;
-  } catch {
-    let tripId = '';
-    let souvenirs: string[] = [];
-    try {
-      const raw = wx.getStorageSync(TRIP_KEY) as {
-        tripId?: string;
-        souvenirs?: string[];
-      } | '';
-      if (raw && typeof raw === 'object') {
-        tripId = raw.tripId || '';
-        souvenirs = raw.souvenirs || [];
-        wx.setStorageSync(TRIP_KEY, { ...raw, status: 'at_home' });
-      }
-    } catch {
-      /* ignore */
-    }
-    patchProfile({ currentTripId: undefined });
-    emit(GameEvent.CHARACTER_VISIBLE);
-    return { tripId, souvenirs };
-  }
+  const res = await call<{ tripId: string; souvenirs: string[] }>('trip', {
+    action: 'claimHome',
+  });
+  patchProfile({ currentTripId: undefined });
+  emit(GameEvent.CHARACTER_VISIBLE);
+  return res;
 }

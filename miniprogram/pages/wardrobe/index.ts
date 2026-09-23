@@ -29,11 +29,18 @@ Page({
   },
 
   async reload() {
-    const res = await listWardrobe();
-    this.setData({
-      empty: res.empty,
-      message: res.message || '衣柜还是空的',
-    });
+    try {
+      const res = await listWardrobe();
+      this.setData({
+        empty: res.empty,
+        message: res.message || '衣柜还是空的',
+      });
+    } catch (e) {
+      wx.showToast({
+        title: (e as Error).message || '衣柜加载失败',
+        icon: 'none',
+      });
+    }
   },
 
   onTapBack() {

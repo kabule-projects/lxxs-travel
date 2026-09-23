@@ -23,8 +23,9 @@ import type { GuideHole } from '../../components/guide-overlay/guide-overlay';
 
 type GachaAssets = Record<keyof typeof GACHA_ASSETS, string>;
 
-/** 抽扭蛋动图时长（ms）：需与 get_one / get_five 动图实际播放时长一致，到点衔接结果弹窗 */
-const ANIM_MS: Record<1 | 5, number> = { 1: 6000, 5: 6000 };
+/** 抽扭蛋动图时长（ms）：需与 get_one / get_five 动图实际播放时长一致，到点衔接结果弹窗。
+ * 素材实测 72 帧共 9.44s——之前配 6000 会在动画中途硬切，造成"每次都没播完/下次接着播"的重复感 */
+const ANIM_MS: Record<1 | 5, number> = { 1: 9400, 5: 9400 };
 
 Page({
   data: {
@@ -56,6 +57,9 @@ Page({
   /** 动画实际播放计时器：bindload（动图就绪）后才启动，保证抽1/抽5都完整播完 */
   _animTimer: 0 as number,
   _drawing: false,
+  /** 出发同步锁：onTapDraw 用内存标记防连点——setData 是异步的，快速点两下时
+   *  两次 onTapDraw 都会读到 data.spinning=false，导致动画/请求被重复触发 */
+  _drawLock: false,
   /** 当前抽奖次数（动画时长按次数取） */
   _spinCount: 0 as 0 | 1 | 5,
   /** 本次抽奖的进行中 Promise（与动图并行发起，动图播完/跳过时 await 它） */
@@ -132,8 +136,15 @@ Page({
   },
 
   async reloadCatalog() {
-    const catalog = await listGachaCatalog();
-    this.setData({ catalog });
+    try {
+      const catalog = await listGachaCatalog();
+      this.setData({ catalog });
+    } catch (e) {
+      wx.showToast({
+        title: (e as Error).message || '扭蛋机加载失败',
+        icon: 'none',
+      });
+    }
   },
 
   onTapBack() {
@@ -153,7 +164,7 @@ Page({
   },
 
   onTapDraw(e: WechatMiniprogram.TouchEvent) {
-    if (this.data.spinning || this.data.showResult) return;
+    if (this.data.spinning || this.data.showResult || this._drawLock) return;
     const count = Number(e.currentTarget.dataset.count) as 1 | 5;
     if (count !== 1 && count !== 5) return;
     // 指引单抽步：五连拒绝
@@ -168,6 +179,8 @@ Page({
       });
       return;
     }
+    // 先抢同步锁再出发，杜绝 setData 异步窗口内的双击重复触发
+    this._drawLock = true;
     this.startSpin(count);
   },
 
@@ -179,6 +192,11 @@ Page({
 
   startSpin(count: 1 | 5) {
     const { assets } = this.data;
+    // 防御：清理可能残留的上一轮计时器（双击竞态等极端路径），避免多个计时器连环收尾
+    if (this._spinTimer) clearTimeout(this._spinTimer);
+    if (this._animTimer) clearTimeout(this._animTimer);
+    this._spinTimer = 0;
+    this._animTimer = 0;
     // 动图 opacity:0 隐藏加载。animSrc 加时间戳参数：强制 image 组件不复用
     // 上次缓存的动画播放状态（否则第二次起会从上次停止的位置≈结尾继续播）。
     // CDN 忽略 query 参数，HTTP 层面仍命中缓存，不会真正重新下载
@@ -226,6 +244,7 @@ Page({
     } finally {
       this._drawing = false;
       this._drawPromise = null;
+      this._drawLock = false;
     }
   },
 

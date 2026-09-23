@@ -1,6 +1,5 @@
 import GAME from '../utils/constants';
 import { call } from './api';
-import { ITEM_CATALOG, listOwned } from './inventory';
 import { resolveDynamicAssetList } from '../utils/resolve-dynamic-asset';
 import { preloadImages } from '../utils/preload';
 
@@ -18,65 +17,6 @@ export interface ShowcaseListResult {
   total: number;
   totalPages: number;
   items: ShowcaseItemView[];
-}
-
-/** 无云数据时用持有物生成展柜联调数据 */
-function localList(): ShowcaseListResult {
-  const owned = listOwned('all');
-  const fromInv = owned.map((o, i) => ({
-    id: o.id,
-    itemId: o.id,
-    name: o.name,
-    icon: o.icon,
-    description: o.description,
-    obtainedAt: Date.now() - (owned.length - i) * 1000,
-  }));
-
-  const extras: ShowcaseItemView[] = [
-    {
-      id: 'demo_potato',
-      itemId: 'demo_potato',
-      name: '贵阳六中门口的狼牙土豆',
-      icon: '',
-      description: '放学时间在贵阳六中门口小摊前\n随机刷新一名周姓学子',
-      obtainedAt: 1,
-    },
-    {
-      id: 'demo_leaf',
-      itemId: 'demo_leaf',
-      name: '一片会说话的叶子',
-      icon: '',
-      description: '叶子上写着：记得喝水。',
-      obtainedAt: 2,
-    },
-  ];
-
-  const seen = new Set(fromInv.map((i) => i.itemId));
-  for (const e of extras) {
-    if (!seen.has(e.itemId)) fromInv.push(e);
-  }
-
-  for (const c of ITEM_CATALOG) {
-    if (fromInv.length >= GAME.SHOWCASE_PAGE_SIZE * 2) break;
-    if (seen.has(c.id)) continue;
-    seen.add(c.id);
-    fromInv.push({
-      id: c.id,
-      itemId: c.id,
-      name: c.name,
-      icon: c.icon,
-      description: c.description,
-      obtainedAt: fromInv.length,
-    });
-  }
-
-  const pageSize = GAME.SHOWCASE_PAGE_SIZE;
-  return {
-    pageSize,
-    total: fromInv.length,
-    totalPages: Math.max(1, Math.ceil(fromInv.length / pageSize) || 1),
-    items: fromInv,
-  };
 }
 
 function normalizeList(res: ShowcaseListResult): ShowcaseListResult {
@@ -98,7 +38,7 @@ async function fetchCloud(): Promise<ShowcaseListResult> {
   if (!res || !Array.isArray(res.items)) {
     throw new Error('展示柜响应异常');
   }
-  const items = await resolveDynamicAssetList(res.items, ['icon']);
+  const items = (await resolveDynamicAssetList(res.items, ['icon'])) as ShowcaseItemView[];
   cache = normalizeList({ ...res, items });
   return cache;
 }
@@ -116,14 +56,14 @@ export async function prefetchShowcase(): Promise<void> {
   }
 }
 
-/** 有缓存先吃缓存秒开；force=true 强制走云端拉新（预取/刷新用） */
+/** 有缓存先吃缓存秒开；force=true 强制走云端拉新。云端连不上且无缓存时直接抛错 */
 export async function listShowcase(force = false): Promise<ShowcaseListResult> {
   if (!force && cache) return cache;
   try {
     return await fetchCloud();
-  } catch {
+  } catch (e) {
     if (cache) return cache;
-    return localList();
+    throw e;
   }
 }
 

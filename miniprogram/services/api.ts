@@ -5,6 +5,35 @@ export interface CloudResult<T = unknown> {
   code?: string;
 }
 
+import { getProfile } from '../store/user';
+
+/** 从 wx.cloud 传输层错误文本里提取 errCode（形如 errCode: -504002） */
+function extractErrCode(err: unknown): string {
+  const msg = ((err as Error)?.message || String(err || '')) as string;
+  const m = /errCode:\s*(-?\d+)/.exec(msg);
+  return m ? m[1] : '';
+}
+
+/**
+ * GM（admin 用户）在错误消息里直接看到 errCode，便于现场定位问题；
+ * 普通用户保持原样。返回原错误对象（原地补充 message/errCode）。
+ */
+function decorateErrorForGm(err: unknown): unknown {
+  const e = err as Error & { errCode?: string };
+  if (!e || typeof e !== 'object') return err;
+  e.errCode = e.errCode || extractErrCode(e);
+  const profile = getProfile();
+  if (
+    e.errCode &&
+    profile?.gm &&
+    typeof e.message === 'string' &&
+    !e.message.includes(`[${e.errCode}]`)
+  ) {
+    e.message = `${e.message} [${e.errCode}]`;
+  }
+  return e;
+}
+
 export interface UserProfile {
   _id?: string;
   userId: string;
@@ -59,12 +88,19 @@ export async function call<T>(
   if (!wx.cloud) {
     throw new Error('云开发不可用');
   }
-  const res = await withTimeout(
-    wx.cloud.callFunction({ name, data }),
-    TIMEOUT_MS,
-    `云函数 ${name} 调用超时`,
-  );
-  const result = normalizeResult<T>(res.result);
+  let raw;
+  try {
+    raw = await withTimeout(
+      wx.cloud.callFunction({ name, data }),
+      TIMEOUT_MS,
+      `云函数 ${name} 调用超时`,
+    );
+  } catch (e) {
+    // 传输层错误（网络/超时/平台错误码）：打全量日志 + 提取 errCode，GM 可见
+    console.warn(`[api] callFunction ${name} fail`, e);
+    throw decorateErrorForGm(e);
+  }
+  const result = normalizeResult<T>(raw.result);
   if (!result.ok) {
     const err = new Error(result.error || '云函数错误');
     (err as Error & { code?: string }).code = result.code;

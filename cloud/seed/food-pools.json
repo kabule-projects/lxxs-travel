@@ -12,6 +12,12 @@
       "pc_11",
       "pc_10"
     ],
+    "souvenirBasicPool": [
+      "souvenir_rose_blue"
+    ],
+    "souvenirRarePool": [
+      "souvenir_album2"
+    ],
     "enabled": true
   },
   {
@@ -26,6 +32,13 @@
       "pc_09",
       "pc_08",
       "pc_06"
+    ],
+    "souvenirBasicPool": [
+      "souvenir_frame_1"
+    ],
+    "souvenirRarePool": [
+      "souvenir_frame_2",
+      "souvenir_frame_3"
     ],
     "enabled": true
   },
@@ -42,6 +55,12 @@
       "pc_16",
       "pc_14"
     ],
+    "souvenirBasicPool": [
+      "souvenir_biaobiao_s"
+    ],
+    "souvenirRarePool": [
+      "souvenir_youtiao"
+    ],
     "enabled": true
   },
   {
@@ -56,6 +75,12 @@
       "pc_03",
       "pc_18"
     ],
+    "souvenirBasicPool": [
+      "souvenir_rose_red"
+    ],
+    "souvenirRarePool": [
+      "souvenir_album1"
+    ],
     "enabled": true
   },
   {
@@ -68,6 +93,13 @@
     ],
     "rarePool": [
       "pc_01"
+    ],
+    "souvenirBasicPool": [
+      "souvenir_cake_knife"
+    ],
+    "souvenirRarePool": [
+      "souvenir_glasses",
+      "souvenir_kitchen_knife"
     ],
     "enabled": true
   },

@@ -1,10 +1,18 @@
 /** 与 shared/constants.ts 对齐，供云函数使用 */
 module.exports = {
+  // 旧的时间间隔制参数：仅 resetGuideProgress 初始化 nextSpawnAt 仍用 MIN，其余保留兼容
   STAR_INTERVAL_MIN_MS: 180000,
   STAR_INTERVAL_MAX_MS: 1800000,
   STAR_PENDING_CAP: 5,
   STAR_DROPPED_CAP: 20,
-  RICE_STAR_RATE: 0.15,
+  // 随机节奏生成：到 nextSpawnAt 才生成 1 颗，生成间隔随机 8~40min，同屏总量封顶 STAR_TOTAL_CAP；
+  // 新星在天上停留 10min~4h 随机后落地，同屏数量自然涨落，不时刻保持满额
+  STAR_TOTAL_CAP: 10,
+  STAR_SPAWN_GAP_MIN_MS: 480000,
+  STAR_SPAWN_GAP_MAX_MS: 2400000,
+  STAR_DROP_MIN_MS: 600000,
+  STAR_DROP_MAX_MS: 14400000,
+  RICE_STAR_RATE: 0.2,
   SHOP_PAGE_SIZE: 6,
   DAILY_BUY_LIMIT: 1,
   BAG_FOOD_SLOTS: 1,
@@ -51,7 +59,7 @@ function randomPilePos(index = 0) {
 }
 
 function isRice() {
-  return Math.random() < 0.0929;
+  return Math.random() < module.exports.RICE_STAR_RATE;
 }
 
 module.exports.randomInterval = randomInterval;

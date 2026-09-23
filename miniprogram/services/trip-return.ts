@@ -1,5 +1,4 @@
 import { claimHome, syncTrip, type TripSyncResult } from './trip';
-import { setLocalTraveling } from './postcard';
 import { prefetchShowcase } from './showcase';
 import { emit, GameEvent } from '../utils/event-bus';
 
@@ -44,7 +43,12 @@ export function runDepartBannerFlow(onHide: () => void) {
   clearTripBannerTimer();
   bannerTimer = setTimeout(() => {
     bannerTimer = 0;
-    onHide();
+    // 页面可能已卸载（横幅展示期间被切走/返回），隐藏失败不影响流程
+    try {
+      onHide();
+    } catch {
+      /* ignore */
+    }
   }, TRIP_BANNER_MS) as unknown as number;
 }
 
@@ -56,6 +60,7 @@ export function scheduleReturnWatch(endAt?: number, onReturn?: () => void) {
     watchTimer = 0;
     const res = await syncTrip();
     if (res.trip?.status === 'returned') {
+      // 只当唤醒通知：各页面收到后重跑 syncTripState，横幅展示统一由 resolveTripSyncView 负责
       emit(GameEvent.TRIP_RETURNED, res);
       onReturn?.();
     }
@@ -76,9 +81,8 @@ export async function resolveTripSyncView(): Promise<TripSyncView> {
   }
 
   if (trip.status === 'traveling') {
-    scheduleReturnWatch(trip.endAt, () => {
-      emit(GameEvent.TRIP_RETURNED, { trip });
-    });
+    // 到点唤醒：emit 通知页面重同步，横幅展示由 resolveTripSyncView 统一负责
+    scheduleReturnWatch(trip.endAt);
     return {
       banner: { visible: false, mode: null },
       showCharacter: false,
@@ -88,13 +92,20 @@ export async function resolveTripSyncView(): Promise<TripSyncView> {
 
   if (trip.status === 'returned') {
     stopReturnWatch();
-    // 已回来未确认：每次都展示回家横幅（点确认或 5 秒后 claimHome → at_home，自然不再播）。
-    // 不可加"本会话展示过就跳过"的守卫：退出再进（热启动）会因此吞掉播报并静默确认。
+    // 同一行程的回家横幅只展示一遍：已展示过（收下倒计时进行中）则不再播，
+    // 避免切换页面后横幅重新出现且无人收尾；冷启动（进程重开）守卫清空，仍会再播一次。
+    if (isReturnBannerHandled(trip._id)) {
+      return {
+        banner: { visible: false, mode: null },
+        showCharacter: true,
+        sync,
+      };
+    }
     return {
       banner: {
         visible: true,
         mode: 'return',
-        returnHasSouvenir: (trip.souvenirs?.length ?? 0) > 0,
+        returnHasSouvenir: hasNewReturnSouvenir(trip),
       },
       showCharacter: true,
       sync,
@@ -117,10 +128,31 @@ async function finishReturnFlow(tripId: string, onHide: () => void) {
   } catch {
     /* 可能已 claim */
   }
-  setLocalTraveling(false);
   emit(GameEvent.CHARACTER_VISIBLE);
   returnHandledTripId = null;
-  onHide();
+  // 页面可能已卸载（横幅展示期间被切走/返回），隐藏失败不影响收尾
+  try {
+    onHide();
+  } catch {
+    /* ignore */
+  }
+}
+
+/** 回家横幅是否已为该行程展示过（收下倒计时进行中，不再重复展示） */
+export function isReturnBannerHandled(tripId: string): boolean {
+  return !!tripId && returnHandledTripId === tripId;
+}
+
+/**
+ * 回家横幅是否用"带礼物"图：只有带回的纪念品是新品（用户之前没有）才用。
+ * souvenirNew 由服务端在发放时查重写入；老行程无此字段则回退到"有纪念品即带礼物"。
+ */
+export function hasNewReturnSouvenir(trip: {
+  souvenirs?: string[];
+  souvenirNew?: boolean;
+}): boolean {
+  if (typeof trip.souvenirNew === 'boolean') return trip.souvenirNew;
+  return (trip.souvenirs?.length ?? 0) > 0;
 }
 
 /** 归来提示：5 秒后 claimHome 并隐藏 */
@@ -128,7 +160,7 @@ export function runReturnBannerFlow(
   tripId: string,
   onHide: () => void,
 ): boolean {
-  if (!tripId || returnHandledTripId === tripId) return false;
+  if (!tripId || isReturnBannerHandled(tripId)) return false;
   returnHandledTripId = tripId;
   clearTripBannerTimer();
   bannerTimer = setTimeout(() => {

@@ -26,6 +26,8 @@ async function advanceTrip(db, _, trip, userDoc) {
   let status = trip.status;
   let souvenirs = Array.isArray(trip.souvenirs) ? [...trip.souvenirs] : [];
   let souvenirGranted = null;
+  // null=本次未发放（不写入文档，避免覆盖历史值）；true=用户首次获得；false=已拥有（重复带回）
+  let souvenirNew = null;
   let returnedNow = false;
 
   if (status === 'traveling' && now >= trip.endAt) {
@@ -39,12 +41,16 @@ async function advanceTrip(db, _, trip, userDoc) {
         // v2 行程：严格按出发时抽样结果发，迷路（souvenirId=null）不发
         sid = trip.plan.souvenirId || null;
       } else {
-        // 老行程（无 plan 字段）fallback：从 food_pools 全局伴手礼池随机抽 1 件
+        // 老行程（无 plan 字段）fallback：按该食物的纪念品行抽（未配置回落全局池）
         try {
-          const { config } = await loadFoodPools(db);
-          const pool = (config.souvenirBasicPool || []).concat(
-            config.souvenirRarePool || [],
-          );
+          const { config, foods } = await loadFoodPools(db);
+          const foodDoc = foods.get(trip.foodId);
+          const pool =
+            foodDoc &&
+            (foodDoc.souvenirBasicPool || []).concat(foodDoc.souvenirRarePool || [])
+              .length
+              ? (foodDoc.souvenirBasicPool || []).concat(foodDoc.souvenirRarePool || [])
+              : (config.souvenirBasicPool || []).concat(config.souvenirRarePool || []);
           sid = pickSouvenir(pool);
         } catch (e) {
           sid = null;
@@ -62,7 +68,20 @@ async function advanceTrip(db, _, trip, userDoc) {
             .limit(1)
             .get();
           if (isShowcaseItem(itemRes.data[0])) {
-            await unlockShowcase(db, trip.userId, sid, { source: 'trip' });
+            // 发放前查重：用户已拥有则展示柜不重复入柜（唯一索引兜底并发），
+            // 同时记 souvenirNew=false，前端据此不播"带新礼物回家"横幅
+            const dup = await db
+              .collection('user_showcase')
+              .where({ userId: trip.userId, itemId: sid })
+              .count()
+              .catch(() => null);
+            souvenirNew = !dup || !dup.total;
+            if (souvenirNew) {
+              await unlockShowcase(db, trip.userId, sid, { source: 'trip' });
+            }
+          } else {
+            // 非展示柜物品（只进背包）：不存在"柜内重复"概念，视为新品
+            souvenirNew = true;
           }
         } catch (e) {
           /* 查主表失败不阻断行程推进 */
@@ -72,14 +91,16 @@ async function advanceTrip(db, _, trip, userDoc) {
   }
 
   if (changed) {
+    const patch = {
+      postcards,
+      postcardStatus: postcards.map((p) => p.status),
+      status,
+      souvenirs,
+      updatedAt: now,
+    };
+    if (souvenirNew !== null) patch.souvenirNew = souvenirNew;
     await db.collection('trips').doc(tripId).update({
-      data: {
-        postcards,
-        postcardStatus: postcards.map((p) => p.status),
-        status,
-        souvenirs,
-        updatedAt: now,
-      },
+      data: patch,
     });
   }
 
@@ -101,6 +122,8 @@ async function advanceTrip(db, _, trip, userDoc) {
       postcards,
       status,
       souvenirs,
+      // 本次发放的写新值；历史行程沿用文档里已有的值
+      souvenirNew: souvenirNew !== null ? souvenirNew : trip.souvenirNew,
     },
     changed,
     souvenirGranted,

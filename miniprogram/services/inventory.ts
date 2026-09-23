@@ -160,7 +160,7 @@ export function listOwned(category?: InvCategory | 'all'): InvItemView[] {
   }));
 }
 
-/** 优先云端库存；失败回落本地 */
+/** 云端库存；连不上直接抛错，由调用方提示用户 */
 export async function fetchOwned(
   category: InvCategory | 'all' = 'all',
 ): Promise<InvItemView[]> {
@@ -198,10 +198,10 @@ export async function fetchOwned(
               : ('prop' as InvCategory)),
       }));
     }
+    throw new Error('库存数据异常');
   } catch (e) {
-    console.warn('[inventory] 云端库存获取失败，回落本地', e);
+    throw e;
   }
-  return listOwned(category);
 }
 
 export function getItemMeta(id: string) {
