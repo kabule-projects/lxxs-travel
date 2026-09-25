@@ -1,14 +1,15 @@
-.trip-banner {
-  position: absolute;
+/* 全屏遮罩：盖住页面所有可点元素，catchtap 拦截点击并触发 dismiss */
+.trip-banner-mask {
+  position: fixed;
   left: 0;
+  top: 0;
   right: 0;
-  top: 50%;
+  bottom: 0;
   z-index: 25;
-  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: auto;
 }
 
 /* 显式定高 = 屏宽 750rpx × 切图高宽比（trip-banner 1243×176 / return 1243×177），

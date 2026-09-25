@@ -1,4 +1,5 @@
-<view class="trip-banner" wx:if="{{visible}}" catchtap="onTap">
+<!-- 全屏遮罩：横幅期间拦截页面所有交互，点遮罩任意处立即关闭（5 秒自动消失由页面侧定时器兜底） -->
+<view class="trip-banner-mask" wx:if="{{visible}}" catchtap="onTap">
   <!-- 完整提示图（文案已画在图上），按出发/归来切换 -->
   <image
     class="trip-banner-img"

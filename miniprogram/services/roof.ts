@@ -24,3 +24,14 @@ export async function collectRoofStar(starId: string): Promise<{
 }> {
   return call('roof', { action: 'collect', starId });
 }
+
+/** 一键收取所有已落地的星星（新手指引期间前端不展示入口） */
+export async function collectAllRoofStars(): Promise<{
+  collected: number;
+  normal: number;
+  rice: number;
+  stars: number;
+  riceStars: number;
+}> {
+  return call('roof', { action: 'collectAll' });
+}

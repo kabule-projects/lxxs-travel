@@ -111,23 +111,19 @@ async function collectAndTrimUnread(db, _, openid, tripDocs) {
 }
 
 /** pigeonVisual: away | mail | idle
- *  away：旅行中且本次行程还没送回过信（鸽子在路上）
- *  mail：有未读信（嘴上叼信，在家）
- *  idle：在家。旅行中但已送回过信（哪怕已收）也算 idle——鸽子中途回来就不走了，
- *        直到下一次出发 */
+ *  away：旅行中且本次行程还没送回过信——鸽子跟小深飞走了。
+ *        上一趟留下的未读信留在信箱里等回来，不因此把鸽子留在家（旧逻辑会误留）。
+ *  mail：信箱里有未收取的信（嘴上叼信，在家）。只要信没被收取，气泡就不消失——
+ *        打开信箱看过也不算数（用户要求：以"收取"为准）。
+ *  idle：在家且无未收取的信。旅行中但已送回过信（哪怕已收）也算 idle——
+ *        鸽子中途回来就不走了，直到下一次出发 */
 function resolvePigeonState({
   traveling,
   unreadCount,
-  lastMailboxOpenAt,
-  newestDeliverAt,
   hasDelivered,
 }) {
-  if (traveling && unreadCount === 0 && !hasDelivered) return 'away';
-  if (unreadCount > 0) {
-    const opened = lastMailboxOpenAt || 0;
-    const newest = newestDeliverAt || 0;
-    if (newest > opened) return 'mail';
-  }
+  if (traveling && !hasDelivered) return 'away';
+  if (unreadCount > 0) return 'mail';
   return 'idle';
 }
 

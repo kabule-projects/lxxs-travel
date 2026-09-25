@@ -4,6 +4,7 @@ const {
   STAR_INTERVAL_MIN_MS,
   STAR_DROPPED_CAP,
   STAR_TOTAL_CAP,
+  STAR_AWAY_MS,
   STAR_SPAWN_GAP_MIN_MS,
   STAR_SPAWN_GAP_MAX_MS,
   STAR_DROP_MIN_MS,
@@ -125,28 +126,53 @@ async function syncStars(openid) {
   let dropped = await listByStatus(openid, 'dropped');
   let nextSpawnAt = user.nextSpawnAt || now;
 
-  const due = pending.filter((s) => s.dropAt <= now).sort((a, b) => a.dropAt - b.dropAt);
-  for (const star of due) {
-    if (dropped.length >= STAR_DROPPED_CAP) break;
-    const pile = randomPilePos(dropped.length);
-    await db.collection('roof_stars').doc(star._id).update({
-      data: { status: 'dropped', ...pile },
-    });
-    dropped.push({ ...star, status: 'dropped', ...pile });
-    pending = pending.filter((s) => s._id !== star._id);
+  /** 到期 pending → 落地（闭包共享 pending/dropped） */
+  async function dropDue() {
+    const due = pending
+      .filter((s) => s.dropAt <= now)
+      .sort((a, b) => a.dropAt - b.dropAt);
+    for (const star of due) {
+      if (dropped.length >= STAR_DROPPED_CAP) break;
+      const pile = randomPilePos(dropped.length);
+      await db.collection('roof_stars').doc(star._id).update({
+        data: { status: 'dropped', ...pile },
+      });
+      dropped.push({ ...star, status: 'dropped', ...pile });
+      pending = pending.filter((s) => s._id !== star._id);
+    }
   }
 
-  // 随机节奏生成：到 nextSpawnAt 才生成 1 颗，间隔随机 8~40min，同屏总量封顶 STAR_TOTAL_CAP。
-  // 新星在天上停留 10min~4h 随机后落地，数量自然涨落，不时刻保持满额。
-  // 指引期间抑制普通星刷新，保持画面只有 9 颗教学星。
+  await dropDue();
+
+  // 随机节奏生成 + 离线补刷：按 nextSpawnAt 闸门逐颗推进——在线时到点只生成 1 颗；
+  // 离线回归时把错过的间隔按虚拟时钟补齐（nextSpawnAt 一路推进到未来），
+  // 每颗的掉落时刻 = 它的"生成时刻" + 天上停留随机（4min~8h）——
+  // 所以回归用户上线即看到：天上挂着几颗新的（生成晚/停留久），地上已掉了几颗（生成早/停留短）。
+  // 同屏总量封顶 STAR_TOTAL_CAP；指引期间抑制普通星刷新，保持画面只有 9 颗教学星。
+  // 封顶时的"错过的生成"：在线（距上次 sync < STAR_AWAY_MS）直接丢弃并重新随机排期，
+  // 不会点掉一颗立刻补一颗；离线回归才按上面的虚拟时钟补刷。
+  // 同理，在线时若闸门在上次 sync 之前就已过期（空位是刚收取/掉落腾出来的），
+  // 这次"到期的生成"视为错过的，丢弃并重新随机排期，不立即补位。
+  const lastSyncAt = user.lastSpawnAt || 0;
+  const away = now - lastSyncAt > STAR_AWAY_MS;
   let guard = 0;
   if (!inGuide) {
-    while (
-      now >= nextSpawnAt &&
-      pending.length + dropped.length < STAR_TOTAL_CAP &&
-      guard < 8
-    ) {
+    while (guard < STAR_TOTAL_CAP) {
       guard += 1;
+      if (now < nextSpawnAt) break;
+      if (pending.length + dropped.length >= STAR_TOTAL_CAP) {
+        if (!away) {
+          nextSpawnAt =
+            now + randomInterval(STAR_SPAWN_GAP_MIN_MS, STAR_SPAWN_GAP_MAX_MS);
+        }
+        break;
+      }
+      if (!away && nextSpawnAt < lastSyncAt) {
+        nextSpawnAt =
+          now + randomInterval(STAR_SPAWN_GAP_MIN_MS, STAR_SPAWN_GAP_MAX_MS);
+        break;
+      }
+      const spawnAt = Math.min(nextSpawnAt, now);
       const sky = randomSkyPos(pending.length);
       const doc = {
         userId: openid,
@@ -156,14 +182,18 @@ async function syncStars(openid) {
         x: 0,
         y: 0,
         rotate: 0,
-        spawnAt: now,
-        dropAt: now + randomInterval(STAR_DROP_MIN_MS, STAR_DROP_MAX_MS),
+        spawnAt,
+        dropAt: spawnAt + randomInterval(STAR_DROP_MIN_MS, STAR_DROP_MAX_MS),
       };
       const addRes = await db.collection('roof_stars').add({ data: doc });
       pending.push({ ...doc, _id: addRes._id });
-      nextSpawnAt = now + randomInterval(STAR_SPAWN_GAP_MIN_MS, STAR_SPAWN_GAP_MAX_MS);
+      nextSpawnAt =
+        nextSpawnAt + randomInterval(STAR_SPAWN_GAP_MIN_MS, STAR_SPAWN_GAP_MAX_MS);
     }
   }
+
+  // 补刷的星里 dropAt 已落在过去的（离线期间生成且停留短的）本轮立即落地
+  await dropDue();
 
   // 首次激活指引：一次性播种 8 普通 + 1 米（guideSeededAt 幂等）
   if (inGuide && !user.guideSeededAt) {
@@ -220,6 +250,43 @@ async function collectStar(openid, starId) {
   });
 }
 
+async function collectAllStars(openid) {
+  const user = await getUser(openid);
+  if (!user) return fail('用户不存在', 'NOT_FOUND');
+
+  const dropped = await listByStatus(openid, 'dropped');
+  if (!dropped.length) {
+    return ok({
+      collected: 0,
+      normal: 0,
+      rice: 0,
+      stars: user.stars || 0,
+      riceStars: user.riceStars || 0,
+    });
+  }
+
+  const rice = dropped.filter((s) => s.type === 'rice').length;
+  const normal = dropped.length - rice;
+  const now = Date.now();
+  for (const star of dropped) {
+    await db.collection('roof_stars').doc(star._id).update({
+      data: { status: 'collected', collectedAt: now },
+    });
+  }
+  await db.collection('users').doc(user._id).update({
+    data: { stars: _.inc(normal), riceStars: _.inc(rice) },
+  });
+
+  const fresh = await getUser(openid);
+  return ok({
+    collected: dropped.length,
+    normal,
+    rice,
+    stars: fresh.stars || 0,
+    riceStars: fresh.riceStars || 0,
+  });
+}
+
 exports.main = async (event) => {
   try {
     const { OPENID } = cloud.getWXContext();
@@ -231,6 +298,8 @@ exports.main = async (event) => {
         return await syncStars(OPENID);
       case 'collect':
         return await collectStar(OPENID, event.starId);
+      case 'collectAll':
+        return await collectAllStars(OPENID);
       case 'ping':
         return ok({ service: 'roof', ts: Date.now() });
       default:

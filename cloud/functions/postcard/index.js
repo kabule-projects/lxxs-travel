@@ -132,8 +132,6 @@ async function mailboxSync(openid) {
   const pigeonState = resolvePigeonState({
     traveling,
     unreadCount: items.length,
-    lastMailboxOpenAt: user.lastMailboxOpenAt || 0,
-    newestDeliverAt,
     hasDelivered,
   });
 

@@ -57,7 +57,7 @@
       src="{{mailFull ? assets.mailTipFull : assets.mailTip}}"
       mode="widthFix"
     />
-    <text class="plus-one" wx:if="{{plusOneVisible}}" wx:key="plusOneSeq">+1</text>
+    <text class="plus-one" wx:if="{{plusOneVisible}}" wx:key="plusOneSeq">{{plusOneText}}</text>
     <!-- 点击热区：最上层透明覆盖，范围在 .pigeon-hit 调整 -->
     <view class="pigeon-hit" bindtap="onTapPigeon"></view>
   </view>

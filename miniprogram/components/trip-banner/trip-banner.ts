@@ -29,7 +29,7 @@ Component({
   },
 
   methods: {
-    /** 点击横幅任意处立即关闭（5 秒自动消失由页面侧定时器兜底） */
+    /** 点击遮罩/横幅任意处立即关闭，页面其他交互随之恢复 */
     onTap() {
       this.triggerEvent('dismiss');
     },

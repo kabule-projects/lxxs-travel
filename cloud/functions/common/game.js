@@ -6,12 +6,15 @@ module.exports = {
   STAR_PENDING_CAP: 5,
   STAR_DROPPED_CAP: 20,
   // 随机节奏生成：到 nextSpawnAt 才生成 1 颗，生成间隔随机 8~40min，同屏总量封顶 STAR_TOTAL_CAP；
-  // 新星在天上停留 10min~4h 随机后落地，同屏数量自然涨落，不时刻保持满额
+  // 新星在天上停留 4min~8h 随机后落地，同屏数量自然涨落，不时刻保持满额
   STAR_TOTAL_CAP: 10,
+  // 离线判定：距上次 sync 超过该时长才允许按虚拟时钟补刷错过的生成；
+  // 在线期间封顶时错过的生成直接丢弃并重新随机排期（避免"点掉一颗立刻补一颗"）
+  STAR_AWAY_MS: 1800000,
   STAR_SPAWN_GAP_MIN_MS: 480000,
   STAR_SPAWN_GAP_MAX_MS: 2400000,
-  STAR_DROP_MIN_MS: 600000,
-  STAR_DROP_MAX_MS: 14400000,
+  STAR_DROP_MIN_MS: 240000,
+  STAR_DROP_MAX_MS: 28800000,
   RICE_STAR_RATE: 0.2,
   SHOP_PAGE_SIZE: 6,
   DAILY_BUY_LIMIT: 1,

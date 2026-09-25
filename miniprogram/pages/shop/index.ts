@@ -268,21 +268,12 @@ Page({
     try {
       const res = await purchaseShop(this.data.selectedId);
       setStars(res.stars);
-      // 教学购买不占每日额度：不标记 boughtToday，避免土豆变半透明
-      const guideActive = guide.isActive();
-      const updated = this._allItems.map((i) =>
-        guideActive ? i : i.id === res.itemId ? { ...i, boughtToday: true } : i,
-      );
-      this._allItems = updated;
-      const built = this.buildPages(updated, this.data.pageIndex);
+      // 每日限购已解除：购买后商品保持可买，不再标记 boughtToday/置灰
       this.setData({
         stars: res.stars,
-        pages: built.pages,
-        totalPages: built.totalPages,
-        pageIndex: built.pageIndex,
         buying: false,
       });
-      const selected = updated.find((i) => i.id === res.itemId) || null;
+      const selected = this._allItems.find((i) => i.id === res.itemId) || null;
       this.applySelection(selected);
       wx.showToast({ title: '购买成功', icon: 'success' });
       // 指引购买成功：引导去扭蛋

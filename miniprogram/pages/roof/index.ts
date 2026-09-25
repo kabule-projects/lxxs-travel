@@ -5,14 +5,13 @@ import { getProfile, getRiceStars, getStars, setRiceStars, setStars, isTraveling
 import * as guide from '../../services/guide';
 import {
   refreshGuideHost,
-  measureGuideHost,
   notifyGuideBlocked,
   setGuideBackGuard,
 } from '../../utils/guide-page';
 import type { GuideHole } from '../../components/guide-overlay/guide-overlay';
 import { playSfx, playTap, playBgm } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
-import { collectRoofStar, syncRoof } from '../../services/roof';
+import { collectAllRoofStars, syncRoof } from '../../services/roof';
 import { formatRemain, mergeRoofStars, withRemain, type RoofStarDisplay, type RoofStarView } from '../../utils/roof-logic';
 import { toastCloudError } from '../../utils/net-error';
 import GAME from '../../utils/constants';
@@ -51,6 +50,7 @@ Page({
     starItems: [] as RoofStarDisplay[],
     plusOneVisible: false,
     plusOneSeq: 0,
+    plusOneText: '+1',
     showBag: false,
     showInv: false,
     pigeonState: 'idle' as PigeonState,
@@ -267,9 +267,7 @@ Page({
       remainText: formatRemain(s.dropAt - now),
     }));
     this._pending = nextPending;
-    this.setData({
-      starItems: mergeRoofStars(nextPending, this._dropped),
-    });
+    this.refreshStarView();
     /** 每 15s 拉一次信箱，赶上途中投递 */
     if (now % 15000 < 1000) {
       this.syncMailboxState();
@@ -294,8 +292,8 @@ Page({
       this.setData({
         stars: res.stars,
         riceStars: res.riceStars,
-        starItems: mergeRoofStars(pending, dropped),
       });
+      this.refreshStarView();
       // 注意：roof-stars 步绝不能因 sync 返回 0 颗教学星而自动跳过——
       // 老账号/云函数未更新时教学星可能尚未播种或标记缺失，自动跳步会让玩家看不到完整流程。
       // 该步只允许由 onCollectStar 捡满 9 颗真实教学星推进。
@@ -345,44 +343,47 @@ Page({
     if (guide.isStep('roof-stars') && !target.guide) return;
 
     playSfx('star');
+    // 点任意一颗落地星 = 收走全部落地星（不再逐颗点）
     const prevDropped = this._dropped;
-    this._dropped = prevDropped.filter((s) => s.id !== id);
-    this.setData({
-      starItems: mergeRoofStars(this._pending, this._dropped),
-    });
+    this._dropped = [];
+    this.refreshStarView();
 
     try {
-      const res = await collectRoofStar(id);
+      const res = await collectAllRoofStars();
       setStars(res.stars);
       setRiceStars(res.riceStars);
-      this.setData({ stars: res.stars, riceStars: res.riceStars });
-      if (res.type !== 'rice') {
+      this.setData({
+        stars: res.stars,
+        riceStars: res.riceStars,
+        plusOneText: `+${res.collected}`,
+      });
+      if (res.collected > 0) {
         this.showPlusOne();
-        emit(GameEvent.STAR_COLLECTED, { id, type: res.type });
+        emit(GameEvent.STAR_COLLECTED, { id: 'all', type: 'normal' });
       }
       if (guide.isStep('roof-stars')) {
-        // 能走到这里说明拾取的是教学星（非教学星在开头已被拦截）
-        this._guideCollected += 1;
-        const remain = this._dropped.filter((s) => s.guide).length;
-        this._guideDropped = remain;
+        // 指引期 dropped 全是教学星：整堆收取即捡满，推进下一步
+        const picked = prevDropped.filter((s) => s.guide).length;
+        this._guideCollected += picked;
+        this._guideDropped = Math.max(0, this._guideDropped - picked);
         if (this._guideCollected >= this._guideTotal) {
-          // 只有真实捡满 9 颗才推进，避免任何 sync 时序误跳步
           guide.advance('roof-to-shop');
-        } else {
-          wx.nextTick(() => {
-            void measureGuideHost('roof', this);
-          });
         }
       }
       // 捡完立刻补货：库存制下由 sync 马上补齐下一批，不用等落地节奏
       void this.syncFromServer();
     } catch {
       this._dropped = prevDropped;
-      this.setData({
-        starItems: mergeRoofStars(this._pending, this._dropped),
-      });
+      this.refreshStarView();
       wx.showToast({ title: '收取失败', icon: 'none' });
     }
+  },
+
+  /** 统一刷新星星视图 */
+  refreshStarView() {
+    this.setData({
+      starItems: mergeRoofStars(this._pending, this._dropped),
+    });
   },
 
   onTapItems() {
@@ -417,10 +418,7 @@ Page({
     if (guide.isActive()) return;
     playTap();
     if (this.data.flyAway) return;
-    if (this.data.pigeonState === 'away') {
-      wx.showToast({ title: '鸽子跟小深出门了', icon: 'none' });
-      return;
-    }
+    // 鸽子外出期间也允许打开信箱：上一趟留下的未读信可以随时收取
     try {
       const res = await openMailbox();
       const mailCap = res.mailCap || GAME.PIGEON_MAIL_CAP;

@@ -1,7 +1,6 @@
 import { call } from './api';
 import { setStars } from '../store/user';
 import { emit, GameEvent } from '../utils/event-bus';
-import * as guide from './guide';
 import { resolveDynamicAsset } from '../utils/resolve-dynamic-asset';
 import { preloadImages } from '../utils/preload';
 
@@ -97,19 +96,10 @@ export async function listShop(force = false): Promise<ShopListResult> {
   }
 }
 
-/** 购买成功后把 boughtToday/余额同步进缓存，下次进商店不会显示可再买 */
-function markBoughtInCache(itemId: string, stars: number) {
+/** 购买成功后把最新余额同步进缓存（每日限购已解除，不再标记 boughtToday，可继续购买） */
+function markBoughtInCache(stars: number) {
   if (!cache) return;
-  // 教学购买不占每日额度：不标记 boughtToday
-  if (guide.isActive()) {
-    cache = { ...cache, stars };
-    return;
-  }
-  cache = {
-    ...cache,
-    stars,
-    items: cache.items.map((i) => (i.id === itemId ? { ...i, boughtToday: true } : i)),
-  };
+  cache = { ...cache, stars };
 }
 
 export async function purchaseShop(itemId: string): Promise<ShopPurchaseResult> {
@@ -120,7 +110,7 @@ export async function purchaseShop(itemId: string): Promise<ShopPurchaseResult> 
     requestId,
   });
   if (typeof res.stars === 'number') setStars(res.stars);
-  markBoughtInCache(itemId, res.stars);
+  markBoughtInCache(res.stars);
   bumpInventory(itemId);
   emit(GameEvent.INVENTORY_CHANGED, { itemId, delta: 1 });
   return res;
