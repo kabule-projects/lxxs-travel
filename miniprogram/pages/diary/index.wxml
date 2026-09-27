@@ -12,7 +12,7 @@
         data-type="{{item.type}}"
         bindtap="onTapTab"
       >
-        <image
+        <image style="position: relative; left: 0rpx; top: -97rpx"
           class="tab-img {{activeTab === item.type ? 'tab-img--on' : ''}}"
           src="{{activeTab === item.type ? assets.tabActive : assets.tab}}"
           mode="aspectFit"
@@ -64,11 +64,20 @@
     </view>
 
     <!-- 返回按钮：左下角 -->
-    <image
+    <image style="position: absolute; left: 46rpx; top: 1412rpx"
       class="diary-back"
       src="{{assets.iconBack}}"
       mode="aspectFit"
       bindtap="onTapBack"
+    />
+
+    <!-- 备忘录入口：内页天气图标行右侧，尺寸与图标一致 -->
+    <image
+      class="memo-btn"
+      style="left: {{memoBtnLeft}}px; top: {{memoBtnTop}}px; width: {{memoBtnW}}px; height: {{memoBtnH}}px"
+      src="{{assets.memoBtn}}"
+      mode="aspectFit"
+      bindtap="onTapMemo"
     />
   </view>
 

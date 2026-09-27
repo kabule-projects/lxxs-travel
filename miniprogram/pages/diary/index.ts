@@ -1,7 +1,7 @@
 import { DIARY_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { playSfx, playTap } from '../../services/sound';
-import { navigateBack } from '../../utils/nav';
+import { navigateBack, navigateTo } from '../../utils/nav';
 import { listDiary, type DiaryEntry, type PostcardType } from '../../services/diary';
 
 type PageAssets = Record<keyof typeof DIARY_ASSETS, string>;
@@ -35,11 +35,19 @@ const HINT_STORAGE_KEY = 'diary_flip_hint_shown';
 
 /** 网格布局：3 列 × 5 行正方形格子，swiper 尺寸由格子大小推算，不能独立设宽高 */
 const GRID_LEFT_PCT = 0.14;   // 左边距（相对 frame 宽）
-const GRID_TOP_PCT = 0.29;    // 上边距（相对 frame 高）
+/** 上边距（相对 frame 高）。注意：要整体上移网格就改这里，
+ *  不要给 swiper-item 加负 top——原生 swiper 会裁掉移出自身矩形的部分，第一行会被切掉 */
+const GRID_TOP_PCT = 0.2567;  // = 原 0.29 再上移 54rpx（54 / 帧高 1622rpx）
 /** 单个格子边长占屏幕宽度的比例；改这个直接放大/缩小所有格子 */
 const GRID_CELL_PCT = 0.19;
 /** 格子间距（rpx，与 wxss 的 gap 保持一致） */
 const GRID_GAP_RPX = 48;
+
+/** 备忘录入口按钮：贴内页天气图标行右侧，尺寸与图标一致
+ *  （按新 diary-bg 原图 1321×2869 实测：图标约 130×130px，雨图标右缘 x≈0.446，行顶 y≈0.132） */
+const MEMO_BTN_LEFT_PCT = 0.465; // 相对 frame 宽
+const MEMO_BTN_TOP_PCT = 0.132;  // 相对 frame 高
+const MEMO_BTN_W_PCT = 0.098;    // 相对 frame 宽（= 天气图标边长占比）
 
 /** 将数组按固定大小切分为多页 */
 function chunk<T>(arr: T[], size: number): T[][] {
@@ -80,6 +88,11 @@ Page({
     swiperTop: 0,
     swiperW: 0,
     swiperH: 600,
+    /** 备忘录入口按钮像素位置/尺寸（与天气图标同大，按 frame 百分比换算） */
+    memoBtnLeft: 0,
+    memoBtnTop: 0,
+    memoBtnW: 0,
+    memoBtnH: 0,
     /** 是否展示翻页提示贴图（首次收集超过一页时显示，点击关闭后不再出现） */
     showHint: false,
     empty: true,
@@ -99,11 +112,16 @@ Page({
     const frameH = (screenW * 4330) / 2002;
     const cell = screenW * GRID_CELL_PCT;
     const gap = (screenW * GRID_GAP_RPX) / 750;
+    const memoBtnW = screenW * MEMO_BTN_W_PCT;
     this.setData({
       swiperLeft: screenW * GRID_LEFT_PCT,
       swiperTop: frameH * GRID_TOP_PCT,
       swiperW: cell * 3 + gap * 2,
       swiperH: cell * 5 + gap * 4,
+      memoBtnLeft: screenW * MEMO_BTN_LEFT_PCT,
+      memoBtnTop: frameH * MEMO_BTN_TOP_PCT,
+      memoBtnW,
+      memoBtnH: memoBtnW,
     });
     resolveAssetMap(DIARY_ASSETS).then((assets) => {
       this.setData({ assets });
@@ -178,6 +196,12 @@ Page({
   onTapBack() {
     playTap();
     navigateBack('/pages/home/index');
+  },
+
+  /** 备忘录入口：进入旅行记录列表页（编辑器 UI 接入后行点击再跳编辑） */
+  onTapMemo() {
+    playTap();
+    navigateTo('/pages/memo/index');
   },
 
   /** swiper 左右翻页时同步当前页码 */

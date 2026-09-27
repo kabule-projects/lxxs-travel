@@ -70,6 +70,7 @@
 | `日记/选中.webp` | `diary/tab-active` | ✅ 已复制 |
 | `日记/未选中.webp` | `diary/tab` | ✅ 已复制 |
 | `日记/格子.webp` | `diary/grid-cell` | ✅ 已复制 |
+| `备忘录/备忘录按钮.png`（微信文件） | `diary/memo-btn` | ✅ 已复制 |
 | `明信片弹窗/信封按钮@72x-8.webp` | `icons/diary/envelope` | ✅ 已复制 |
 | `明信片弹窗/提示@72x-8.webp` | `mailbox/deco` | ✅ 已复制 |
 | `未读信件/关闭.webp` | `mailbox/icon-close` | ✅ 已复制 |

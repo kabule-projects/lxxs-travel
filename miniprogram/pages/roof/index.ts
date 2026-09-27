@@ -26,6 +26,7 @@ import {
   stopReturnWatch,
   clearTripBannerTimer,
   dismissReturnBanner,
+  isReturnBannerHandled,
 } from '../../services/trip-return';
 import {
   claimMail,
@@ -126,7 +127,7 @@ Page({
       const endAt = (payload as { endAt?: number })?.endAt;
       this.setData({ charShenVisible: false });
       if (endAt) {
-        scheduleReturnWatch(endAt, () => this.syncTripState());
+        scheduleReturnWatch(endAt);
       }
     });
     this._offVisible = on(GameEvent.CHARACTER_VISIBLE, () => {
@@ -178,6 +179,14 @@ Page({
       const { banner, sync } = view;
       if (banner.mode === 'return' && sync.trip?._id) {
         this.showReturnBanner(sync.trip._id, banner.returnHasSouvenir ?? false);
+        return;
+      }
+      // 回家横幅展示期间（守卫已置），并发 sync 的隐藏分支不能把它闪掉
+      if (
+        this.data.travelBannerMode === 'return' &&
+        this._bannerTripId &&
+        isReturnBannerHandled(this._bannerTripId)
+      ) {
         return;
       }
       this.setData({ showTravelBanner: false });

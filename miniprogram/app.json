@@ -8,7 +8,8 @@
     "pages/gacha/index",
     "pages/wardrobe/index",
     "pages/showcase/index",
-    "pages/diary/index"
+    "pages/diary/index",
+    "pages/memo/index"
   ],
   "window": {
     "navigationStyle": "custom",

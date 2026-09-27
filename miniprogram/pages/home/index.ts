@@ -19,6 +19,7 @@ import {
   stopReturnWatch,
   clearTripBannerTimer,
   dismissReturnBanner,
+  isReturnBannerHandled,
 } from '../../services/trip-return';
 import * as guide from '../../services/guide';
 import {
@@ -182,6 +183,14 @@ Page({
       this.showReturnBanner(sync.trip._id, banner.returnHasSouvenir ?? false);
       return;
     }
+    // 回家横幅展示期间（守卫已置），并发 sync 的隐藏分支不能把它闪掉
+    if (
+      this.data.travelBannerMode === 'return' &&
+      this._bannerTripId &&
+      isReturnBannerHandled(this._bannerTripId)
+    ) {
+      return;
+    }
     this.setData({
       showTravelBanner: false,
     });
@@ -243,7 +252,7 @@ Page({
     this._offStarted = on(GameEvent.TRIP_STARTED, (payload) => {
       const endAt = (payload as { endAt?: number })?.endAt;
       if (endAt) {
-        scheduleReturnWatch(endAt, () => this.syncTripState());
+        scheduleReturnWatch(endAt);
       }
     });
   },

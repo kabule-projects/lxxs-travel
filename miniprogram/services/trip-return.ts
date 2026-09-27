@@ -52,7 +52,10 @@ export function runDepartBannerFlow(onHide: () => void) {
   }, TRIP_BANNER_MS) as unknown as number;
 }
 
-export function scheduleReturnWatch(endAt?: number, onReturn?: () => void) {
+/** 到点唤醒：仅发 TRIP_RETURNED 事件，由各页面订阅后重跑 syncTripState。
+ *  不再提供 onReturn 回调——页面已订阅事件，双通道会发起两次并发 sync，
+ *  后完成那次走隐藏分支会把先完成那次刚显示的横幅闪掉。 */
+export function scheduleReturnWatch(endAt?: number) {
   stopReturnWatch();
   if (!endAt) return;
   const delay = Math.max(0, endAt - Date.now() + 400);
@@ -60,9 +63,8 @@ export function scheduleReturnWatch(endAt?: number, onReturn?: () => void) {
     watchTimer = 0;
     const res = await syncTrip();
     if (res.trip?.status === 'returned') {
-      // 只当唤醒通知：各页面收到后重跑 syncTripState，横幅展示统一由 resolveTripSyncView 负责
+      // 只当唤醒通知：横幅展示统一由 resolveTripSyncView 负责
       emit(GameEvent.TRIP_RETURNED, res);
-      onReturn?.();
     }
   }, delay) as unknown as number;
 }
@@ -119,23 +121,36 @@ export async function resolveTripSyncView(): Promise<TripSyncView> {
   };
 }
 
-/** 归来收尾：收下旅行、清本地/内存旅行态、通知各页小深现身 */
-async function finishReturnFlow(tripId: string, onHide: () => void) {
-  try {
-    await claimHome();
-    // 新伴手礼已入库：刷新展示柜缓存（下次进页面直接是最新）
-    void prefetchShowcase();
-  } catch {
-    /* 可能已 claim */
+/** claim 失败重试（网络抖动常见）：最多 attempts 次，间隔 2s */
+async function claimHomeWithRetry(attempts = 3): Promise<boolean> {
+  for (let i = 0; i < attempts; i++) {
+    try {
+      await claimHome();
+      // 新伴手礼已入库：刷新展示柜缓存（下次进页面直接是最新）
+      void prefetchShowcase();
+      return true;
+    } catch {
+      if (i < attempts - 1) {
+        await new Promise<void>((r) => setTimeout(() => r(), 2000));
+      }
+    }
   }
-  emit(GameEvent.CHARACTER_VISIBLE);
-  returnHandledTripId = null;
+  return false;
+}
+
+/** 归来收尾：先隐藏横幅，再在后台收下旅行（带重试）、通知各页小深现身 */
+async function finishReturnFlow(tripId: string, onHide: () => void) {
   // 页面可能已卸载（横幅展示期间被切走/返回），隐藏失败不影响收尾
   try {
     onHide();
   } catch {
     /* ignore */
   }
+  await claimHomeWithRetry();
+  emit(GameEvent.CHARACTER_VISIBLE);
+  // 守卫故意不清空：它按 tripId 区分，下一趟旅行有新 _id 不受影响。
+  // 若在这里清空，claim 失败（云端仍是 returned）时切换页面会立刻重播回家横幅。
+  // 真失败的兜底：冷启动模块状态清零，下次 sync 仍会再播一次并重新尝试 claim。
 }
 
 /** 回家横幅是否已为该行程展示过（收下倒计时进行中，不再重复展示） */

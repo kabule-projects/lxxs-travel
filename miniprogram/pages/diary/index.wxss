@@ -81,6 +81,15 @@
   height: 100%;
 }
 
+/* 备忘录入口按钮：位置/尺寸由 JS 按 frame 百分比内联，与天气图标同大对齐 */
+.memo-btn {
+  position: absolute;
+  z-index: 3;
+}
+.memo-btn:active {
+  opacity: 0.7;
+}
+
 /* 3 列固定，行高由格子的 aspect-ratio:1/1 自动撑开；
    最后一行不足 3 个时，第三列位置自动留空 */
 .grid {

@@ -141,6 +141,8 @@ export const SHOWCASE_ASSETS = {
 export const DIARY_ASSETS = {
   iconBack: 'diary/back',
   diaryBg: 'diary/diary-bg',
+  /** 备忘录入口按钮：贴内页天气图标行右侧（铅笔图标） */
+  memoBtn: 'diary/memo-btn',
   tab: 'diary/tab',
   tabActive: 'diary/tab-active',
   /** 格子半透明底图；明信片切图叠其上 */
@@ -149,6 +151,14 @@ export const DIARY_ASSETS = {
   hint: 'diary/hint',
   /** 信封按钮（含角标） */
   envelope: 'icons/diary/envelope',
+} as const;
+
+/** 备忘录列表页：竖条纹整屏底 + 白色面板（标题已烘焙）+ 列表行药丸底 */
+export const MEMO_ASSETS = {
+  iconBack: 'diary/back',
+  bg: 'memo/bg',
+  panel: 'memo/panel',
+  row: 'memo/row',
 } as const;
 
 /** 信件：date 标签 / 天气 / logo 已画进信纸；展开即收下，无按钮 */

@@ -1,0 +1,45 @@
+<view class="memo">
+  <!-- 竖条纹整屏底：宽撑满、垂直居中，条纹图案上下裁切无感 -->
+  <view class="memo-bg">
+    <image class="memo-bg-img" src="{{assets.bg}}" mode="scaleToFill" />
+  </view>
+
+  <!-- 白色面板（"旅行记录"标题已烘焙进切图）：按屏高定尺寸，保证任何机型完整显示 -->
+  <view class="memo-panel" style="width: {{panelW}}px; height: {{panelH}}px; position: relative; left: -1rpx; top: 68rpx">
+    <image style="position: absolute; left: 0rpx; top: 0rpx" class="memo-panel-bg" src="{{assets.panel}}" mode="aspectFill" />
+
+    <!-- 记录列表：日期倒序，单行显示前 12 字；滚动到底自动翻页 -->
+    <scroll-view
+      class="memo-list"
+      scroll-y
+      bindscrolltolower="onLoadMore"
+      lower-threshold="80"
+     style="position: absolute; left: 24rpx; top: 300rpx; width: 602rpx; height: 899rpx; display: block; box-sizing: border-box">
+      <view
+        wx:for="{{rows}}"
+        wx:key="dateKey"
+        class="memo-row"
+        style="height: {{rowH}}px"
+        data-key="{{item.dateKey}}"
+        bindtap="onTapRow"
+      >
+        <image class="memo-row-bg" src="{{assets.row}}" mode="aspectFill" />
+        <view class="memo-row-main">
+          <text class="memo-row-date">{{item.dateKey}}</text>
+          <text class="memo-row-text">{{item.preview}}</text>
+        </view>
+      </view>
+      <view wx:if="{{loadingMore}}" class="memo-foot">加载中…</view>
+      <view wx:elif="{{!rows.length && loaded}}" class="memo-empty">还没有旅行记录，写下第一条吧～</view>
+    </scroll-view>
+  </view>
+
+  <!-- 返回按钮：左上角，避让胶囊 -->
+  <image
+    class="memo-back"
+    style="top: 84rpx; position: absolute; left: 49rpx"
+    src="{{assets.iconBack}}"
+    mode="aspectFit"
+    bindtap="onTapBack"
+  />
+</view>
