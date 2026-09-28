@@ -9,7 +9,8 @@
     "pages/wardrobe/index",
     "pages/showcase/index",
     "pages/diary/index",
-    "pages/memo/index"
+    "pages/memo/index",
+    "pages/memo-edit/index"
   ],
   "window": {
     "navigationStyle": "custom",

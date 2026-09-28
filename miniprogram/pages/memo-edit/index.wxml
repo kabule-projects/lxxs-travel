@@ -1,0 +1,35 @@
+<view class="memo-edit">
+  <!-- 竖条纹整屏底（与列表页共用） -->
+  <view class="memo-bg">
+    <image class="memo-bg-img" src="{{assets.bg}}" mode="scaleToFill" />
+  </view>
+
+  <!-- 编辑面板整板切图：DATE 栏 / 标题 / 吉祥物已烘焙，正文区留白 -->
+  <view class="memo-panel" style="width: {{panelW}}px; height: {{panelH}}px">
+    <image style="position: absolute; left: 0rpx; top: 74rpx" class="memo-panel-bg" src="{{assets.editor}}" mode="aspectFill" />
+
+    <!-- 日期：叠在 DATE 占位区 -->
+    <text class="memo-date" style="left: 169rpx; top: 110rpx; width: {{panelW * 0.5}}px; height: {{panelH * 0.06}}px; position: absolute">{{dateKey}}</text>
+
+    <!-- 正文编辑区：标题下方、吉祥物上方 -->
+    <textarea
+      class="memo-textarea"
+      style="left: 60rpx; top: 402rpx; width: {{panelW * 0.82}}px; height: 658rpx; position: absolute; display: block; box-sizing: border-box"
+      value="{{content}}"
+      maxlength="{{maxLength}}"
+      placeholder="记录今天的旅行心情…"
+      placeholder-class="memo-ph"
+      bindinput="onInput"
+      show-confirm-bar="{{false}}"
+    />
+  </view>
+
+  <!-- 返回：先自动保存再回列表 -->
+  <image
+    class="memo-back"
+    style="top: 114rpx; position: absolute; left: 38rpx"
+    src="{{assets.iconBack}}"
+    mode="aspectFit"
+    bindtap="onTapBack"
+  />
+</view>

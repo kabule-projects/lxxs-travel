@@ -1,0 +1,78 @@
+/* 整屏：紫色条纹底铺满，面板垂直居中（与列表页同布局） */
+.memo-edit {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.memo-bg {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  aspect-ratio: 1321 / 2869;
+  transform: translateY(-50%);
+}
+
+.memo-bg-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 编辑面板整板：屏幕正中，按屏高定尺寸内联 */
+.memo-panel {
+  position: relative;
+  z-index: 2;
+}
+
+.memo-panel-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 日期文字：叠在切图 DATE 占位区，样式对齐原稿 */
+.memo-date {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  font-size: 30rpx;
+  letter-spacing: 4rpx;
+  color: #8a94cc;
+}
+
+/* 正文编辑区：透明底融进面板，位置内联按面板百分比换算 */
+.memo-textarea {
+  position: absolute;
+  z-index: 2;
+  box-sizing: border-box;
+  padding: 8rpx 12rpx;
+  background: transparent;
+  font-size: 34rpx;
+  line-height: 1.7;
+  color: #55508a;
+}
+
+.memo-ph {
+  color: #b3b7dd;
+}
+
+.memo-back {
+  position: absolute;
+  left: 32rpx;
+  z-index: 10;
+  width: 200rpx;
+  height: 103rpx;
+}
+
+.memo-back:active {
+  opacity: 0.7;
+}

@@ -9,7 +9,7 @@ const _ = db.command;
 /** 默认值与 game_config 的 memo 文档同名字段合并（DB 优先），便于不改代码调奖励 */
 const DEFAULT_MEMO_CFG = {
   /** 每日首次记录奖励的普通星星数 */
-  stars: 5,
+  stars: 6,
   /** 每日首次记录额外获得米子星的概率（0~1） */
   riceStarRate: 0.2,
   /** 中奖时给的米子星个数 */
@@ -47,49 +47,72 @@ async function getUser(openid) {
   return found.data[0] || null;
 }
 
-async function findMemo(openid, dateKey) {
-  const res = await db
-    .collection('memos')
-    .where({ userId: openid, dateKey })
-    .limit(1)
-    .get();
-  return res.data[0] || null;
+async function findMemoById(openid, id) {
+  const docRes = await db.collection('memos').doc(id).get();
+  const doc = docRes.data;
+  if (!doc || doc.userId !== openid) return null;
+  return doc;
 }
 
-/** 发放每日首次记录奖励（普通星星 + 概率米子星） */
-async function grantFirstReward(user, cfg) {
+/**
+ * 每日奖励领取闸：memo_rewards 以 `${userId}_${dateKey}` 为 _id，
+ * 利用 _id 唯一性做并发闸——插入成功 = 领到，重复 _id = 今天已领过。
+ * @returns {Promise<{stars:number,rice:number}|null>} 领取成功返回奖励，已领/失败返回 null
+ */
+async function claimDailyReward(openid, dateKey, cfg, user) {
   const rice = Math.random() < cfg.riceStarRate ? cfg.riceStars : 0;
-  const patch = { stars: _.inc(cfg.stars) };
-  if (rice > 0) patch.riceStars = _.inc(rice);
-  await db.collection('users').doc(user._id).update({ data: patch });
-  return { stars: cfg.stars, rice };
+  try {
+    await db.collection('memo_rewards').add({
+      data: { _id: `${openid}_${dateKey}`, userId: openid, dateKey },
+    });
+  } catch (e) {
+    // 重复 _id = 今日已领；其余错误按已领处理，避免重复发奖
+    return null;
+  }
+  try {
+    const patch = { stars: _.inc(cfg.stars) };
+    if (rice > 0) patch.riceStars = _.inc(rice);
+    await db.collection('users').doc(user._id).update({ data: patch });
+    return { stars: cfg.stars, rice };
+  } catch (e) {
+    // 发奖失败：回收领取凭证，下次保存重试
+    try {
+      await db.collection('memo_rewards').doc(`${openid}_${dateKey}`).remove();
+    } catch (e2) {
+      /* ignore */
+    }
+    return null;
+  }
 }
 
 function viewOf(doc) {
   return {
+    id: doc._id,
     dateKey: doc.dateKey,
     content: doc.content,
     editCount: doc.editCount || 0,
-    starsGranted: doc.starsGranted || 0,
-    riceGranted: doc.riceGranted || 0,
     createdAt: doc.createdAt || 0,
     updatedAt: doc.updatedAt || 0,
   };
 }
 
-/** 取某一天的备忘录（默认今天）；同时下发奖励配置供前端提示 */
-async function getMemo(openid, dateKey) {
-  const memo = await findMemo(openid, dateKey);
+/** 取一条备忘录（编辑用，按 id）；同时下发奖励配置供前端提示 */
+async function getMemo(openid, id) {
+  if (!id) return fail('缺少 id', 'VALIDATION');
+  const memo = await findMemoById(openid, id);
+  if (!memo) return fail('记录不存在', 'NOT_FOUND');
   const cfg = await loadMemoConfig();
   return ok({
-    dateKey,
-    memo: memo ? viewOf(memo) : null,
+    memo: viewOf(memo),
     rewardHint: { stars: cfg.stars, riceStarRate: cfg.riceStarRate },
   });
 }
 
-/** 首次记录或编辑。首次记录发奖；编辑不限次数不重复发奖。 */
-async function saveMemo(openid, content, dateKey, user) {
+/**
+ * 保存：传 id = 编辑既有记录（不限次数，不发奖）；
+ * 不传 id = 新建记录（每天可多条；当天第一次新建尝试领取每日奖励，一天一次）。
+ */
+async function saveMemo(openid, content, id, user) {
   const cfg = await loadMemoConfig();
   if (typeof content !== 'string' || !content.trim()) {
     return fail('内容不能为空', 'VALIDATION');
@@ -98,96 +121,43 @@ async function saveMemo(openid, content, dateKey, user) {
     return fail(`内容过长（上限 ${cfg.maxLength} 字）`, 'TOO_LONG');
   }
   const now = Date.now();
-  const existing = await findMemo(openid, dateKey);
 
-  if (existing) {
-    // 编辑路径：默认不重复发奖；仅当首次建档后发奖失败（starsGranted 仍为 null）时补发一次
-    let reward = { stars: 0, rice: 0, grantedNow: false };
-    if (existing.starsGranted == null) {
-      const granted = await grantFirstReward(user, cfg);
-      reward = { ...granted, grantedNow: true };
-    }
-    await db
-      .collection('memos')
-      .doc(existing._id)
-      .update({
-        data: {
-          content,
-          editCount: _.inc(1),
-          updatedAt: now,
-          starsGranted: reward.grantedNow ? reward.stars : existing.starsGranted,
-          riceGranted: reward.grantedNow ? reward.rice : existing.riceGranted,
-        },
-      });
+  if (id) {
+    const existing = await findMemoById(openid, id);
+    if (!existing) return fail('记录不存在', 'NOT_FOUND');
+    await db.collection('memos').doc(id).update({
+      data: { content, editCount: _.inc(1), updatedAt: now },
+    });
     return ok({
       created: false,
-      memo: {
-        ...viewOf(existing),
-        content,
-        editCount: (existing.editCount || 0) + 1,
-        updatedAt: now,
-        starsGranted: reward.grantedNow ? reward.stars : existing.starsGranted || 0,
-        riceGranted: reward.grantedNow ? reward.rice : existing.riceGranted || 0,
-      },
-      reward,
+      memo: { ...viewOf(existing), content, editCount: (existing.editCount || 0) + 1, updatedAt: now },
+      reward: { stars: 0, rice: 0, grantedNow: false },
     });
   }
 
-  // 首次记录：唯一索引 userId+dateKey 是并发闸，撞索引说明并发重复提交，转编辑路径
-  try {
-    await db.collection('memos').add({
-      data: {
-        userId: openid,
-        dateKey,
-        content,
-        editCount: 0,
-        // 先发奖成功后才会写入实际值；保持 null 以便失败时下次 save 补发
-        starsGranted: null,
-        riceGranted: null,
-        createdAt: now,
-        updatedAt: now,
-      },
-    });
-  } catch (e) {
-    if (String((e && e.message) || '').includes('duplicate key')) {
-      return saveMemo(openid, content, dateKey, user);
-    }
-    throw e;
-  }
-
-  let granted = null;
-  try {
-    granted = await grantFirstReward(user, cfg);
-  } catch (e) {
-    /* 发奖失败：memos 里 starsGranted 保持 null，用户下次 save 时补发 */
-  }
-  if (granted) {
-    const updated = await findMemo(openid, dateKey);
-    if (updated) {
-      await db
-        .collection('memos')
-        .doc(updated._id)
-        .update({
-          data: { starsGranted: granted.stars, riceGranted: granted.rice },
-        });
-    }
-  }
+  const dateKey = businessDayKey(now);
+  const addRes = await db.collection('memos').add({
+    data: { userId: openid, dateKey, content, editCount: 0, createdAt: now, updatedAt: now },
+  });
+  const reward = (await claimDailyReward(openid, dateKey, cfg, user)) || {
+    stars: 0,
+    rice: 0,
+  };
   return ok({
     created: true,
     memo: {
+      id: addRes._id,
       dateKey,
       content,
       editCount: 0,
-      starsGranted: granted ? granted.stars : null,
-      riceGranted: granted ? granted.rice : null,
       createdAt: now,
       updatedAt: now,
     },
-    reward: { stars: granted ? granted.stars : 0, rice: granted ? granted.rice : 0, grantedNow: !!granted },
+    reward: { ...reward, grantedNow: reward.stars > 0 },
   });
 }
 
-/** 历史列表：按 dateKey 倒序分页；传 month('YYYY-MM') 只看某月（日历点用） */
+/** 历史列表：同一天可多条，按 dateKey 倒序、同天内 createdAt 倒序分页 */
 async function listMemos(openid, month, page, pageSize) {
   const where = { userId: openid };
   if (month) {
@@ -202,6 +172,7 @@ async function listMemos(openid, month, page, pageSize) {
     .collection('memos')
     .where(where)
     .orderBy('dateKey', 'desc')
+    .orderBy('createdAt', 'desc')
     .skip((p - 1) * ps)
     .limit(ps);
   let rows;
@@ -210,9 +181,10 @@ async function listMemos(openid, month, page, pageSize) {
   } catch (e) {
     /** 无索引时降级：内存排序分页 */
     const all = await db.collection('memos').where(where).limit(1000).get();
-    const sorted = (all.data || []).sort((a, b) =>
-      b.dateKey < a.dateKey ? -1 : b.dateKey > a.dateKey ? 1 : 0,
-    );
+    const sorted = (all.data || []).sort((a, b) => {
+      if (a.dateKey !== b.dateKey) return b.dateKey < a.dateKey ? -1 : 1;
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    });
     rows = sorted.slice((p - 1) * ps, (p - 1) * ps + ps);
   }
   return ok({
@@ -226,18 +198,16 @@ async function listMemos(openid, month, page, pageSize) {
 exports.main = async (event) => {
   const { OPENID } = cloud.getWXContext();
   if (!OPENID) return fail('未登录', 'UNAUTHORIZED');
-  const { action, content, dateKey, month, page, pageSize } = event || {};
+  const { action, content, id, month, page, pageSize } = event || {};
 
   const user = await getUser(OPENID);
   if (!user) return fail('用户不存在', 'NOT_FOUND');
 
-  const key = DATE_KEY_RE.test(dateKey || '') ? dateKey : businessDayKey();
-
   switch (action) {
     case 'get':
-      return getMemo(OPENID, key);
+      return getMemo(OPENID, id);
     case 'save':
-      return saveMemo(OPENID, content, key, user);
+      return saveMemo(OPENID, content, id, user);
     case 'list':
       return listMemos(OPENID, month, page, pageSize);
     default:

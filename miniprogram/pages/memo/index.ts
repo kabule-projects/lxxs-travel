@@ -2,13 +2,14 @@ import { MEMO_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readCapsuleRect } from '../../utils/device';
 import { playTap } from '../../services/sound';
-import { navigateBack } from '../../utils/nav';
+import { navigateBack, navigateTo } from '../../utils/nav';
 import { listMemos, type MemoItem } from '../../services/memo';
 import { toastCloudError } from '../../utils/net-error';
 
 type MemoAssets = Record<keyof typeof MEMO_ASSETS, string>;
 
 interface MemoRow {
+  id: string;
   dateKey: string;
   preview: string;
 }
@@ -62,7 +63,7 @@ Page({
     resolveAssetMap(MEMO_ASSETS).then((assets) => {
       this.setData({ assets });
     });
-    this.reload();
+    // 数据在 onShow 里拉（编辑页返回后需要刷新）
   },
 
   /** 拉第一页（进入页面/刷新用） */
@@ -74,6 +75,7 @@ Page({
       this._total = res.total || 0;
       this.setData({
         rows: (res.items || []).map((m: MemoItem) => ({
+          id: m.id,
           dateKey: m.dateKey,
           preview: makePreview(m.content),
         })),
@@ -95,6 +97,7 @@ Page({
       const res = await listMemos(next, PAGE_SIZE);
       this._page = next;
       const more = (res.items || []).map((m: MemoItem) => ({
+        id: m.id,
         dateKey: m.dateKey,
         preview: makePreview(m.content),
       }));
@@ -109,15 +112,26 @@ Page({
     }
   },
 
-  /** 点开某天记录：编辑器 UI 尚未接入，先占位提示 */
-  onTapRow(e: { currentTarget?: { dataset?: { key?: string } } }) {
+  /** 点开某条记录：按 id 进编辑页；从编辑页返回时 onShow 重新加载列表 */
+  onTapRow(e: { currentTarget?: { dataset?: { id?: string } } }) {
     playTap();
-    void e.currentTarget?.dataset?.key;
-    wx.showToast({ title: '敬请期待', icon: 'none' });
+    const id = e.currentTarget?.dataset?.id;
+    if (id) navigateTo(`/pages/memo-edit/index?id=${id}`);
+  },
+
+  onShow() {
+    // 编辑页返回后列表可能已变化（新增/修改），重新拉取
+    this.reload();
   },
 
   onTapBack() {
     playTap();
     navigateBack('/pages/diary/index');
+  },
+
+  /** 新增：进编辑页不带 dateKey，云端默认今天（一天一条，已有则继续编辑今天的） */
+  onTapAdd() {
+    playTap();
+    navigateTo('/pages/memo-edit/index');
   },
 });

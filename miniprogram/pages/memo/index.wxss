@@ -108,3 +108,7 @@
 .memo-back:active {
   opacity: 0.7;
 }
+
+.memo-add:active {
+  opacity: 0.7;
+}

@@ -155,10 +155,14 @@ export const DIARY_ASSETS = {
 
 /** 备忘录列表页：竖条纹整屏底 + 白色面板（标题已烘焙）+ 列表行药丸底 */
 export const MEMO_ASSETS = {
-  iconBack: 'diary/back',
+  iconBack: 'memo/back',
   bg: 'memo/bg',
   panel: 'memo/panel',
   row: 'memo/row',
+  /** 新增记录按钮（紫色 + 号方块） */
+  add: 'memo/add',
+  /** 备忘录编辑页整板（DATE 栏/标题/吉祥物已烘焙，正文区留白可编辑） */
+  editor: 'memo/editor',
 } as const;
 
 /** 信件：date 标签 / 天气 / logo 已画进信纸；展开即收下，无按钮 */

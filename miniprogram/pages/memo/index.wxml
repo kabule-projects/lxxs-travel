@@ -14,13 +14,13 @@
       scroll-y
       bindscrolltolower="onLoadMore"
       lower-threshold="80"
-     style="position: absolute; left: 24rpx; top: 300rpx; width: 602rpx; height: 899rpx; display: block; box-sizing: border-box">
+     style="position: absolute; left: 37rpx; top: 314rpx; width: 575rpx; height: 910rpx; display: block; box-sizing: border-box">
       <view
         wx:for="{{rows}}"
-        wx:key="dateKey"
+        wx:key="id"
         class="memo-row"
         style="height: {{rowH}}px"
-        data-key="{{item.dateKey}}"
+        data-id="{{item.id}}"
         bindtap="onTapRow"
       >
         <image class="memo-row-bg" src="{{assets.row}}" mode="aspectFill" />
@@ -41,5 +41,14 @@
     src="{{assets.iconBack}}"
     mode="aspectFit"
     bindtap="onTapBack"
+  />
+
+  <!-- 新增记录：返回按钮右侧，进入编辑页（无 dateKey = 今天，一天一条） -->
+  <image
+    class="memo-add"
+    style="top: 124rpx; position: absolute; left: 224rpx; width: 70rpx; height: 70rpx; display: block; box-sizing: border-box"
+    src="{{assets.add}}"
+    mode="aspectFit"
+    bindtap="onTapAdd"
   />
 </view>
