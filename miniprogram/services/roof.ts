@@ -11,9 +11,15 @@ export interface RoofSyncResult {
   dropped: RoofStarView[];
 }
 
-/** 云端同步天台星星；连不上直接抛错，由页面提示用户 */
-export async function syncRoof(): Promise<RoofSyncResult> {
-  return call<RoofSyncResult>('roof', { action: 'sync' });
+/** 云端同步天台星星；连不上直接抛错，由页面提示用户。
+ *  restartGuide：仅冷启动重开教程时传 true，服务端据此清零教学经济并重新播种 */
+export async function syncRoof(options?: {
+  restartGuide?: boolean;
+}): Promise<RoofSyncResult> {
+  return call<RoofSyncResult>('roof', {
+    action: 'sync',
+    restartGuide: !!options?.restartGuide,
+  });
 }
 
 export async function collectRoofStar(starId: string): Promise<{

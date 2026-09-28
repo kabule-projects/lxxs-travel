@@ -41,8 +41,10 @@ function mapStar(doc) {
 }
 
 /**
- * 未完成指引的用户再次冷启动：经济清零重来（用户修订：教学经济不保留）。
+ * 未完成指引的用户冷启动重开教程：经济清零重来（教学经济不保留）。
  * 只清教学期间产生的记录（guide 标记 / 教学食物购买记录），不误伤老用户存量数据。
+ * ⚠️ 只能由客户端冷启动激活指引时携带 restartGuide=true 触发——
+ * 若在每次 sync 都执行，收取后的计数会被立刻清零、星星也会重新刷出。
  */
 async function resetGuideProgress(openid, userId, now) {
   await db.collection('roof_stars').where({ userId: openid }).remove();
@@ -110,14 +112,15 @@ async function listByStatus(openid, status) {
   return res.data;
 }
 
-async function syncStars(openid) {
+async function syncStars(openid, restartGuide) {
   let user = await getUser(openid);
   if (!user) return fail('用户不存在', 'NOT_FOUND');
 
   const now = Date.now();
   const inGuide = !user.guideCompletedAt;
-  // 未完成指引且此前已播种过 → 冷启动重开，先清零教学经济再从头播种
-  if (inGuide && user.guideSeededAt) {
+  // 仅当客户端冷启动重开教程（restartGuide=true）时清零教学经济再从头播种；
+  // 会话内的普通 sync 绝不重置，否则收取后的计数会被清零、星星重新刷出
+  if (restartGuide && inGuide && user.guideSeededAt) {
     await resetGuideProgress(openid, user._id, now);
     user = await getUser(openid);
   }
@@ -295,7 +298,7 @@ exports.main = async (event) => {
 
     switch (action) {
       case 'sync':
-        return await syncStars(OPENID);
+        return await syncStars(OPENID, !!event.restartGuide);
       case 'collect':
         return await collectStar(OPENID, event.starId);
       case 'collectAll':

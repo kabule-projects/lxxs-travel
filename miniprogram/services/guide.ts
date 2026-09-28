@@ -228,9 +228,10 @@ export function initFromProfile(profile?: UserProfile | null): boolean {
   return true;
 }
 
-/** 冷启动激活：清零本地教学经济缓存，固定从首步开始 */
-export function start(): void {
-  if (state.completed || state.active) return;
+/** 冷启动激活：清零本地教学经济缓存，固定从首步开始。
+ *  @returns 本次是否真正激活（false=已完成/已在进行中，未发生变化） */
+export function start(): boolean {
+  if (state.completed || state.active) return false;
   try {
     LOCAL_ECONOMY_KEYS.forEach((key) => wx.setStorageSync(key, ''));
   } catch {
@@ -239,6 +240,7 @@ export function start(): void {
   state.active = true;
   state.step = GUIDE_ORDER[0];
   emitChanged();
+  return true;
 }
 
 export function isActive(): boolean {

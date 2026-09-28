@@ -101,6 +101,8 @@ Page({
   _guideStep: '' as string,
   _guideTimer: 0 as number,
   _guideBlockedAt: 0 as number,
+  /** 冷启动重开教程：下一次 sync 需携带 restartGuide，成功后清除 */
+  _guideRestartPending: false as boolean,
 
   onLoad() {
     const safe = readSafeArea();
@@ -197,9 +199,10 @@ Page({
 
   onShow() {
     playBgm('roof');
-    // 未完成指引的用户冷启动落到屋顶即激活，固定从首步开始
-    if (guide.initFromProfile(getProfile())) {
-      guide.start();
+    // 未完成指引的用户冷启动落到屋顶即激活，固定从首步开始；
+    // start() 返回 true 表示本次是新激活（非会话内 no-op），通知云端重置教学经济
+    if (guide.initFromProfile(getProfile()) && guide.start()) {
+      this._guideRestartPending = true;
     }
     // 自愈：指引已进行到商店阶段却回到屋顶（用户在系统返回弹窗选了离开），自动带回商店
     if (
@@ -285,7 +288,9 @@ Page({
 
   async syncFromServer() {
     try {
-      const res = await syncRoof();
+      const res = await syncRoof({ restartGuide: this._guideRestartPending });
+      // 冷启动重置标记只在 sync 成功后清除：失败时保留，下次 sync 重试重置
+      this._guideRestartPending = false;
       const now = Date.now();
       setStars(res.stars);
       setRiceStars(res.riceStars);
