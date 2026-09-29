@@ -271,6 +271,7 @@ async function currentTrip(openid) {
  * 未投递明信片即刻送达、endAt 拨到现在，然后走正常 advanceTrip 收尾
  *（归来 + 发伴手礼 + 订阅通知），效果与自然结束完全一致。
  * 只接受 traveling 状态；returned/at_home 走正常 sync/claimHome 流程。
+ * 每次跳过消耗 1 张跳过券（users.skipTickets），来源：新手赠送 / 扭蛋机抽取。
  */
 async function skipTrip(openid) {
   const user = await getUser(openid);
@@ -282,6 +283,12 @@ async function skipTrip(openid) {
   if (!trip) return fail('旅行不存在', 'NOT_FOUND');
   if (trip.status !== 'traveling') {
     return fail('旅行未在进行中', 'BAD_STATE');
+  }
+
+  // 券闸：先校验再改行程，避免扣了券却失败
+  const tickets = user.skipTickets || 0;
+  if (tickets < 1) {
+    return fail('没有跳过券了，去扭蛋机抽一张吧', 'NO_TICKET');
   }
 
   const now = Date.now();
@@ -304,10 +311,21 @@ async function skipTrip(openid) {
     { ...trip, postcards, endAt: now, _id: trip._id },
     user,
   );
+
+  // 跳过成功才扣券；skipTotal 生涯统计保留
+  await db.collection('users').doc(user._id).update({
+    data: {
+      skipTickets: _.inc(-1),
+      skipTotal: _.inc(1),
+      updatedAt: now,
+    },
+  });
+
   return ok({
     trip: advanced.trip,
     delivered: advanced.delivered,
     souvenirGranted: advanced.souvenirGranted,
+    skip: { tickets: tickets - 1, total: (user.skipTotal || 0) + 1 },
   });
 }
 

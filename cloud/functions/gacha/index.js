@@ -23,7 +23,8 @@ async function saveIdempotent(key, result) {
   });
 }
 
-/** 奖池配置引用 items 集合：名称/图标以 items 为准；只出背包道具（配饰/装备） */
+/** 奖池配置引用 items 集合：名称/图标以 items 为准；只出背包道具（配饰/装备）。
+ * 特例：reward === 'skipTicket' 的文档是跳过券（不入图鉴/背包，直接累计 skipTickets）。 */
 async function loadPool() {
   const res = await db
     .collection('gacha_pool')
@@ -42,6 +43,17 @@ async function loadPool() {
   const itemMap = new Map((itemRes.data || []).map((it) => [it.id, it]));
   return docs
     .map((d) => {
+      if (d.reward === 'skipTicket') {
+        return {
+          gachaId: 'skip_ticket',
+          name: '跳过券',
+          icon: '',
+          rarity: d.rarity || 'N',
+          weight: Number(d.weight) || 1,
+          sortOrder: d.sortOrder || 0,
+          reward: 'skipTicket',
+        };
+      }
       const itemId = d.itemId || d.gachaId;
       const item = itemMap.get(itemId);
       if (!item || (item.type !== 'accessory' && item.type !== 'equipment')) {
@@ -106,7 +118,8 @@ function mapCatalogEntry(d, owned) {
 async function catalog(openid) {
   const pool = await loadPool();
   const owned = await loadOwnedSet(openid);
-  const items = pool.map((d) => mapCatalogEntry(d, owned));
+  // 跳过券等特殊奖励不是图鉴收集品，不进目录
+  const items = pool.filter((d) => !d.reward).map((d) => mapCatalogEntry(d, owned));
   // 排序：已抽到的在前，未抽到的（问号）在后；组内保持奖池 sortOrder
   items.sort((a, b) => {
     if (a.obtained === b.obtained) return 0;
@@ -230,17 +243,14 @@ async function doDraw(openid, user, safeCount, idemKey) {
   const newStars = stars + batch.starsDelta;
   if (newStars < 0) return fail('星星不足', 'INSUFFICIENT_STARS');
 
-  await db.collection('users').doc(user._id).update({
-    data: {
-      stars: newStars,
-      pitySR: batch.pity.pitySR,
-      pitySSR: batch.pity.pitySSR,
-      pityUR: batch.pity.pityUR,
-    },
-  });
-
   const now = Date.now();
+  let skipTickets = 0;
   for (const r of batch.results) {
+    if (r.reward === 'skipTicket') {
+      // 跳过券：不入图鉴/背包，直接累计可跳过次数
+      skipTickets += 1;
+      continue;
+    }
     if (r.duplicate) continue;
     const found = await db
       .collection('user_gacha')
@@ -265,11 +275,22 @@ async function doDraw(openid, user, safeCount, idemKey) {
     await addInventory(db, _, openid, r.gachaId, 1, guideMode ? { guide: true } : {});
   }
 
+  await db.collection('users').doc(user._id).update({
+    data: {
+      stars: newStars,
+      pitySR: batch.pity.pitySR,
+      pitySSR: batch.pity.pitySSR,
+      pityUR: batch.pity.pityUR,
+      ...(skipTickets ? { skipTickets: _.inc(skipTickets) } : {}),
+    },
+  });
+
   const result = {
     count: safeCount,
     cost: totalCost,
     stars: newStars,
     results: batch.results,
+    skipTickets,
     pitySR: batch.pity.pitySR,
     pitySSR: batch.pity.pitySSR,
     pityUR: batch.pity.pityUR,
