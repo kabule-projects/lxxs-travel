@@ -31,6 +31,9 @@ Component({
       value: null as ({ x: number; y: number; w: number; h: number } | null),
     },
     text: { type: String, value: '' },
+    /** 无遮罩模式：只显示文字气泡和开孔白边，不渲染半透明黑色遮罩。
+     *  用于弹窗内的引导步骤（如 diary-envelope），弹窗本身已有背景。 */
+    noMask: { type: Boolean, value: false },
   },
 
   data: {

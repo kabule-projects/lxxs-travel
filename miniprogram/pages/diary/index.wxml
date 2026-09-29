@@ -35,7 +35,7 @@
             wx:for="{{item}}"
             wx:for-item="slot"
             wx:key="key"
-            class="grid-cell"
+            class="grid-cell {{slot.entryIndex === 0 ? 'guide-anchor-postcard' : ''}}"
             data-index="{{slot.entryIndex}}"
             bindtap="onTapEntry"
           >
@@ -65,7 +65,7 @@
 
     <!-- 返回按钮：左下角 -->
     <image style="position: absolute; left: 46rpx; top: 1412rpx"
-      class="diary-back"
+      class="diary-back guide-anchor-diary-back"
       src="{{assets.iconBack}}"
       mode="aspectFit"
       bindtap="onTapBack"
@@ -73,7 +73,7 @@
 
     <!-- 备忘录入口：内页天气图标行右侧，尺寸与图标一致 -->
     <image
-      class="memo-btn"
+      class="memo-btn guide-anchor-memo"
       style="left: {{memoBtnLeft}}px; top: {{memoBtnTop}}px; width: {{memoBtnW}}px; height: {{memoBtnH}}px"
       src="{{assets.memoBtn}}"
       mode="aspectFit"
@@ -98,4 +98,21 @@
     title="{{zoomTitle}}"
     bind:close="onCloseLetter"
   />
+
+  <!-- 新手指引强制遮罩（弹窗显示期间进入无遮罩模式，只显示文字泡） -->
+  <guide-overlay
+    visible="{{guideVisible}}"
+    holes="{{guideHoles}}"
+    hit-rect="{{guideHit}}"
+    text="{{guideText}}"
+    no-mask="{{guideNoMask}}"
+    bind:blocked="onGuideBlocked"
+  />
+
+  <!-- diary-envelope 步骤：独立气泡文字（不渲染 guide-overlay，用户可自由点击弹窗）。
+       定位在明信片大图下方，箭头朝右上指向右下角信封 -->
+  <view wx:if="{{guideBubbleVisible}}" class="diary-guide-bubble" style="{{guideBubbleStyle}}">
+    <view class="diary-guide-bubble-arrow"></view>
+    <view class="diary-guide-bubble-text">{{guideBubbleText}}</view>
+  </view>
 </view>

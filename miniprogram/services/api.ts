@@ -50,6 +50,8 @@ export interface UserProfile {
   pityUR: number;
   currentTripId?: string;
   guideCompletedAt?: number | null;
+  /** 新手奖励发放时间（发奖闸，preReward 时写入）；与 guideCompletedAt 区分 */
+  guideRewardedAt?: number | null;
   lastSpawnAt: number;
   nextSpawnAt: number;
   createdAt: number;
@@ -125,7 +127,8 @@ export interface GuideRewardPostcard {
 }
 
 export interface GuideCompleteResult {
-  guideCompletedAt: number;
+  /** 教程完成时间；preReward（markCompleted=false）时为 null */
+  guideCompletedAt: number | null;
   /** true=本次之前已领过（或并发抢占失败），不发奖 */
   alreadyClaimed: boolean;
   reward: {
@@ -138,8 +141,8 @@ export interface GuideCompleteResult {
 }
 
 /** 新手指引完成（真实出发成功）回写：首次完成发放新手奖励，云端幂等 */
-export async function completeGuideApi(): Promise<GuideCompleteResult> {
-  return call<GuideCompleteResult>('login', { action: 'completeGuide' });
+export async function completeGuideApi(markCompleted = true): Promise<GuideCompleteResult> {
+  return call<GuideCompleteResult>('login', { action: 'completeGuide', markCompleted });
 }
 
 export async function ping(name: string): Promise<{ service: string; ts: number }> {

@@ -32,6 +32,7 @@ async function createUser(openid) {
     pitySSR: 0,
     pityUR: 0,
     guideCompletedAt: null,
+    guideRewardedAt: null,
     guideSeededAt: null,
     lastSpawnAt: now,
     nextSpawnAt: now + 600_000,
@@ -122,20 +123,35 @@ async function grantGuidePostcard(openid, postcardId) {
 
 /**
  * 新手指引完成回写（真实出发成功后调用）。
- * guideCompletedAt 原子认领（仍为 null 才更新成功）是发奖闸：并发/重复调用只发一次。
+ * 发奖闸：guideRewardedAt 原子认领（仍为 null 才更新成功），preReward/complete 并发/重复调用只发一次。
+ * markCompleted=false 时只发奖不写 guideCompletedAt（preReward 提前发奖用），
+ * 教程真正走完时再以 markCompleted=true 写入 guideCompletedAt。
  */
-async function completeGuide(openid) {
+async function completeGuide(openid, markCompleted = true) {
   const user = await getUserByOpenid(db, openid);
   if (!user) return fail('用户不存在', 'NOT_FOUND');
   const ts = Date.now();
+  // 老账号（历史上已完成教程）可能没有 guideRewardedAt 字段：以 guideCompletedAt 兜底视为已发奖，防重复发奖
+  const claimedBefore = !!user.guideRewardedAt || !!user.guideCompletedAt;
+  // 原子认领发奖闸
   const claim = await db
     .collection('users')
-    .where({ _id: user._id, guideCompletedAt: null })
-    .update({ data: { guideCompletedAt: ts } });
+    .where({ _id: user._id, guideRewardedAt: null, guideCompletedAt: null })
+    .update({ data: { guideRewardedAt: ts } });
   const claimed = !!(claim.stats && claim.stats.updated === 1);
-  if (!claimed) {
+
+  if (markCompleted) {
+    await db
+      .collection('users')
+      .doc(user._id)
+      .update({
+        data: { guideCompletedAt: user.guideCompletedAt || ts },
+      });
+  }
+
+  if (!claimed || claimedBefore) {
     return ok({
-      guideCompletedAt: user.guideCompletedAt || ts,
+      guideCompletedAt: user.guideCompletedAt || (markCompleted ? ts : null),
       alreadyClaimed: true,
       reward: null,
     });
@@ -150,7 +166,7 @@ async function completeGuide(openid) {
     });
   const postcard = await grantGuidePostcard(openid, cfg.postcardId);
   return ok({
-    guideCompletedAt: ts,
+    guideCompletedAt: markCompleted ? ts : null,
     alreadyClaimed: false,
     reward: { stars: cfg.stars, riceStars: cfg.riceStars, postcard },
     wallet: {
@@ -168,6 +184,18 @@ async function session(openid) {
   }
   user = await ensureUserId(db, user);
   const now = Date.now();
+  // 未完成教程但小深已在旅途中：删除残留行程记录、清空 currentTripId，让教程从头开始
+  if (!user.guideCompletedAt && user.currentTripId) {
+    try {
+      await db.collection('trips').doc(user.currentTripId).remove();
+    } catch (e) {
+      /* 行程记录可能已不存在 */
+    }
+    await db.collection('users').doc(user._id).update({
+      data: { currentTripId: null, lastLoginAt: now },
+    });
+    return ok({ ...mapUserPublic({ ...user, currentTripId: null, lastLoginAt: now }), needsProfile: false });
+  }
   await db.collection('users').doc(user._id).update({
     data: { lastLoginAt: now },
   });
@@ -210,6 +238,7 @@ async function register(openid, profile) {
     pitySSR: 0,
     pityUR: 0,
     guideCompletedAt: null,
+    guideRewardedAt: null,
     guideSeededAt: null,
     lastSpawnAt: now,
     nextSpawnAt: now + 600_000,
@@ -232,7 +261,7 @@ exports.main = async (event) => {
       case 'register':
         return await register(OPENID, event.profile || event);
       case 'completeGuide':
-        return await completeGuide(OPENID);
+        return await completeGuide(OPENID, event.markCompleted !== false);
       case 'session':
       default:
         return await session(OPENID);

@@ -1,6 +1,9 @@
-import { completeGuideApi, type GuideCompleteResult } from './api';
-import type { UserProfile } from './api';
+import { completeGuideApi, type GuideCompleteResult, type UserProfile } from './api';
 import { emit, on, GameEvent } from '../utils/event-bus';
+import { resolveAsset } from '../utils/resolve-assets';
+import { resolveDynamicAsset } from '../utils/resolve-dynamic-asset';
+import { setStars, setRiceStars } from '../store/user';
+import type { GachaResultItem } from '../components/gacha-result/gacha-result';
 
 /** 本地完成标志（云端 guideCompletedAt 兜底）；冷启动判定以此为准 */
 export const GUIDE_COMPLETED_KEY = 'lxxs_guide_completed';
@@ -14,7 +17,7 @@ const LOCAL_ECONOMY_KEYS = [
   'lxxs_gacha_pity',
 ];
 
-/** 指引步骤（固定顺序，13 步） */
+/** 指引步骤（固定顺序，18 步） */
 export type GuideStep =
   | 'roof-stars'
   | 'roof-to-shop'
@@ -28,7 +31,14 @@ export type GuideStep =
   | 'picker-food'
   | 'bag-prop'
   | 'picker-prop'
-  | 'bag-depart';
+  | 'bag-depart'
+  | 'home-showcase'
+  | 'home-diary'
+  | 'diary-postcard'
+  | 'diary-envelope'
+  | 'diary-memo'
+  | 'diary-back'
+  | 'home-window';
 
 /** 步骤所属宿主：页面或自定义组件（组件隔离下遮罩需组件内部渲染） */
 export type GuideHost =
@@ -38,7 +48,8 @@ export type GuideHost =
   | 'home'
   | 'bag-modal'
   | 'inventory-picker'
-  | 'gacha-result';
+  | 'gacha-result'
+  | 'diary';
 
 /** 放行矩形策略：bbox=开孔外接矩形；roof-band=屋顶星星活动带（页面计算） */
 export type GuideHitStrategy = 'bbox' | 'roof-band';
@@ -66,6 +77,13 @@ export const GUIDE_ORDER: GuideStep[] = [
   'bag-prop',
   'picker-prop',
   'bag-depart',
+  'home-showcase',
+  'home-diary',
+  'diary-postcard',
+  'diary-envelope',
+  'diary-memo',
+  'diary-back',
+  'home-window',
 ];
 
 export const GUIDE_META: Record<GuideStep, GuideStepMeta> = {
@@ -159,6 +177,58 @@ export const GUIDE_META: Record<GuideStep, GuideStepMeta> = {
     selectors: ['.depart-btn-img'],
     hit: 'bbox',
     text: '行李准备好啦，让小深出发去旅行吧！',
+  },
+  'home-showcase': {
+    step: 'home-showcase',
+    host: 'home',
+    selectors: ['.guide-anchor-showcase'],
+    hit: 'bbox',
+    text: '小深带回来的纪念品会陈列在这里。',
+  },
+  'home-diary': {
+    step: 'home-diary',
+    host: 'home',
+    selectors: ['.guide-anchor-diary'],
+    hit: 'bbox',
+    text: '旅行中的故事会记录在日记里，点开看看吧。',
+  },
+  'diary-postcard': {
+    step: 'diary-postcard',
+    host: 'diary',
+    selectors: ['.guide-anchor-postcard'],
+    hit: 'bbox',
+    text: '这是小深寄来的明信片。',
+  },
+  'diary-envelope': {
+    step: 'diary-envelope',
+    host: 'diary',
+    selectors: ['.guide-anchor-unreachable'],
+    hit: 'bbox',
+    // 信封在 postcard-zoom 组件内部，组件隔离导致选择器不可达；
+    // 用空选择器使 measureGuideHost 找不到目标 → 不渲染遮罩开孔，
+    // 仅显示气泡文字（引导弹窗内操作），弹窗关闭后才恢复遮罩
+    text: '点击信封看看小深写了什么。',
+  },
+  'diary-memo': {
+    step: 'diary-memo',
+    host: 'diary',
+    selectors: ['.guide-anchor-memo'],
+    hit: 'bbox',
+    text: '这里可以写自己的旅行日记。',
+  },
+  'diary-back': {
+    step: 'diary-back',
+    host: 'diary',
+    selectors: ['.guide-anchor-diary-back'],
+    hit: 'bbox',
+    text: '点击返回小屋。',
+  },
+  'home-window': {
+    step: 'home-window',
+    host: 'home',
+    selectors: ['.guide-anchor-window'],
+    hit: 'bbox',
+    text: '点击窗户回到屋顶（翻窗危险，请勿模仿）',
   },
 };
 
@@ -264,13 +334,13 @@ export function getMeta(step: GuideStep | null = state.step): GuideStepMeta | nu
   return step ? GUIDE_META[step] : null;
 }
 
-/** 推进到指定步骤；缺省按 GUIDE_ORDER 前进一步 */
-export function advance(next?: GuideStep): void {
+/** 推进到指定步骤。
+ *  默认按 GUIDE_ORDER 前进一步；传 step 时直接跳到该步（用于预奖励弹窗后跨步）。 */
+export function advance(target?: GuideStep): void {
   if (!state.active || !state.step) return;
-  const target =
-    next || GUIDE_ORDER[Math.min(GUIDE_ORDER.indexOf(state.step) + 1, GUIDE_ORDER.length - 1)];
-  if (target === state.step) return;
-  state.step = target;
+  const next = target || GUIDE_ORDER[Math.min(GUIDE_ORDER.indexOf(state.step) + 1, GUIDE_ORDER.length - 1)];
+  if (next === state.step) return;
+  state.step = next;
   emitChanged();
 }
 
@@ -287,10 +357,43 @@ export async function complete(): Promise<GuideCompleteResult | null> {
     /* ignore */
   }
   emitChanged();
+  // 无论是否已提前发奖，都要调一次云端（markCompleted=true）：
+  // preReward 只发奖不写 guideCompletedAt，这里负责真正标记完成。
+  // 云端发奖闸（guideRewardedAt 原子认领）保证奖励不重复发放。
+  let result: GuideCompleteResult | null = null;
   try {
-    return await completeGuideApi();
+    result = await completeGuideApi();
   } catch {
     /* 本地标志已兜底，下次启动重试由云端幂等处理 */
+  }
+  // 奖励展示复用 preReward 缓存的结果（completeGuideApi 二次调用 reward 为 null）
+  if (_preRewardResult) {
+    const cached = _preRewardResult;
+    _preRewardResult = null;
+    return cached;
+  }
+  return result;
+}
+
+/** 提前发奖结果缓存（home-showcase 之后调用，用户进入 diary 时明信片已在图鉴） */
+let _preRewardResult: GuideCompleteResult | null = null;
+
+/** 提前调用云端发奖接口：把新手奖励（星星+米子星+明信片）提前写入图鉴。
+ *  在 home-showcase → home-diary 推进时调用，确保 diary 页有明信片可看。
+ *  结果缓存供 complete() 复用，避免重复调用云端。 */
+export async function preReward(): Promise<GuideCompleteResult | null> {
+  try {
+    // markCompleted=false：只发奖，不写 guideCompletedAt（教程尚未走完）
+    const res = await completeGuideApi(false);
+    _preRewardResult = res;
+    if (res.wallet) {
+      setStars(res.wallet.stars);
+      setRiceStars(res.wallet.riceStars);
+      emit(GameEvent.STARS_UPDATED);
+    }
+    return res;
+  } catch {
+    /* 失败不阻断，complete() 时会再调一次（云端幂等） */
     return null;
   }
 }
@@ -298,4 +401,49 @@ export async function complete(): Promise<GuideCompleteResult | null> {
 /** 订阅指引状态变化，返回退订函数 */
 export function onChange(handler: (payload?: unknown) => void): () => void {
   return on(GameEvent.GUIDE_CHANGED, handler);
+}
+
+/** 从 GuideCompleteResult 构建新手奖励展示项 + 同步本地钱包余额。
+ *  home / roof 共用：出发后教程改在 roof 完成时调用。 */
+export async function buildGuideRewardItems(
+  res: GuideCompleteResult,
+): Promise<{ results: GachaResultItem[]; playSound: boolean }> {
+  const reward = res.reward;
+  if (!reward) return { results: [], playSound: false };
+  const [starIcon, riceIcon] = await Promise.all([
+    resolveAsset('roof/star'),
+    resolveAsset('roof/star-rice'),
+  ]);
+  const results: GachaResultItem[] = [
+    {
+      gachaId: 'guide_stars',
+      name: `星星 ×${reward.stars}`,
+      icon: starIcon,
+      rarity: 'N',
+      duplicate: false,
+    },
+    {
+      gachaId: 'guide_rice',
+      name: `米子星 ×${reward.riceStars}`,
+      icon: riceIcon,
+      rarity: 'SSR',
+      duplicate: false,
+    },
+  ];
+  if (reward.postcard) {
+    const icon = await resolveDynamicAsset(reward.postcard.imageThumb);
+    results.push({
+      gachaId: 'guide_postcard',
+      name: reward.postcard.title,
+      icon,
+      rarity: reward.postcard.rarity || 'SR',
+      duplicate: false,
+    });
+  }
+  if (res.wallet) {
+    setStars(res.wallet.stars);
+    setRiceStars(res.wallet.riceStars);
+    emit(GameEvent.STARS_UPDATED);
+  }
+  return { results, playSound: true };
 }

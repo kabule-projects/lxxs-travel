@@ -75,6 +75,9 @@ Page({
     guideHoles: [] as GuideHole[],
     guideHit: null as { x: number; y: number; w: number; h: number } | null,
     guideText: '',
+    /** 教程完成新手奖励弹窗 */
+    showGuideReward: false,
+    guideRewardResults: [] as never[],
   },
 
   _tick: 0 as number,
@@ -204,11 +207,22 @@ Page({
     if (guide.initFromProfile(getProfile()) && guide.start()) {
       this._guideRestartPending = true;
     }
+    // 教程最终步：用户点窗户从 home 到达 roof → 完成教程并发放新手奖励
+    if (guide.isStep('home-window')) {
+      void this.finishGuide();
+    }
     // 自愈：指引已进行到商店阶段却回到屋顶（用户在系统返回弹窗选了离开），自动带回商店
     if (
       guide.isStep('shop-select', 'shop-buy', 'shop-to-gacha', 'gacha-draw', 'gacha-result')
     ) {
       navigateTo('/pages/shop/index');
+    }
+    // 自愈：指引已进行到 home 阶段步骤（用户从 showcase/diary 退出后回到 roof），自动带回 home
+    // home-window 步骤是"点击窗户回 roof"，此时用户已在 roof 正常完成，不跳转
+    if (
+      guide.isStep('home-showcase', 'home-diary', 'diary-postcard', 'diary-envelope', 'diary-memo', 'diary-back')
+    ) {
+      navigateTo('/pages/home/index');
     }
     this.refreshGuide();
     this.setData({
@@ -579,5 +593,18 @@ Page({
   /** 遮罩暗区被点击：节流提示（开孔抖动由组件处理） */
   onGuideBlocked() {
     notifyGuideBlocked(this);
+  },
+
+  /** 教程最终步：完成指引（奖励已在 home 提前发放，这里只完成收尾） */
+  async finishGuide() {
+    try {
+      await guide.complete();
+    } catch {
+      /* 云端回写失败不阻断，下次启动幂等兜底 */
+    }
+  },
+
+  onCloseGuideReward() {
+    this.setData({ showGuideReward: false, guideRewardResults: [] });
   },
 });

@@ -151,6 +151,43 @@
   height: 196rpx;
 }
 
+/* diary-envelope 步骤：独立气泡文字（无遮罩，浮于弹窗上方）。
+   left/top 由 JS 按大图卡片位置内联给定（卡片下方、右端对齐信封列） */
+.diary-guide-bubble {
+  position: fixed;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  pointer-events: none; /* 气泡不拦截点击 */
+}
+
+.diary-guide-bubble-text {
+  width: 440rpx;
+  box-sizing: border-box;
+  background: #fff;
+  border: 4rpx solid #d4c8e8;
+  border-radius: 32rpx;
+  padding: 18rpx 28rpx;
+  font-size: 30rpx;
+  line-height: 1.4;
+  font-weight: bold;
+  color: #4a3870;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+}
+
+/* 箭头在文字上方、靠右；向上的三角旋转 45° 后朝右上，指向明信片右下角信封 */
+.diary-guide-bubble-arrow {
+  width: 0;
+  height: 0;
+  border-left: 16rpx solid transparent;
+  border-right: 16rpx solid transparent;
+  border-bottom: 20rpx solid #fff;
+  margin-right: 40rpx;
+  margin-bottom: -10rpx;
+  transform: rotate(45deg);
+}
+
 
 .empty {
   padding: 120rpx 40rpx;

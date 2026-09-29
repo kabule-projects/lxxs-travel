@@ -76,7 +76,8 @@ Component({
   observers: {
     'visible, results'(visible: boolean, results: GachaResultItem[]) {
       if (!visible || !results?.length) {
-        this.setData({ convertFlags: [] });
+        // 空结果必须重置 single（初始值为 true），否则会渲染出一个没有图标的单抽大格子
+        this.setData({ convertFlags: [], single: false, topRow: [], bottomRow: [] });
         this.refreshGuide();
         return;
       }

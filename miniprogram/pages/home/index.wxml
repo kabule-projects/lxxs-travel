@@ -5,7 +5,7 @@
   <view class="home-overlay">
     <!-- 窗户：叠在背景上，点击进入屋顶；位置/大小按屏幕百分比调 -->
     <image
-      class="home-window"
+      class="home-window guide-anchor-window"
       src="{{assets.window}}"
       mode="widthFix"
       bindtap="onTapWindow"
@@ -43,7 +43,7 @@
 
     <!-- 家具热区：展示柜 / 日记；衣柜 Phase2 再开 -->
     <view
-      class="hotspot hotspot-showcase"
+      class="hotspot hotspot-showcase guide-anchor-showcase"
       bindtap="onTapShowcase"
       aria-label="展示柜"
     ></view>
@@ -53,7 +53,7 @@
       aria-disabled="true"
     ></view>
     <view
-      class="hotspot hotspot-diary"
+      class="hotspot hotspot-diary guide-anchor-diary"
       bindtap="onTapDiary"
       aria-label="日记"
     ></view>

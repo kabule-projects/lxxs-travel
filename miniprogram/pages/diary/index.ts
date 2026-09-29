@@ -3,6 +3,13 @@ import { resolveAssetMap } from '../../utils/resolve-assets';
 import { playSfx, playTap } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
 import { listDiary, type DiaryEntry, type PostcardType } from '../../services/diary';
+import * as guide from '../../services/guide';
+import {
+  refreshGuideHost,
+  notifyGuideBlocked,
+  setGuideBackGuard,
+} from '../../utils/guide-page';
+import type { GuideHole } from '../../components/guide-overlay/guide-overlay';
 
 type PageAssets = Record<keyof typeof DIARY_ASSETS, string>;
 
@@ -102,7 +109,30 @@ Page({
     zoomTitle: '',
     letterDate: '',
     letterStory: '',
+    /** 新手指引遮罩 */
+    guideVisible: false,
+    guideHoles: [] as GuideHole[],
+    guideHit: null as { x: number; y: number; w: number; h: number } | null,
+    guideText: '',
+    /** 弹窗显示期间遮罩进入无遮罩模式（只显示文字泡，不渲染黑色遮罩） */
+    guideNoMask: false,
+    /** diary-envelope 步骤的独立气泡文字（弹窗内显示，guide-overlay 不渲染） */
+    guideBubbleVisible: false,
+    guideBubbleText: '',
+    /** 气泡内联定位（大图下方、指向右下角信封） */
+    guideBubbleStyle: '',
   },
+
+  /** 新手指引状态 */
+  _guideStep: '' as string,
+  _guideTimer: 0 as number,
+  _guideBlockedAt: 0 as number,
+  _offGuide: null as (() => void) | null,
+  /** 明信片大图 / 信件是否正在展示（未完全关闭前不渲染指引遮罩，避免挡住"点空白关闭"） */
+  _zoomOpen: false as boolean,
+  _letterOpen: false as boolean,
+  /** 是否已进入过备忘录（从 memo 返回时据此推进到 diary-back） */
+  _memoVisited: false as boolean,
 
   onLoad() {
     // swiper 是原生组件，必须内联明确的 px 尺寸/位置。
@@ -126,10 +156,25 @@ Page({
     resolveAssetMap(DIARY_ASSETS).then((assets) => {
       this.setData({ assets });
     });
+    this._offGuide = guide.onChange(() => {
+      this.refreshGuide();
+    });
   },
 
   onShow() {
+    // 教程推进：从 home 进入 diary → 推进到 diary-postcard
+    if (guide.isStep('home-diary')) {
+      guide.advance('diary-postcard');
+    }
+    // 教程推进：从备忘录返回 → 推进到 diary-back（引导点击左下角返回小屋）
+    if (this._memoVisited && guide.isStep('diary-memo')) {
+      this._memoVisited = false;
+      guide.advance('diary-back');
+    }
     this.reload();
+    this.refreshGuide();
+    // 仅 diary-postcard 步需要防误退出；点开明信片（进入 envelope）后即取消拦截
+    setGuideBackGuard(guide.isStep('diary-postcard'));
   },
 
   async reload() {
@@ -183,6 +228,10 @@ Page({
       showHint,
       empty: this.data.allEntries.length === 0,
     });
+    // 空 diary 时 diary-postcard 无可点击目标，直接跳过到 memo 步骤
+    if (guide.isStep('diary-postcard') && entries.length === 0) {
+      guide.advance('diary-memo');
+    }
   },
 
   onTapTab(e: WechatMiniprogram.TouchEvent) {
@@ -194,13 +243,16 @@ Page({
   },
 
   onTapBack() {
+    if (guide.isActive() && !guide.isStep('diary-back')) return;
     playTap();
     navigateBack('/pages/home/index');
   },
 
   /** 备忘录入口：进入旅行记录列表页（编辑器 UI 接入后行点击再跳编辑） */
   onTapMemo() {
+    if (guide.isActive() && !guide.isStep('diary-memo')) return;
     playTap();
+    if (guide.isStep('diary-memo')) this._memoVisited = true;
     navigateTo('/pages/memo/index');
   },
 
@@ -217,11 +269,14 @@ Page({
   },
 
   onTapEntry(e: WechatMiniprogram.TouchEvent) {
+    if (guide.isActive() && !guide.isStep('diary-postcard')) return;
     const index = Number(e.currentTarget.dataset.index);
     if (index < 0) return;
     const entry = this.data.entries[index];
     if (!entry) return;
     playTap();
+    this._zoomOpen = true;
+    this._letterOpen = false;
     this.setData({
       zoomVisible: true,
       letterVisible: false,
@@ -229,10 +284,34 @@ Page({
       zoomTitle: entry.title,
       letterDate: formatDiaryDate(entry.firstClaimedAt),
       letterStory: entry.story || '',
+      guideNoMask: true, // 弹窗期间遮罩进入无遮罩模式（只显示文字泡）
+      guideBubbleStyle: this.calcEnvelopeBubbleStyle(),
     });
+    // diary-postcard 步骤：点击明信片打开大图后，推进到 diary-envelope（等用户点信封）
+    if (guide.isStep('diary-postcard')) {
+      guide.advance('diary-envelope');
+      this.refreshGuide(); // 直接刷新，确保 postcard 气泡消失、envelope 气泡出现
+    }
+  },
+
+  /** 计算 envelope 指引气泡位置：大图卡片下方、右端对齐信封列（卡片 75vw、3:4、全屏居中） */
+  calcEnvelopeBubbleStyle(): string {
+    const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    const screenW = info.windowWidth || 375;
+    const screenH = info.windowHeight || 667;
+    const cardW = screenW * 0.75;
+    const cardH = (cardW * 4) / 3;
+    const cardTop = (screenH - cardH) / 2;
+    const cardRight = (screenW + cardW) / 2;
+    const bubbleW = (screenW * 440) / 750; // 与 wxss .diary-guide-bubble-text 宽度一致
+    const left = cardRight - bubbleW - (screenW * 16) / 750;
+    const top = cardTop + cardH + (screenW * 20) / 750;
+    return `left:${left}px;top:${top}px;`;
   },
 
   onCloseZoom() {
+    this._zoomOpen = false;
+    this._letterOpen = false;
     this.setData({
       zoomVisible: false,
       letterVisible: false,
@@ -240,15 +319,80 @@ Page({
       zoomTitle: '',
       letterDate: '',
       letterStory: '',
+      guideNoMask: false,
+      guideBubbleVisible: false,
+      guideBubbleText: '',
+      guideBubbleStyle: '',
     });
+    // 大图完全关闭后 memo 阶段才开始：
+    // - 没点信封就关大图：补推进到 diary-memo
+    // - 已点信封（步骤已是 diary-memo）：直接刷新出指向备忘录按钮的遮罩
+    if (guide.isStep('diary-envelope')) {
+      guide.advance('diary-memo');
+    }
+    if (guide.isStep('diary-memo')) {
+      this.refreshGuide();
+    }
   },
 
   onTapEnvelope() {
+    if (guide.isActive() && !guide.isStep('diary-envelope')) return;
     playTap();
+    this._letterOpen = true;
     this.setData({ letterVisible: true });
+    // diary-envelope 步骤：点信封打开信件后推进到 diary-memo，
+    // 但遮罩要等"关信件 + 关大图"两次空白点击后才渲染（refreshGuide 内按弹层状态压制）
+    if (guide.isStep('diary-envelope')) {
+      guide.advance('diary-memo');
+    }
+    this.setData({ guideBubbleVisible: false, guideBubbleText: '' });
   },
 
   onCloseLetter() {
-    this.setData({ letterVisible: false });
+    // 只关信件，大图仍在显示：用户还需再点一次空白关闭大图，期间不渲染指引遮罩
+    this._letterOpen = false;
+    this.setData({ letterVisible: false, guideBubbleVisible: false, guideBubbleText: '' });
+  },
+
+  onUnload() {
+    this._offGuide?.();
+    if (this._guideTimer) clearTimeout(this._guideTimer);
+    setGuideBackGuard(false);
+  },
+
+  /** 新手指引：按当前步骤刷新遮罩与开孔（diary 宿主） */
+  refreshGuide() {
+    if (guide.isStep('diary-envelope')) {
+      // 弹窗打开期间 diary-envelope 步骤：不渲染 guide-overlay（用户可自由点击），
+      // 通过独立气泡文字提示用户点击信封（气泡定位在大图下方、指向右下角信封）
+      // postcard 已完成：直接取消返回拦截，后续 envelope/memo/back 均不再拦截
+      setGuideBackGuard(false);
+      const meta = guide.getMeta();
+      if (meta) {
+        this._guideStep = meta.step;
+        this.setData({
+          guideVisible: false,
+          guideBubbleVisible: true,
+          guideBubbleText: meta.text,
+        });
+      }
+      return;
+    }
+    // 大图/信件尚未完全关闭时（点开 envelope 后需点空白两次）不渲染遮罩：
+    // guide-overlay 层级高于弹层，提前渲染会挡住"点空白关闭"操作导致软锁
+    if (this._zoomOpen || this._letterOpen) {
+      this.setData({ guideVisible: false, guideBubbleVisible: false, guideBubbleText: '' });
+      return;
+    }
+    // 其他步骤：正常渲染 guide-overlay，隐藏独立气泡
+    this.setData({ guideBubbleVisible: false, guideBubbleText: '' });
+    refreshGuideHost('diary', this);
+    // 仅 diary-postcard 步拦截返回；postcard 完成后（envelope/memo/back）一律放行
+    setGuideBackGuard(guide.isStep('diary-postcard'));
+  },
+
+  /** 遮罩暗区被点击：节流提示 */
+  onGuideBlocked() {
+    notifyGuideBlocked(this);
   },
 });

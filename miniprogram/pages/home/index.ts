@@ -1,10 +1,9 @@
 import { HOME_ASSETS, SHOP_ASSETS, SHOWCASE_ASSETS, assetCdnBase } from '../../utils/asset-path';
 import { preloadAssetKeys } from '../../utils/preload';
-import { resolveAsset, resolveAssetMap } from '../../utils/resolve-assets';
-import { resolveDynamicAsset } from '../../utils/resolve-dynamic-asset';
+import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readSafeArea, readCapsuleRect } from '../../utils/device';
 import { emit, GameEvent, on } from '../../utils/event-bus';
-import { getRiceStars, getStars, isTraveling, setStars, setRiceStars } from '../../store/user';
+import { getRiceStars, getStars, isTraveling } from '../../store/user';
 import { playSfx, playTap, playBgm } from '../../services/sound';
 import { navigateTo } from '../../utils/nav';
 import { toastCloudError } from '../../utils/net-error';
@@ -96,6 +95,7 @@ Page({
   _guideStep: '' as string,
   _guideTimer: 0 as number,
   _guideBlockedAt: 0 as number,
+  _guideRewardResolve: null as (() => void) | null,
 
   onLoad() {
     const safe = readSafeArea();
@@ -113,6 +113,11 @@ Page({
     this._offGuide = guide.onChange(() => {
       this.refreshGuide();
     });
+  },
+
+  onHide() {
+    stopReturnWatch();
+    this.stopCat();
   },
 
   onUnload() {
@@ -136,8 +141,18 @@ Page({
     this.syncTripState();
     this.startCat();
     this.healGuideBag();
+
     // reLaunch 回小屋或首次落地：若指引进行到背包步则显示遮罩
     this.refreshGuide();
+
+    // 教程推进：从展示柜/日记返回后推进
+    if (guide.isStep('home-showcase')) {
+      guide.advance('home-diary');
+      this.refreshGuide();
+    } else if (guide.isStep('diary-back')) {
+      guide.advance('home-window');
+      this.refreshGuide();
+    }
   },
 
   /** 自愈：指引已在背包/picker 阶段但背包未开（异常回到小屋时），回到对应背包步并重新打开背包 */
@@ -152,10 +167,6 @@ Page({
     } else if (guide.isStep('bag-depart')) {
       this.setData({ showBag: true });
     }
-  },
-
-  onHide() {
-    this.stopCat();
   },
 
   syncWallet() {
@@ -379,12 +390,16 @@ Page({
     try {
       await startTrip(loadout);
       this.setData({ showBag: false });
-      // 真实出发成功：新手指引全部完成（本地落标志 + 云端幂等回写）
+      // 出发成功：小深出门了，立即发奖励弹窗（用户确认收下后才继续推进）
       if (guide.isStep('bag-depart')) {
-        const completed = await guide.complete();
-        if (completed && !completed.alreadyClaimed && completed.reward) {
-          void this.showGuideReward(completed);
+        const res = await guide.preReward();
+        // reward 为 null 表示新手奖励此前已发放过（教程重开/测试号重置），不再弹礼包窗
+        if (res?.reward) {
+          await this.showGuideReward(res);
         }
+        // 弹窗关闭后推进到展示柜引导步
+        guide.advance('home-showcase');
+        this.refreshGuide();
       }
       emit(GameEvent.CHARACTER_HIDDEN);
     } catch (err) {
@@ -395,55 +410,24 @@ Page({
     }
   },
 
-  /** 教程完成奖励：9 星星 + 1 米子星 + 1 明信片，用扭蛋结果面板展示 */
-  async showGuideReward(res: GuideCompleteResult) {
-    try {
-      const reward = res.reward;
-      if (!reward) return;
-      const [starIcon, riceIcon] = await Promise.all([
-        resolveAsset('roof/star'),
-        resolveAsset('roof/star-rice'),
-      ]);
-      const results: GachaResultItem[] = [
-        {
-          gachaId: 'guide_stars',
-          name: `星星 ×${reward.stars}`,
-          icon: starIcon,
-          rarity: 'N',
-          duplicate: false,
-        },
-        {
-          gachaId: 'guide_rice',
-          name: `米子星 ×${reward.riceStars}`,
-          icon: riceIcon,
-          rarity: 'SSR',
-          duplicate: false,
-        },
-      ];
-      if (reward.postcard) {
-        const icon = await resolveDynamicAsset(reward.postcard.imageThumb);
-        results.push({
-          gachaId: 'guide_postcard',
-          name: reward.postcard.title,
-          icon,
-          rarity: reward.postcard.rarity || 'SR',
-          duplicate: false,
-        });
-      }
-      if (res.wallet) {
-        setStars(res.wallet.stars);
-        setRiceStars(res.wallet.riceStars);
-        emit(GameEvent.STARS_UPDATED);
-      }
-      playSfx('gacha_result');
+  /** 教程完成奖励：用扭蛋结果面板展示，弹窗显示期间不推进指引步骤 */
+  showGuideReward(res: GuideCompleteResult): Promise<void> {
+    return guide.buildGuideRewardItems(res).then(({ results, playSound }) => {
+      if (playSound) playSfx('gacha_result');
       this.setData({ guideRewardResults: results, showGuideReward: true });
-    } catch {
+      // 等待用户关闭弹窗后才推进
+      return new Promise<void>((resolve) => {
+        this._guideRewardResolve = resolve;
+      });
+    }).catch(() => {
       /* 弹窗展示失败不阻断主流程，奖励已入库 */
-    }
+    });
   },
 
   onCloseGuideReward() {
     this.setData({ showGuideReward: false, guideRewardResults: [] });
+    this._guideRewardResolve?.();
+    this._guideRewardResolve = null;
   },
 
   onTapShop() {
@@ -459,7 +443,7 @@ Page({
   },
 
   onTapShowcase() {
-    if (guide.isActive()) return;
+    if (guide.isActive() && !guide.isStep('home-showcase')) return;
     playSfx('showcase_open');
     this.enterAfterPreload('/pages/showcase/index', Object.values(SHOWCASE_ASSETS));
   },
@@ -483,7 +467,7 @@ Page({
 
   /** 点击窗户 → 进入屋顶页 */
   onTapWindow() {
-    if (guide.isActive()) return;
+    if (guide.isActive() && !guide.isStep('home-window')) return;
     playSfx('window');
     navigateTo('/pages/roof/index');
   },
@@ -492,7 +476,7 @@ Page({
   // onTapWardrobe() {}
 
   onTapDiary() {
-    if (guide.isActive()) return;
+    if (guide.isActive() && !guide.isStep('home-diary')) return;
     playSfx('diary_open');
     navigateTo('/pages/diary/index');
   },
