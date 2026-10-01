@@ -7,3 +7,33 @@
     mode="widthFix"
   />
 </view>
+
+<!-- 出门 banner 右下方：是否跳过旅行套组（点"不跳过"本次 banner 内隐藏；5 秒/banner 关闭后自动消失） -->
+<view
+  wx:if="{{visible && mode === 'depart' && !skipDismissed}}"
+  class="skip-set"
+  catchtap="onStop"
+>
+  <image class="skip-set__bg" src="{{skipOrNotBg}}" mode="scaleToFill" />
+  <view class="skip-set__body">
+    <!-- 左列容器：与右列并列；不跳过按钮本体大小在 .skip-set__btn-dont 调 -->
+    <view class="skip-set__dont-col">
+      <image
+        class="skip-set__btn-dont"
+        src="{{skipDontSrc}}"
+        mode="widthFix"
+        catchtap="onTapDontSkip"
+      />
+    </view>
+    <!-- 右列容器：与不跳过按钮并列；跳过按钮本体大小在 .skip-set__btn-skip 调 -->
+    <view class="skip-set__skip-col">
+      <image
+        class="skip-set__btn-skip {{skipTickets > 0 ? '' : 'skip-set__btn-skip--off'}}"
+        src="{{skipDoSrc}}"
+        mode="widthFix"
+        catchtap="onTapSkip"
+      />
+      <text class="skip-set__count">剩余次数：{{skipTickets}}</text>
+    </view>
+  </view>
+</view>

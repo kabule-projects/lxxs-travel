@@ -26,6 +26,8 @@ function mapUserPublic(user) {
     pitySSR: user.pitySSR || 0,
     pityUR: user.pityUR || 0,
     currentTripId: user.currentTripId || null,
+    /** 跳过旅行券剩余张数（trip skip 消耗 / 扭蛋产出） */
+    skipTickets: user.skipTickets || 0,
     guideCompletedAt: user.guideCompletedAt || null,
     guideRewardedAt: user.guideRewardedAt || null,
     lastSpawnAt: user.lastSpawnAt || 0,

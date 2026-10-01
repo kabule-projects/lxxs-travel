@@ -211,6 +211,12 @@ export const TRIP_ASSETS = {
   bannerReturn: 'shared/trip-banner-return',
   /** 回家提示整图·空着手回来（文案在图上） */
   bannerReturnEmpty: 'shared/trip-banner-return-empty',
+  /** 出门 banner 右下角"是否跳过旅行"套组：背景图 */
+  skipOrNotBg: 'tutorial/skip_or_not_bg',
+  /** 跳过套组·左按钮（继续旅行，不跳过） */
+  skipDont: 'tutorial/continue',
+  /** 跳过套组·右按钮（跳过，消耗 1 张跳过券） */
+  skipDo: 'tutorial/skip',
 } as const;
 
 export const PROFILE_ASSETS = {
@@ -285,11 +291,16 @@ export function pickAssetDpr(): AssetDpr {
  * 且总量远超主包 2M 上限）。云上同时存在 @2x/@3x/无后缀 各变体，按设备 dpr 直接取，
  * 不再做 getImageInfo 存在性探测（探测会整图下载，对扭蛋动画等大文件代价不可接受）。
  */
+/** 按路径段编码：保留 / 分隔符，仅转义文件名里可能出现的特殊字符（空格、括号、引号等） */
+function encodeUiPath(relativeWithoutExt: string): string {
+  return relativeWithoutExt.split('/').map(encodeURIComponent).join('/');
+}
+
 export function assetWebp(relativeWithoutExt: string): string {
-  return `${CDN_BASE}/content/ui/${relativeWithoutExt}@${pickAssetDpr()}.webp`;
+  return `${CDN_BASE}/content/ui/${encodeUiPath(relativeWithoutExt)}@${pickAssetDpr()}.webp`;
 }
 
 /** 不带 dpr 后缀的 CDN 路径（数据库相对路径如 postcards/letter-1 用） */
 export function assetCdnBase(relativeWithoutExt: string): string {
-  return `${CDN_BASE}/content/ui/${relativeWithoutExt}.webp`;
+  return `${CDN_BASE}/content/ui/${encodeUiPath(relativeWithoutExt)}.webp`;
 }

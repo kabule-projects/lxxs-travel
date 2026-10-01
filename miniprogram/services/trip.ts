@@ -110,3 +110,22 @@ export async function claimHome(): Promise<{ tripId: string; souvenirs: string[]
   emit(GameEvent.CHARACTER_VISIBLE);
   return res;
 }
+
+export interface SkipTripResult {
+  trip: TripSyncResult['trip'];
+  delivered: unknown[];
+  souvenirGranted?: string | null;
+  /** 扣券后的剩余张数与生涯跳过次数 */
+  skip: { tickets: number; total: number };
+}
+
+/** 消耗 1 张跳过券把当前旅行快进到结束（云端保证：未投递明信片即刻送达、伴手礼照发）。
+ *  成功后云端行程状态为 returned，emit TRIP_RETURNED 让宿主页走正常回家横幅 + claim 流程。 */
+export async function skipTrip(): Promise<SkipTripResult> {
+  const res = await call<SkipTripResult>('trip', { action: 'skip' });
+  if (res.skip) {
+    patchProfile({ skipTickets: res.skip.tickets });
+  }
+  emit(GameEvent.TRIP_RETURNED, res);
+  return res;
+}

@@ -19,3 +19,87 @@
   height: 106rpx;
   display: block;
 }
+
+/* ============ 是否跳过旅行套组（出门 banner 右下方） ============
+   定位/尺寸都在这里调：
+   - top / right：套组在屏幕上的位置（top 以屏幕中线为基准，横幅图高 106rpx、垂直居中，
+     50% + 66rpx = 紧贴横幅图下沿；想整体下移加大 66rpx，上移改小）
+   - width / height：整套背景图的显示尺寸（bg 用 scaleToFill 拉伸填满，
+     按 skip_or_not_bg 原图比例设，否则会变形）
+   - z-index 必须高于 banner 遮罩（25）：套组是遮罩的同级节点，低了点不到按钮 */
+.skip-set {
+  position: fixed;
+  top: calc(50% + 66rpx);
+  right: 24rpx;
+  width: 280rpx;
+  height: 135rpx;
+  z-index: 26;
+}
+
+.skip-set__bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.skip-set__body {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 60rpx 40rpx 0;
+  margin-left: 2px;
+}
+
+/* 左列容器：必须包一层块级容器——widthFix 的 image 直接做 flex 子项时，
+   内在默认宽 320px 会压过 CSS width，导致按钮宽度设置无效 */
+.skip-set__dont-col {
+  flex: 0 0 auto;
+}
+
+/* 左：不跳过按钮本体宽度（块布局内 widthFix 按此宽度缩放） */
+.skip-set__btn-dont {
+  width: 80rpx;
+  display: block;
+}
+
+/* 右列容器：与不跳过按钮并列（space-between 自动贴背景框右端）。
+   注意不能用 flex 纵向布局——widthFix 的 image 作为纵向 flex 子项时
+   自动高度会按 image 默认宽 320px 计算，导致按钮巨大且 width 失效；
+   改回块布局 + text-align 居中 */
+.skip-set__skip-col {
+  flex: 0 0 auto;
+  text-align: center;
+}
+
+/* 右：跳过按钮本体宽度——单独改这里不影响左按钮（块布局下 widthFix 按此宽度缩放） */
+.skip-set__btn-skip {
+  width: 70rpx;
+  display: block;
+  margin: 0 auto;
+}
+
+/* 剩余次数贴在 skip 按钮下方。 */
+.skip-set__count {
+  margin-top: 4rpx;
+  display: block;
+  font-size: 18rpx;
+  line-height: 1;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+}
+
+/* 无跳过券：skip 按钮置灰 */
+.skip-set__btn-skip--off {
+  filter: grayscale(1);
+  opacity: 0.65;
+}

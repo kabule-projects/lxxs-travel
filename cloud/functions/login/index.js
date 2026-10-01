@@ -16,6 +16,9 @@ function defaultNickName(userId) {
   return `旅行者${suffix}`;
 }
 
+/** 新用户赠送 / 老用户补发的跳过旅行券张数（每次 skip 消耗 1 张） */
+const DEFAULT_SKIP_TICKETS = 3;
+
 async function createUser(openid) {
   const now = Date.now();
   const userId = newUserId();
@@ -27,7 +30,7 @@ async function createUser(openid) {
     profileAuthorized: false,
     stars: 0,
     riceStars: 0,
-    skipTickets: 3,
+    skipTickets: DEFAULT_SKIP_TICKETS,
     gm: false,
     pitySR: 0,
     pitySSR: 0,
@@ -177,6 +180,15 @@ async function completeGuide(openid, markCompleted = true) {
   });
 }
 
+/** 老用户补发跳过券：字段缺失（建号早于 skip 功能上线）时补 DEFAULT_SKIP_TICKETS 张；
+ *  已有数值（含花光后的 0）一律不动，保证只补一次。
+ *  就地改 user 对象并返回需要写入的 patch（无需写入时返回 null）。 */
+function migrateSkipTickets(user) {
+  if (typeof user.skipTickets === 'number') return null;
+  user.skipTickets = DEFAULT_SKIP_TICKETS;
+  return { skipTickets: DEFAULT_SKIP_TICKETS };
+}
+
 /** 按 openid 静默登录；首访自动建号，无需头像昵称授权 */
 async function session(openid) {
   let user = await getUserByOpenid(db, openid);
@@ -185,6 +197,7 @@ async function session(openid) {
   }
   user = await ensureUserId(db, user);
   const now = Date.now();
+  const skipPatch = migrateSkipTickets(user);
   // 未完成教程但小深已在旅途中：删除残留行程记录、清空 currentTripId，让教程从头开始
   if (!user.guideCompletedAt && user.currentTripId) {
     try {
@@ -193,12 +206,12 @@ async function session(openid) {
       /* 行程记录可能已不存在 */
     }
     await db.collection('users').doc(user._id).update({
-      data: { currentTripId: null, lastLoginAt: now },
+      data: { currentTripId: null, lastLoginAt: now, ...(skipPatch || {}) },
     });
     return ok({ ...mapUserPublic({ ...user, currentTripId: null, lastLoginAt: now }), needsProfile: false });
   }
   await db.collection('users').doc(user._id).update({
-    data: { lastLoginAt: now },
+    data: { lastLoginAt: now, ...(skipPatch || {}) },
   });
   return ok({ ...mapUserPublic({ ...user, lastLoginAt: now }), needsProfile: false });
 }
@@ -218,6 +231,7 @@ async function register(openid, profile) {
       profileAuthorized: true,
       lastLoginAt: now,
       updatedAt: now,
+      ...(migrateSkipTickets(user) || {}),
     };
     await db.collection('users').doc(user._id).update({ data: patch });
     return ok({
@@ -234,7 +248,7 @@ async function register(openid, profile) {
     profileAuthorized: true,
     stars: 0,
     riceStars: 0,
-    skipTickets: 3,
+    skipTickets: DEFAULT_SKIP_TICKETS,
     gm: false,
     pitySR: 0,
     pitySSR: 0,

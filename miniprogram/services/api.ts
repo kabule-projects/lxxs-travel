@@ -49,6 +49,8 @@ export interface UserProfile {
   pitySSR: number;
   pityUR: number;
   currentTripId?: string;
+  /** 跳过旅行券剩余张数（trip skip 消耗 / 扭蛋产出） */
+  skipTickets?: number;
   guideCompletedAt?: number | null;
   /** 新手奖励发放时间（发奖闸，preReward 时写入）；与 guideCompletedAt 区分 */
   guideRewardedAt?: number | null;
