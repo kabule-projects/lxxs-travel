@@ -8,9 +8,10 @@
   />
 </view>
 
-<!-- 出门 banner 右下方：是否跳过旅行套组（点"不跳过"本次 banner 内隐藏；5 秒/banner 关闭后自动消失） -->
+<!-- 出门 banner 右下方：跳过套组（仅有剩余跳过券时显示）。
+     有券时 banner 不自动消失、点遮罩也不关闭，必须点"继续/跳过"做出选择 -->
 <view
-  wx:if="{{visible && mode === 'depart' && !skipDismissed}}"
+  wx:if="{{visible && mode === 'depart' && skipTickets > 0}}"
   class="skip-set"
   catchtap="onStop"
 >
@@ -28,7 +29,7 @@
     <!-- 右列容器：与不跳过按钮并列；跳过按钮本体大小在 .skip-set__btn-skip 调 -->
     <view class="skip-set__skip-col">
       <image
-        class="skip-set__btn-skip {{skipTickets > 0 ? '' : 'skip-set__btn-skip--off'}}"
+        class="skip-set__btn-skip"
         src="{{skipDoSrc}}"
         mode="widthFix"
         catchtap="onTapSkip"

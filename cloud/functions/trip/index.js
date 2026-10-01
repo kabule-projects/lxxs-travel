@@ -273,24 +273,16 @@ async function currentTrip(openid) {
  * 只接受 traveling 状态；returned/at_home 走正常 sync/claimHome 流程。
  * 每次跳过消耗 1 张跳过券（users.skipTickets），来源：新手赠送 / 扭蛋机抽取。
  */
-async function skipTrip(openid) {
-  const user = await getUser(openid);
-  if (!user || !user.currentTripId) {
-    return fail('没有进行中的旅行', 'NO_TRIP');
-  }
+
+/** 公共快进：把 user.currentTripId 对应的 traveling 行程拨到结束并 advanceTrip 收尾。
+ *  返回 { error } 表示失败响应；成功返回 { advanced }。不做任何扣券/权限判断。 */
+async function fastForwardTrip(user) {
   const docRes = await db.collection('trips').doc(user.currentTripId).get();
   const trip = docRes.data;
-  if (!trip) return fail('旅行不存在', 'NOT_FOUND');
+  if (!trip) return { error: fail('旅行不存在', 'NOT_FOUND') };
   if (trip.status !== 'traveling') {
-    return fail('旅行未在进行中', 'BAD_STATE');
+    return { error: fail('旅行未在进行中', 'BAD_STATE') };
   }
-
-  // 券闸：先校验再改行程，避免扣了券却失败
-  const tickets = user.skipTickets || 0;
-  if (tickets < 1) {
-    return fail('没有跳过券了，去扭蛋机抽一张吧', 'NO_TICKET');
-  }
-
   const now = Date.now();
   const postcards = (trip.postcards || []).map((p) =>
     p.status === 'pending' ? { ...p, deliverAt: now } : p,
@@ -304,13 +296,30 @@ async function skipTrip(openid) {
       skippedAt: now,
     },
   });
-
   const advanced = await advanceTrip(
     db,
     _,
     { ...trip, postcards, endAt: now, _id: trip._id },
     user,
   );
+  return { advanced };
+}
+
+async function skipTrip(openid) {
+  const user = await getUser(openid);
+  if (!user || !user.currentTripId) {
+    return fail('没有进行中的旅行', 'NO_TRIP');
+  }
+
+  // 券闸：先校验再改行程，避免扣了券却失败
+  const tickets = user.skipTickets || 0;
+  if (tickets < 1) {
+    return fail('没有跳过券了，去扭蛋机抽一张吧', 'NO_TICKET');
+  }
+
+  const { advanced, error } = await fastForwardTrip(user);
+  if (error) return error;
+  const now = Date.now();
 
   // 跳过成功才扣券；skipTotal 生涯统计保留
   await db.collection('users').doc(user._id).update({
@@ -326,6 +335,27 @@ async function skipTrip(openid) {
     delivered: advanced.delivered,
     souvenirGranted: advanced.souvenirGranted,
     skip: { tickets: tickets - 1, total: (user.skipTotal || 0) + 1 },
+  });
+}
+
+/** GM 后门：gm=true 的用户点角色区直接结束行程召回小深。
+ *  与 skipTrip 收尾效果一致，但不扣跳过券、不计 skipTotal。 */
+async function gmEndTrip(openid) {
+  const user = await getUser(openid);
+  if (!user || !user.currentTripId) {
+    return fail('没有进行中的旅行', 'NO_TRIP');
+  }
+  if (!user.gm) {
+    return fail('无权限', 'FORBIDDEN');
+  }
+  const { advanced, error } = await fastForwardTrip(user);
+  if (error) return error;
+  return ok({
+    trip: advanced.trip,
+    delivered: advanced.delivered,
+    souvenirGranted: advanced.souvenirGranted,
+    // 券与统计均不变，仅回显当前值
+    skip: { tickets: user.skipTickets || 0, total: user.skipTotal || 0 },
   });
 }
 
@@ -391,6 +421,8 @@ exports.main = async (event) => {
         return await doClaimHome(OPENID);
       case 'skip':
         return await skipTrip(OPENID);
+      case 'gmEndTrip':
+        return await gmEndTrip(OPENID);
       case 'farewell':
         return await farewell();
       default:

@@ -97,9 +97,3 @@
   text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.45);
   white-space: nowrap;
 }
-
-/* 无跳过券：skip 按钮置灰 */
-.skip-set__btn-skip--off {
-  filter: grayscale(1);
-  opacity: 0.65;
-}

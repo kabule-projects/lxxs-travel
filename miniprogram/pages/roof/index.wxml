@@ -28,8 +28,11 @@
     </view>
   </view>
 
-  <!-- 屋顶底部角色装饰 -->
-  <view class="roof-characters">
+  <!-- 屋顶底部角色装饰。GM 账号旅行中点击此区域=后门直接召回小深（普通用户/非旅行中无反应） -->
+  <view
+    class="roof-characters {{isGm && !charShenVisible ? 'roof-characters--gm' : ''}}"
+    bindtap="onTapCharArea"
+  >
     <image class="char-mi" src="{{assets.charMi}}" mode="widthFix" />
     <image wx:if="{{charShenVisible}}" class="char-shen" src="{{assets.charShen}}" mode="widthFix" />
     <image class="char-biao" src="{{assets.charBiao}}" mode="widthFix" />

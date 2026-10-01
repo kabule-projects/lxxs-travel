@@ -59,6 +59,11 @@
   pointer-events: none;
 }
 
+/* GM 后门：旅行中（小深已隐藏）恢复角色区点击，点哪里都算点该区域 */
+.roof-characters--gm {
+  pointer-events: auto;
+}
+
 /* 角色贴图显式定高 = 各自 width × 切图高宽比（char-shen 315×367 / char-biao 191×164 / char-mi 155×150），
    widthFix 加载前后同高不抖动 */
 .char-shen {

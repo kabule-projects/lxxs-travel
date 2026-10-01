@@ -3,7 +3,7 @@ import { preloadAssetKeys } from '../../utils/preload';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readSafeArea, readCapsuleRect } from '../../utils/device';
 import { emit, GameEvent, on } from '../../utils/event-bus';
-import { getRiceStars, getStars, isTraveling } from '../../store/user';
+import { getProfile, getRiceStars, getStars, isTraveling } from '../../store/user';
 import { playSfx, playTap, playBgm } from '../../services/sound';
 import { navigateTo } from '../../utils/nav';
 import { toastCloudError } from '../../utils/net-error';
@@ -213,9 +213,13 @@ Page({
       showTravelBanner: true,
       travelBannerMode: 'depart',
     });
-    runDepartBannerFlow(() => {
-      this.setData({ showTravelBanner: false });
-    });
+    // 有跳过券：banner 不自动消失，等用户在跳过套组上点"继续/跳过"后由组件 dismiss 关闭；
+    // 无券：不显示套组，保持原 5 秒自动消失
+    if ((getProfile()?.skipTickets || 0) <= 0) {
+      runDepartBannerFlow(() => {
+        this.setData({ showTravelBanner: false });
+      });
+    }
   },
 
   showReturnBanner(tripId: string, hasSouvenir: boolean) {

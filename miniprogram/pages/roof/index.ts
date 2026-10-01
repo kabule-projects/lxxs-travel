@@ -16,7 +16,7 @@ import { formatRemain, mergeRoofStars, withRemain, type RoofStarDisplay, type Ro
 import { toastCloudError } from '../../utils/net-error';
 import GAME from '../../utils/constants';
 import { emit, GameEvent, on } from '../../utils/event-bus';
-import { startTrip, claimHome, type TripLoadout } from '../../services/trip';
+import { startTrip, claimHome, skipTrip, type TripLoadout } from '../../services/trip';
 import { preloadOtherPagesAssets, preloadAssetKeys } from '../../utils/preload';
 import {
   resolveTripSyncView,
@@ -60,6 +60,8 @@ Page({
     flyAway: false,
     /** depart（旅行中）状态下隐藏小深 */
     charShenVisible: true,
+    /** GM 账号：旅行中点击角色区可直接召回小深（后门） */
+    isGm: false,
     showMailbox: false,
     showSettings: false,
     mailItems: [] as MailItem[],
@@ -146,9 +148,13 @@ Page({
       showTravelBanner: true,
       travelBannerMode: 'depart',
     });
-    runDepartBannerFlow(() => {
-      this.setData({ showTravelBanner: false });
-    });
+    // 有跳过券：banner 不自动消失，等用户在跳过套组上点"继续/跳过"后由组件 dismiss 关闭；
+    // 无券：不显示套组，保持原 5 秒自动消失
+    if ((getProfile()?.skipTickets || 0) <= 0) {
+      runDepartBannerFlow(() => {
+        this.setData({ showTravelBanner: false });
+      });
+    }
   },
 
   showReturnBanner(tripId: string, hasSouvenir: boolean) {
@@ -176,6 +182,18 @@ Page({
     }
     clearTripBannerTimer();
     this.setData({ showTravelBanner: false });
+  },
+
+  /** GM 后门：gm 用户在小深旅行中点击角色区，直接结束行程召回（不耗跳过券）。
+   *  成功后服务层 emit TRIP_RETURNED，本页订阅自动重同步并播回家横幅。 */
+  async onTapCharArea() {
+    if (!this.data.isGm || !isTraveling()) return;
+    try {
+      await skipTrip(true);
+      wx.showToast({ title: 'GM 已召回小深', icon: 'none' });
+    } catch (e) {
+      wx.showToast({ title: (e as Error).message || '召回失败', icon: 'none' });
+    }
   },
 
   async syncTripState() {
@@ -230,6 +248,7 @@ Page({
       riceStars: getRiceStars(),
       // 旅行中（含返回后未确认回家前）屋顶不显示小深
       charShenVisible: !isTraveling(),
+      isGm: !!getProfile()?.gm,
     });
     this.syncFromServer();
     this.syncMailboxState();

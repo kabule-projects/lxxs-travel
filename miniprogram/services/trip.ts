@@ -120,9 +120,10 @@ export interface SkipTripResult {
 }
 
 /** 消耗 1 张跳过券把当前旅行快进到结束（云端保证：未投递明信片即刻送达、伴手礼照发）。
- *  成功后云端行程状态为 returned，emit TRIP_RETURNED 让宿主页走正常回家横幅 + claim 流程。 */
-export async function skipTrip(): Promise<SkipTripResult> {
-  const res = await call<SkipTripResult>('trip', { action: 'skip' });
+ *  成功后云端行程状态为 returned，emit TRIP_RETURNED 让宿主页走正常回家横幅 + claim 流程。
+ *  gm=true 走管理员后门（gmEndTrip）：不扣跳过券，仅 gm 用户可用，云端会校验 user.gm。 */
+export async function skipTrip(gm = false): Promise<SkipTripResult> {
+  const res = await call<SkipTripResult>('trip', { action: gm ? 'gmEndTrip' : 'skip' });
   if (res.skip) {
     patchProfile({ skipTickets: res.skip.tickets });
   }
