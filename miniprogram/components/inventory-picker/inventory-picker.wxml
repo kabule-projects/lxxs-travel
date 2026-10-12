@@ -35,6 +35,8 @@
           <view class="inv-card-body">
             <view class="inv-icon">
               <image wx:if="{{item.icon}}" src="{{item.icon}}" mode="aspectFit" />
+              <!-- 数量角标：仅食物类目显示（道具为扭蛋产物，不显示数量） -->
+              <text wx:if="{{tab === 'food' && item.count > 0}}" class="inv-count">{{item.count}}</text>
             </view>
             <view class="inv-meta">
               <text class="inv-name">{{item.name}}</text>

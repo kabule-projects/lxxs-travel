@@ -1,6 +1,7 @@
 const cloud = require('wx-server-sdk');
 const { ok, fail } = require('./common/response');
 const { addInventory } = require('./common/inventory');
+const { unlockShowcase, isShowcaseItem } = require('./common/showcase');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -113,6 +114,10 @@ async function exchange(openid, rawCode) {
       const itemDoc = itemRes.data[0];
       if (!itemDoc || itemDoc.enabled === false) continue;
       const r = await addInventory(db, _, openid, it.itemId, it.count);
+      // 纪念品双表齐写：showcase 物品同步解锁展示柜（幂等），否则兑换了在展示柜看不到
+      if (isShowcaseItem(itemDoc)) {
+        await unlockShowcase(db, openid, it.itemId, { source: 'redeem' });
+      }
       grantedItems.push({
         itemId: it.itemId,
         name: itemDoc.name || it.itemId,

@@ -129,7 +129,8 @@ async function startTrip(openid, loadout, requestId) {
       foodPoolDoc,
       config: poolCfg.config,
       postcardsById: new Map(postcards.map((c) => [c.id, c])),
-      propBonds: poolCfg.propBonds,
+      propTypes: poolCfg.propTypes,
+      typePools: poolCfg.typePools,
       propIds,
       useRice,
       now: Date.now(),
@@ -165,6 +166,7 @@ async function startTrip(openid, loadout, requestId) {
       lost: plan.lost,
       noLostRate: plan.noLostRate,
       souvenirId: plan.souvenirId,
+      type: plan.type,
     },
     createdAt: plan.startAt,
   };
@@ -187,6 +189,7 @@ async function startTrip(openid, loadout, requestId) {
     durationH: plan.durationH,
     usedRiceStar: useRice,
     postcardCount: plan.postcards.length,
+    travelType: plan.type,
   };
 
   if (requestId) {

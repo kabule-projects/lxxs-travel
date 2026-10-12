@@ -1,0 +1,374 @@
+- 正在执行命令...
+{
+  "data": {
+    "results": [
+      [
+        {
+          "_id": {
+            "$oid": "6ac902d49370958d2aa69260"
+          },
+          "id": "pc_30",
+          "groupId": "9.29Hz"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902d49370958d2aa69265"
+          },
+          "id": "pc_35",
+          "groupId": "9.29Hz"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902d49370958d2aa69267"
+          },
+          "id": "pc_37",
+          "groupId": "9.29Hz"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902d69370958d2aa69f6c"
+          },
+          "id": "pc_39",
+          "groupId": "9.29Hz"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902d69370958d2aa69f6d"
+          },
+          "id": "pc_40",
+          "groupId": "9.29Hz"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902d69370958d2aa69f75"
+          },
+          "id": "pc_48",
+          "groupId": "daily_variety"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902d89370958d2aa6adcc"
+          },
+          "id": "pc_52",
+          "groupId": "daily_variety"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902d89370958d2aa6add1"
+          },
+          "id": "pc_57",
+          "groupId": "early_concerts"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902d89370958d2aa6add2"
+          },
+          "id": "pc_58",
+          "groupId": "early_concerts"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902da9370958d2aa6bc18"
+          },
+          "id": "pc_59",
+          "groupId": "early_concerts"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902da9370958d2aa6bc1e"
+          },
+          "id": "pc_65",
+          "groupId": "music_fes"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902da9370958d2aa6bc21"
+          },
+          "id": "pc_68",
+          "groupId": "music_fes"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902dc9370958d2aa6c918"
+          },
+          "id": "pc_69",
+          "groupId": "music_fes"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902dc9370958d2aa6c919"
+          },
+          "id": "pc_70",
+          "groupId": "music_fes"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902de9370958d2aa6d620"
+          },
+          "id": "pc_79",
+          "groupId": "music_variety"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902de9370958d2aa6d621"
+          },
+          "id": "pc_80",
+          "groupId": "music_variety"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902de9370958d2aa6d623"
+          },
+          "id": "pc_82",
+          "groupId": "song"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902de9370958d2aa6d624"
+          },
+          "id": "pc_83",
+          "groupId": "song"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902de9370958d2aa6d628"
+          },
+          "id": "pc_87",
+          "groupId": "sss2025"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902de9370958d2aa6d629"
+          },
+          "id": "pc_88",
+          "groupId": "sss2025"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902e09370958d2aa6e2eb"
+          },
+          "id": "pc_94",
+          "groupId": "sss2025"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902e09370958d2aa6e2ec"
+          },
+          "id": "pc_95",
+          "groupId": "sss2025"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902e29370958d2aa6f00b"
+          },
+          "id": "pc_99",
+          "groupId": "sss2025"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902e29370958d2aa6f00c"
+          },
+          "id": "pc_100",
+          "groupId": "sss2025"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902e29370958d2aa6f00e"
+          },
+          "id": "pc_102",
+          "groupId": "sss2025"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902e29370958d2aa6f00f"
+          },
+          "id": "pc_103",
+          "groupId": "sss2025"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902e29370958d2aa6f011"
+          },
+          "id": "pc_105",
+          "groupId": "sss2025"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902e29370958d2aa6f012"
+          },
+          "id": "pc_106",
+          "groupId": "sss2025"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902e29370958d2aa6f013"
+          },
+          "id": "pc_107",
+          "groupId": "sss2025"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902e49370958d2aa6fe32"
+          },
+          "id": "pc_112",
+          "groupId": "sss2025"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902e49370958d2aa6fe33"
+          },
+          "id": "pc_113",
+          "groupId": "sss2025"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902e49370958d2aa6fe37"
+          },
+          "id": "pc_117",
+          "groupId": "sss2026"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902e79370958d2aa7176e"
+          },
+          "id": "pc_132",
+          "groupId": "stage"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902e79370958d2aa71770"
+          },
+          "id": "pc_134",
+          "groupId": "stage"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ea9370958d2aa72643"
+          },
+          "id": "pc_141",
+          "groupId": "9.29Hz"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ea9370958d2aa72644"
+          },
+          "id": "pc_142",
+          "groupId": "lost"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ea9370958d2aa72645"
+          },
+          "id": "pc_143",
+          "groupId": "song"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ea9370958d2aa72646"
+          },
+          "id": "pc_144",
+          "groupId": "song"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ea9370958d2aa72647"
+          },
+          "id": "pc_145",
+          "groupId": "song"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ea9370958d2aa72648"
+          },
+          "id": "pc_146",
+          "groupId": "song"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ea9370958d2aa72649"
+          },
+          "id": "pc_147",
+          "groupId": "song"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ea9370958d2aa7264a"
+          },
+          "id": "pc_148",
+          "groupId": "song"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ec9370958d2aa7357e"
+          },
+          "id": "pc_149",
+          "groupId": "song"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ec9370958d2aa7357f"
+          },
+          "id": "pc_150",
+          "groupId": "song"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ec9370958d2aa73580"
+          },
+          "id": "pc_151",
+          "groupId": "song"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ec9370958d2aa73581"
+          },
+          "id": "pc_152",
+          "groupId": "song"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ec9370958d2aa73583"
+          },
+          "id": "pc_154",
+          "groupId": "sss2025"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ec9370958d2aa73584"
+          },
+          "id": "pc_155",
+          "groupId": "sss2025"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ec9370958d2aa73585"
+          },
+          "id": "pc_156",
+          "groupId": "sss2026"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ec9370958d2aa73587"
+          },
+          "id": "pc_158",
+          "groupId": "sss2026"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ee9370958d2aa743a9"
+          },
+          "id": "pc_161",
+          "groupId": "stage"
+        },
+        {
+          "_id": {
+            "$oid": "6ac902ee9370958d2aa743ab"
+          },
+          "id": "pc_163",
+          "groupId": "sss2025"
+        }
+      ]
+    ],
+    "requestId": "4d122cfb-7d6a-49f1-80c5-77e25ca48425"
+  }
+}
