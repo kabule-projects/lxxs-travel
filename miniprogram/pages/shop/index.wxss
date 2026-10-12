@@ -223,10 +223,21 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -28rpx;
+  bottom: -40rpx;
   text-align: center;
-  font-size: 20rpx;
-  color: #8a7463;
+  font-size: 25rpx;
+  font-weight: 700;
+  color: #5d4028;
+  /* 四向白色阴影模拟描边，让页数在复杂背景上更醒目 */
+  text-shadow:
+    -4rpx 0 0 #e1c08eff,
+    4rpx 0 0 #e1c08eff,
+    0 -4rpx 0 #e1c08eff,
+    0 4rpx 0 #e1c08eff,
+    -4rpx -4rpx 0 #e1c08eff,
+    4rpx -4rpx 0 #e1c08eff,
+    -4rpx 4rpx 0 #e1c08eff,
+    4rpx 4rpx 0 #e1c08eff;
 }
 
 /*
