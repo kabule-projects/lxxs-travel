@@ -1,5 +1,5 @@
 import { call } from './api';
-import { consumeItems } from './inventory';
+import { clearInvCache, consumeItems } from './inventory';
 import { getRiceStars, patchProfile, setRiceStars } from '../store/user';
 import { emit, GameEvent } from '../utils/event-bus';
 
@@ -29,6 +29,7 @@ export async function startTrip(loadout: TripLoadout): Promise<TripStartResult> 
     });
     /** 云端已扣食物；道具非消耗品，仍留在背包中 */
     consumeItems([loadout.bento]);
+    clearInvCache();
     if (res.usedRiceStar) {
       setRiceStars(Math.max(0, getRiceStars() - 1));
     }

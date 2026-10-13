@@ -108,6 +108,8 @@ Page({
   _guideBlockedAt: 0 as number,
   /** 冷启动重开教程：下一次 sync 需携带 restartGuide，成功后清除 */
   _guideRestartPending: false as boolean,
+  /** 最近一次 onShow 批量 sync 时间：30s 节流窗口内再次 onShow 跳过三连 sync（主动操作触发的 sync 不受限） */
+  _lastSyncAt: 0 as number,
 
   onLoad() {
     const safe = readSafeArea();
@@ -250,9 +252,15 @@ Page({
       charShenVisible: !isTraveling(),
       isGm: !!getProfile()?.gm,
     });
-    this.syncFromServer();
-    this.syncMailboxState();
-    this.syncTripState();
+    // 三连 sync 节流：30s 内已 sync 过且无强制标记则跳过，降低 callFunction 消耗；
+    // 用户主动操作（收星/开信箱/领邮件/到点掉落）触发的 sync 走各自入口，不受此节流影响
+    if (this._guideRestartPending || !this._lastSyncAt || Date.now() - this._lastSyncAt >= 30000) {
+      this._lastSyncAt = Date.now();
+      // 各自内部已 try/catch，不需要聚合等待
+      void this.syncFromServer();
+      void this.syncMailboxState();
+      void this.syncTripState();
+    }
     this.startTick();
     // 首屏渲染后延迟预热其他页面 UI 资产（会话内一次），避免与屋顶自身图片抢网络
     setTimeout(() => preloadOtherPagesAssets(), 2000);
@@ -313,8 +321,13 @@ Page({
     }));
     this._pending = nextPending;
     this.refreshStarView();
-    /** 每 15s 拉一次信箱，赶上途中投递 */
-    if (now % 15000 < 1000) {
+    /** 每 60s 检查一次回归（仅旅行中）：到点唤醒的 setTimeout 在切后台/跨页时不可靠，轮询兜底；
+     *  回家横幅展示由 syncTripState → resolveTripSyncView 统一负责 */
+    if (isTraveling() && now % 60000 < 1000) {
+      this.syncTripState();
+    }
+    /** 每 60s 拉一次信箱，赶上途中投递；仅旅行中轮询（非旅行状态信箱内容不变） */
+    if (isTraveling() && now % 60000 < 1000) {
       this.syncMailboxState();
     }
   },

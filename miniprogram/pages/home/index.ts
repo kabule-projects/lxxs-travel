@@ -35,6 +35,62 @@ const CAT_URLS = ['ss_lie', 'ss_sit', 'ss_sleep', 'ss_stand'].map((n) =>
   assetCdnBase(`home/cats/${n}`),
 );
 
+/** 小猫动图本地持久化表（saveFile 跨会话有效，出现/换猫时优先本地路径，无本地回落 CDN）。
+ *  换图时 bump 版本号，避免旧本地文件挡住新文件下载 */
+const CAT_LOCAL_KEY = 'lxxs_cat_local_v1';
+
+function readCatLocalMap(): Record<string, string> {
+  try {
+    return (wx.getStorageSync(CAT_LOCAL_KEY) as Record<string, string>) || {};
+  } catch {
+    return {};
+  }
+}
+
+function writeCatLocalMap(map: Record<string, string>) {
+  try {
+    wx.setStorageSync(CAT_LOCAL_KEY, map);
+  } catch {
+    /* ignore */
+  }
+}
+
+/** 该序号小猫的本地缓存路径；无缓存或文件已被清理则返回空串 */
+function catLocalPath(idx: number): string {
+  const p = readCatLocalMap()[String(idx)];
+  if (!p) return '';
+  try {
+    wx.getFileSystemManager().accessSync(p);
+    return p;
+  } catch {
+    return '';
+  }
+}
+
+/** 预载全部小猫动图到本地持久化存储；单张失败自动回落 CDN 播放，不抛错 */
+function preloadCats() {
+  const map = readCatLocalMap();
+  CAT_URLS.forEach((url, idx) => {
+    const key = String(idx);
+    if (catLocalPath(idx)) return;
+    wx.downloadFile({
+      url,
+      success: (res) => {
+        if (res.statusCode !== 200) return;
+        wx.getFileSystemManager().saveFile({
+          tempFilePath: res.tempFilePath,
+          success: (r) => {
+            map[key] = r.savedFilePath;
+            writeCatLocalMap(map);
+          },
+          fail: () => {},
+        });
+      },
+      fail: () => {},
+    });
+  });
+}
+
 /** 三个出没点（视口百分比，中心锚点）：床上 / 床脚 / 桌子底下 */
 const CAT_SPOTS = [
   { left: 17.9, top: 73.9 },
@@ -42,9 +98,9 @@ const CAT_SPOTS = [
   { left: 80.1, top: 76.5 },
 ];
 
-/** 停留时长范围（ms）：随机一段时间后换位置并换一只 */
-const CAT_STAY_MIN = 15000;
-const CAT_STAY_MAX = 35000;
+/** 停留时长范围（ms）：随机一段时间后换位置并换一只（频率降为原来的 1/5） */
+const CAT_STAY_MIN = 75000;
+const CAT_STAY_MAX = 175000;
 const CAT_FADE_MS = 450;
 
 Page({
@@ -81,6 +137,8 @@ Page({
   _catSwapTimer: 0 as number,
   _catSpot: -1 as number,
   _catIdx: -1 as number,
+  /** 60s 回归检查定时器（仅旅行中有效，非旅行自动停） */
+  _returnTimer: 0 as number,
 
   _offHidden: null as (() => void) | null,
   _offVisible: null as (() => void) | null,
@@ -110,6 +168,7 @@ Page({
     });
     this.loadAssets();
     this.bindEvents();
+    preloadCats();
     this._offGuide = guide.onChange(() => {
       this.refreshGuide();
     });
@@ -117,6 +176,7 @@ Page({
 
   onHide() {
     stopReturnWatch();
+    this.stopReturnCheck();
     this.stopCat();
   },
 
@@ -132,6 +192,7 @@ Page({
     // 注意：不能清横幅定时器——它是模块级的，负责 5 秒后自动收下回家行程，
     // 页面卸载时清掉会导致行程永远停在 returned、横幅反复弹出
     stopReturnWatch();
+    this.stopReturnCheck();
     this.stopCat();
   },
 
@@ -140,6 +201,7 @@ Page({
     this.syncWallet();
     this.syncTripState();
     this.startCat();
+    this.startReturnCheck();
     this.healGuideBag();
 
     // reLaunch 回小屋或首次落地：若指引进行到背包步则显示遮罩
@@ -174,6 +236,26 @@ Page({
       stars: getStars(),
       riceStars: getRiceStars(),
     });
+  },
+
+  /** 每 60s 检查一次小深是否回归（仅旅行中）：到点唤醒的 setTimeout 在切后台/跨页时不可靠，轮询兜底；
+   *  回家横幅由 syncTripState → resolveTripSyncView 统一负责。仅主页/天台运行。 */
+  startReturnCheck() {
+    this.stopReturnCheck();
+    this._returnTimer = setInterval(() => {
+      if (!isTraveling()) {
+        this.stopReturnCheck();
+        return;
+      }
+      void this.syncTripState();
+    }, 60000) as unknown as number;
+  },
+
+  stopReturnCheck() {
+    if (this._returnTimer) {
+      clearInterval(this._returnTimer);
+      this._returnTimer = 0;
+    }
   },
 
   async syncTripState() {
@@ -308,7 +390,8 @@ Page({
     const apply = () => {
       const s = CAT_SPOTS[this._catSpot];
       this.setData({
-        catSrc: CAT_URLS[this._catIdx],
+        // 本地已缓存的动图优先走本地路径，省 CDN 流量；未缓存完时回落 CDN 直链
+        catSrc: catLocalPath(this._catIdx) || CAT_URLS[this._catIdx],
         catStyle: `left: ${s.left}%; top: ${s.top}%;`,
         catShow: true,
       });

@@ -10,6 +10,7 @@ export const GameEvent = {
   INVENTORY_CHANGED: 'inventory:changed',
   BAG_PREPARED: 'bag:prepared',
   GUIDE_CHANGED: 'guide:changed',
+  MEMO_SAVED: 'memo:saved',
 } as const;
 
 type Handler = (payload?: unknown) => void;

@@ -78,7 +78,9 @@ function readCapsuleRect(): CapsuleRect {
 function isSupportedDevice(info: DeviceInfo): boolean {
   const { windowWidth: width, pixelRatio: dpr } = info;
   const iphoneOk = width >= 375 && width <= 440;
-  const androidHi = dpr >= 2.5 && width >= 360 && width <= 430;
+  // 安卓/鸿蒙直板机：下限放宽到 320（小屏旗舰与显示缩放偏大的机型不误伤），
+  // 上限 430 维持不变——折叠展开/平板仍进 tollgate，宽屏布局会失真
+  const androidHi = dpr >= 2 && width >= 320 && width <= 430;
   return iphoneOk || androidHi;
 }
 

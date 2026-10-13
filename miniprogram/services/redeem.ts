@@ -1,6 +1,6 @@
 import { call } from './api';
 import { getStars, setStars, getRiceStars, setRiceStars } from '../store/user';
-import { readInventoryCounts, writeInventoryCounts } from './inventory';
+import { readInventoryCounts, writeInventoryCounts, clearInvCache } from './inventory';
 
 export interface RedeemItem {
   itemId: string;
@@ -30,6 +30,7 @@ export async function redeemCode(code: string): Promise<RedeemResult> {
     }
     writeInventoryCounts(map);
   }
+  clearInvCache();
   return res;
 }
 

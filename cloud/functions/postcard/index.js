@@ -157,20 +157,68 @@ async function openMailbox(openid) {
   return mailboxSync(openid);
 }
 
-async function markSeen(openid, tripId, instanceId) {
+/** 标记已读。入参双兼容：老前端发 {tripId, instanceId} 单条（单行程内落位），
+ *  新前端发 {instanceIds: []} 批量（免 tripId，跨全部邮件行程落位）；
+ *  目标不存在跳过不报错（幂等），返回实际标记条数 */
+async function markSeen(openid, tripId, instanceIdOrIds) {
+  const ids = Array.isArray(instanceIdOrIds)
+    ? instanceIdOrIds.filter(Boolean).map(String)
+    : instanceIdOrIds
+      ? [String(instanceIdOrIds)]
+      : [];
+  if (!ids.length) return fail('缺少 instanceId', 'VALIDATION');
+  const idSet = new Set(ids);
+
+  // 免 tripId 批量：跨 traveling/returned/at_home 全部邮件行程把 instanceIds 落位
+  if (!tripId) {
+    const [activeRes, homeRes] = await Promise.all([
+      db
+        .collection('trips')
+        .where({ userId: openid, status: _.in(['traveling', 'returned']) })
+        .limit(20)
+        .get(),
+      db
+        .collection('trips')
+        .where({ userId: openid, status: 'at_home' })
+        .limit(50)
+        .get(),
+    ]);
+    let updated = 0;
+    for (const trip of [...(activeRes.data || []), ...(homeRes.data || [])]) {
+      const list = trip.postcards || [];
+      if (!list.some((p) => p && idSet.has(p.instanceId) && p.isNew !== false)) {
+        continue;
+      }
+      const next = list.map((p) =>
+        p && idSet.has(p.instanceId) && p.isNew !== false
+          ? (updated += 1, { ...p, isNew: false })
+          : p,
+      );
+      await db.collection('trips').doc(trip._id).update({
+        data: { postcards: next, updatedAt: Date.now() },
+      });
+    }
+    return ok({ updated, isNew: false });
+  }
+
   const trip = await loadTripForUser(openid, tripId);
   if (!trip) return fail('旅行不存在', 'NOT_FOUND');
   const list = [...(trip.postcards || [])];
-  const idx = list.findIndex((p) => p.instanceId === instanceId);
-  if (idx < 0) return fail('信件不存在', 'NOT_FOUND');
-  list[idx] = { ...list[idx], isNew: false };
+  let updated = 0;
+  const next = list.map((p) => {
+    if (p && idSet.has(p.instanceId) && p.isNew !== false) {
+      updated += 1;
+      return { ...p, isNew: false };
+    }
+    return p;
+  });
   await db.collection('trips').doc(trip._id).update({
     data: {
-      postcards: list,
+      postcards: next,
       updatedAt: Date.now(),
     },
   });
-  return ok({ instanceId, isNew: false });
+  return ok({ updated, isNew: false });
 }
 
 async function claim(openid, tripId, instanceId) {
@@ -293,7 +341,12 @@ exports.main = async (event) => {
       case 'openMailbox':
         return await openMailbox(OPENID);
       case 'markSeen':
-        return await markSeen(OPENID, event.tripId, event.instanceId);
+        // 优先批量数组（新前端），兼容单条（老前端）
+        return await markSeen(
+          OPENID,
+          event.tripId,
+          Array.isArray(event.instanceIds) ? event.instanceIds : event.instanceId,
+        );
       case 'claim':
         return await claim(OPENID, event.tripId, event.instanceId);
       case 'diary':

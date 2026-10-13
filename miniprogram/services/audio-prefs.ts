@@ -137,8 +137,10 @@ export function resumeBgm() {
   }
 }
 
-/** 预载全部 BGM 到本地持久化存储；单文件失败自动回落 CDN，不抛错 */
+/** 预载全部 BGM 到本地持久化存储；单文件失败自动回落 CDN，不抛错。
+ *  音乐开关关闭时不下载（省流量），用户重新开启时由 setMusicEnabled 补下 */
 export async function preloadBgm(): Promise<void> {
+  if (!prefs.musicEnabled) return;
   const map = readBgmLocalMap();
   const missing = (Object.keys(BGM_SRC) as BgmTrack[]).filter(
     (k) => !bgmFileExists(map[k]),
@@ -189,6 +191,8 @@ export function setMusicEnabled(on: boolean) {
   prefs.musicEnabled = on;
   writeStorage();
   applyBgmPlayback();
+  // 开启时补下载本地缺失的 BGM（此前因开关关闭跳过了预载）
+  if (on) void preloadBgm();
 }
 
 export function setSfxEnabled(on: boolean) {

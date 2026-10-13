@@ -5,6 +5,7 @@ import { playTap } from '../../services/sound';
 import { navigateBack } from '../../utils/nav';
 import { getMemo, saveMemo } from '../../services/memo';
 import { toastCloudError } from '../../utils/net-error';
+import { emit, GameEvent } from '../../utils/event-bus';
 
 type MemoAssets = Record<keyof typeof MEMO_ASSETS, string>;
 
@@ -104,6 +105,7 @@ Page({
     try {
       const res = await saveMemo(content, this._memoId);
       this._dirty = false;
+      emit(GameEvent.MEMO_SAVED);
       // 新建首次保存成功后拿到 id，之后的自动保存走编辑路径，不会重复建条
       this._memoId = res.memo.id;
       this.setData({ dateKey: res.memo.dateKey });

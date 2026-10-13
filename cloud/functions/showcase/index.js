@@ -1,6 +1,7 @@
 const cloud = require('wx-server-sdk');
 const { ok, fail } = require('./common/response');
 const { unlockShowcase, isShowcaseItem } = require('./common/showcase');
+const { SHOP_PAGE_SIZE, businessDayKey } = require('./common/game');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -154,6 +155,137 @@ async function unlockAll(targetOpenid) {
   });
 }
 
+/** ============ batchGet：一次返回 展示柜+商店+扭蛋图鉴 三个池（loading 预取用） ============
+ *  与 shop.list / gacha.catalog 的输出结构保持一致；单段失败只置 null 不影响其他段 */
+
+function mapShopItem(doc) {
+  return {
+    id: doc.id,
+    icon: doc.icon || '',
+    price: Number(doc.price) || 0,
+    name: doc.name || '',
+    description: doc.description || '',
+    shopCategory: doc.shopCategory || doc.type || 'food',
+    // 每日限购已解除：所有商品可无限重复购买
+    boughtToday: false,
+  };
+}
+
+/** 商店货架段：与 cloud/functions/shop listItems 同逻辑（只卖食物） */
+async function loadShopSection(user) {
+  const res = await db
+    .collection('items')
+    .where({ enabled: true, type: 'food' })
+    .orderBy('shopSort', 'asc')
+    .limit(200)
+    .get();
+  const all = (res.data || []).filter((d) => d.price != null && d.price >= 0);
+  return {
+    stars: user.stars || 0,
+    tab: 'food',
+    pageSize: SHOP_PAGE_SIZE,
+    total: all.length,
+    totalPages: Math.max(1, Math.ceil(all.length / SHOP_PAGE_SIZE) || 1),
+    dayKey: businessDayKey(),
+    items: all.map((d) => mapShopItem(d)),
+  };
+}
+
+/** 扭蛋图鉴段：与 cloud/functions/gacha catalog 同逻辑（跳过券不进目录） */
+async function loadGachaSection(openid) {
+  const poolRes = await db
+    .collection('gacha_pool')
+    .where({ enabled: true })
+    .orderBy('sortOrder', 'asc')
+    .limit(200)
+    .get();
+  const docs = poolRes.data || [];
+  let itemMap = new Map();
+  if (docs.length) {
+    const ids = docs.map((d) => d.itemId || d.gachaId).filter(Boolean);
+    const itemRes = await db
+      .collection('items')
+      .where({ id: _.in(ids), enabled: true })
+      .limit(200)
+      .get();
+    itemMap = new Map((itemRes.data || []).map((it) => [it.id, it]));
+  }
+  const ownedRes = await db
+    .collection('user_gacha')
+    .where({ userId: openid })
+    .limit(500)
+    .get();
+  const owned = new Set((ownedRes.data || []).map((d) => d.gachaId));
+
+  const pool = docs
+    .map((d) => {
+      if (d.reward === 'skipTicket') {
+        return {
+          gachaId: 'skip_ticket',
+          name: '跳过券',
+          icon: '',
+          rarity: d.rarity || 'N',
+          weight: Number(d.weight) || 1,
+          sortOrder: d.sortOrder || 0,
+          reward: 'skipTicket',
+        };
+      }
+      const itemId = d.itemId || d.gachaId;
+      const item = itemMap.get(itemId);
+      if (!item || (item.type !== 'accessory' && item.type !== 'equipment')) {
+        return null;
+      }
+      return {
+        gachaId: itemId,
+        name: item.name || '',
+        icon: item.icon || '',
+        rarity: d.rarity || 'N',
+        weight: Number(d.weight) || 1,
+        sortOrder: d.sortOrder || 0,
+      };
+    })
+    .filter(Boolean);
+
+  const items = pool
+    .filter((d) => !d.reward)
+    .map((d) => ({
+      gachaId: d.gachaId,
+      name: d.name,
+      icon: d.icon,
+      rarity: d.rarity,
+      obtained: owned.has(d.gachaId),
+    }));
+  items.sort((a, b) => {
+    if (a.obtained === b.obtained) return 0;
+    return a.obtained ? -1 : 1;
+  });
+  return { items, total: items.length };
+}
+
+async function batchGet(openid) {
+  const user = await getUser(openid);
+  if (!user) return fail('用户不存在', 'NOT_FOUND');
+
+  const sections = { showcase: null, shop: null, gacha: null };
+
+  const showcaseRes = await listAll(openid);
+  if (showcaseRes && showcaseRes.ok) sections.showcase = showcaseRes.data;
+
+  try {
+    sections.shop = await loadShopSection(user);
+  } catch (e) {
+    sections.shop = null;
+  }
+
+  try {
+    sections.gacha = await loadGachaSection(openid);
+  } catch (e) {
+    sections.gacha = null;
+  }
+
+  return ok(sections);
+}
+
 exports.main = async (event) => {
   try {
     const { action } = event || {};
@@ -169,6 +301,8 @@ exports.main = async (event) => {
         return ok({ service: 'showcase', ts: Date.now() });
       case 'list':
         return await listAll(OPENID);
+      case 'batchGet':
+        return await batchGet(OPENID);
       case 'unlock':
         return await unlock(OPENID, event.itemId, event.source);
       default:

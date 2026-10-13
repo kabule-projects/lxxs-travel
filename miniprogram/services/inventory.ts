@@ -16,6 +16,14 @@ export interface InvItemView {
 
 const INV_KEY = 'lxxs_inventory_local';
 
+/** 会话内缓存：按 category 缓存 fetchOwned 的结果 Promise，打开背包/切 tab 不再重复 callFunction；
+ *  购买/抽奖/兑换等写操作成功后必须 clearInvCache() 失效，避免背包显示旧数量 */
+const sessionCache = new Map<string, Promise<InvItemView[]>>();
+
+export function clearInvCache() {
+  sessionCache.clear();
+}
+
 /** 与商店种子对齐，便于无后台时联调 */
 export const ITEM_CATALOG: Array<Omit<InvItemView, 'count'>> = [
   {
@@ -160,8 +168,24 @@ export function listOwned(category?: InvCategory | 'all'): InvItemView[] {
   }));
 }
 
-/** 云端库存；连不上直接抛错，由调用方提示用户 */
+/** 云端库存；连不上直接抛错，由调用方提示用户。
+ *  会话内按 category 缓存：重复打开背包/切 tab 不再发请求；写操作后须 clearInvCache() */
 export async function fetchOwned(
+  category: InvCategory | 'all' = 'all',
+): Promise<InvItemView[]> {
+  const hit = sessionCache.get(category);
+  if (hit) return hit;
+  const req = fetchOwnedCloud(category);
+  sessionCache.set(category, req);
+  try {
+    return await req;
+  } catch (e) {
+    sessionCache.delete(category); // 失败不缓存，下次可重试
+    throw e;
+  }
+}
+
+async function fetchOwnedCloud(
   category: InvCategory | 'all' = 'all',
 ): Promise<InvItemView[]> {
   try {

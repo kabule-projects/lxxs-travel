@@ -224,7 +224,7 @@ async function syncTrip(openid) {
         .limit(10)
         .get();
       const latest = (orphan.data || []).reduce(
-        (a, b) => ((b.endAt || 0) > (a.endAt || 0) ? b : a),
+        (a, b) => (a === null || (b.endAt || 0) > (a.endAt || 0) ? b : a),
         null,
       );
       if (latest) {

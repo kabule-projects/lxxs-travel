@@ -5,6 +5,7 @@ import { playTap } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
 import { listMemos, type MemoItem } from '../../services/memo';
 import { toastCloudError } from '../../utils/net-error';
+import { on, GameEvent } from '../../utils/event-bus';
 
 type MemoAssets = Record<keyof typeof MEMO_ASSETS, string>;
 
@@ -39,6 +40,9 @@ Page({
 
   _page: 1,
   _total: 0,
+  /** 编辑页保存后置脏：onShow 发现脏才重新拉列表，否则吃现有数据（省 callFunction） */
+  _dirty: true,
+  _offMemoSaved: null as (() => void) | null,
 
   onLoad() {
     const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
@@ -63,7 +67,16 @@ Page({
     resolveAssetMap(MEMO_ASSETS).then((assets) => {
       this.setData({ assets });
     });
-    // 数据在 onShow 里拉（编辑页返回后需要刷新）
+    // 编辑页保存成功后置脏，下次 onShow 重新拉列表
+    this._offMemoSaved = on(GameEvent.MEMO_SAVED, () => {
+      this._dirty = true;
+    });
+    // 数据在 onShow 里按需拉（见 _dirty 逻辑）
+  },
+
+  onUnload() {
+    this._offMemoSaved?.();
+    this._offMemoSaved = null;
   },
 
   /** 拉第一页（进入页面/刷新用） */
@@ -120,8 +133,11 @@ Page({
   },
 
   onShow() {
-    // 编辑页返回后列表可能已变化（新增/修改），重新拉取
-    this.reload();
+    // 编辑页返回后列表可能已变化（新增/修改）才重新拉取；未改动时跳过，避免每次进页都 callFunction
+    if (this._dirty || !this.data.loaded) {
+      this._dirty = false;
+      this.reload();
+    }
   },
 
   onTapBack() {

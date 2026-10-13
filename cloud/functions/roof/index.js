@@ -14,6 +14,11 @@ const {
   randomPilePos,
   isRice,
 } = require('./common/game');
+const { collectAndTrimUnread, resolvePigeonState } = require('./common/mail-box');
+const { advanceTrip } = require('./common/trip-lifecycle');
+const {
+  normalizePostcardSnapshot,
+} = require('./common/postcard-images');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -290,6 +295,178 @@ async function collectAllStars(openid) {
   });
 }
 
+/** ============ syncAll：一次返回 星星+行程+信箱 三段（roof onShow 三连合并用） ============
+ *  各段结构与 roof.sync / trip.sync / postcard.mailbox 的输出保持一致；
+ *  行程推进（advanceTrip）整次只执行一遍，行程段与信箱段共享结果 */
+
+/** 批量回查 postcards 主表（batch 20，_.in），返回 id -> 完整文档 Map */
+async function loadPostcardDocMap(postcardIds) {
+  const map = new Map();
+  const uniq = [...new Set((postcardIds || []).filter(Boolean))];
+  if (!uniq.length) return map;
+
+  const batchSize = 20;
+  for (let i = 0; i < uniq.length; i += batchSize) {
+    const chunk = uniq.slice(i, i + batchSize);
+    try {
+      const res = await db
+        .collection('postcards')
+        .where({ id: _.in(chunk) })
+        .limit(batchSize)
+        .get();
+      for (const doc of res.data || []) {
+        if (doc && doc.id) map.set(doc.id, doc);
+      }
+    } catch (e) {
+      /* ignore batch failure */
+    }
+  }
+  return map;
+}
+
+/** 加载并推进全部邮件行程（traveling/returned 走 advanceTrip；at_home 原样保留）。
+ *  返回 { active: [{trip,delivered,souvenirGranted}], home: [tripDoc] }，行程推进只此一遍 */
+async function loadMailTripsAdvanced(openid) {
+  const [activeRes, homeRes] = await Promise.all([
+    db
+      .collection('trips')
+      .where({ userId: openid, status: _.in(['traveling', 'returned']) })
+      .limit(20)
+      .get(),
+    db
+      .collection('trips')
+      .where({ userId: openid, status: 'at_home' })
+      .limit(50)
+      .get(),
+  ]);
+
+  const active = [];
+  for (const raw of activeRes.data || []) {
+    active.push(await advanceTrip(db, _, { ...raw, _id: raw._id }, null));
+  }
+  const home = (homeRes.data || []).map((t) => ({ ...t, _id: t._id }));
+  return { active, home };
+}
+
+/** 行程段：与 cloud/functions/trip syncTrip 同语义（含 returned 孤儿自愈）。
+ *  返回 { currentTripId, trip, delivered, souvenirGranted }——currentTripId 为自愈后的生效值，
+ *  供信箱段计算 traveling/hasDelivered，避免用陈旧 user 快照 */
+async function loadTripSection(openid, user, active, home) {
+  let currentTripId = user.currentTripId;
+  if (!currentTripId) {
+    const latest = active
+      .filter((a) => a.trip.status === 'returned')
+      .reduce(
+        (a, b) =>
+          a === null || (b.trip.endAt || 0) > (a.trip.endAt || 0) ? b : a,
+        null,
+      );
+    if (latest) {
+      await db.collection('users').doc(user._id).update({
+        data: { currentTripId: latest.trip._id },
+      });
+      currentTripId = latest.trip._id;
+    }
+  }
+  if (!currentTripId) {
+    return { currentTripId: null, trip: null, delivered: [], souvenirGranted: null };
+  }
+
+  const hit = active.find((a) => a.trip._id === currentTripId);
+  if (hit) {
+    return {
+      currentTripId,
+      trip: hit.trip,
+      delivered: hit.delivered,
+      souvenirGranted: hit.souvenirGranted,
+    };
+  }
+  // currentTripId 指向 at_home 历史行程：原样返回（与旧 trip.sync 对 at_home 文档 advanceTrip 的行为对齐）
+  const homeHit = home.find((t) => t._id === currentTripId);
+  if (homeHit) {
+    return { currentTripId, trip: homeHit, delivered: [], souvenirGranted: null };
+  }
+  await db.collection('users').doc(user._id).update({
+    data: { currentTripId: null },
+  });
+  return { currentTripId: null, trip: null, delivered: [], souvenirGranted: null };
+}
+
+/** 信箱段：与 cloud/functions/postcard mailboxSync 同输出。
+ *  effectiveTripId 传行程段自愈后的 currentTripId，保证 traveling/hasDelivered 无延迟 */
+async function loadMailboxSection(user, active, home, effectiveTripId) {
+  const trips = [...active.map((a) => a.trip), ...home];
+  const { items } = await collectAndTrimUnread(db, _, user.openid, trips);
+  const catalog = await loadPostcardDocMap(items.map((i) => i.postcardId));
+  const displayItems = items.map((i) => {
+    const doc = catalog.get(i.postcardId);
+    if (!doc) return i;
+    const snap = normalizePostcardSnapshot(doc);
+    return {
+      ...i,
+      type: snap.type,
+      title: doc.title || i.title,
+      rarity: doc.rarity || i.rarity,
+      imageThumb: snap.imageThumb || i.imageThumb,
+      imageFull: snap.imageFull || i.imageFull,
+      story: doc.story || i.story,
+    };
+  });
+
+  const traveling = !!(
+    effectiveTripId &&
+    trips.some((t) => t._id === effectiveTripId && t.status === 'traveling')
+  );
+  const currentTrip = trips.find((t) => t._id === effectiveTripId);
+  const hasDelivered = !!(
+    currentTrip &&
+    (currentTrip.postcards || []).some(
+      (p) => p.status === 'delivered' || p.status === 'claimed',
+    )
+  );
+  const pigeonState = resolvePigeonState({
+    traveling,
+    unreadCount: items.length,
+    hasDelivered,
+  });
+
+  return {
+    items: displayItems,
+    unreadCount: displayItems.length,
+    pigeonState,
+    traveling,
+    hasDelivered,
+    lastMailboxOpenAt: user.lastMailboxOpenAt || 0,
+    mailCap: 5,
+  };
+}
+
+async function syncAll(openid, restartGuide) {
+  const starsRes = await syncStars(openid, restartGuide);
+  if (!starsRes.ok) return starsRes;
+  const user = await getUser(openid);
+  if (!user) return fail('用户不存在', 'NOT_FOUND');
+
+  const { active, home } = await loadMailTripsAdvanced(openid);
+  const tripSection = await loadTripSection(openid, user, active, home);
+  const mailbox = await loadMailboxSection(
+    user,
+    active,
+    home,
+    tripSection.currentTripId,
+  );
+
+  return ok({
+    stars: starsRes.data,
+    trip: {
+      trip: tripSection.trip,
+      delivered: tripSection.delivered,
+      souvenirGranted: tripSection.souvenirGranted,
+    },
+    mailbox,
+  });
+}
+
 exports.main = async (event) => {
   try {
     const { OPENID } = cloud.getWXContext();
@@ -299,6 +476,8 @@ exports.main = async (event) => {
     switch (action) {
       case 'sync':
         return await syncStars(OPENID, !!event.restartGuide);
+      case 'syncAll':
+        return await syncAll(OPENID, !!event.restartGuide);
       case 'collect':
         return await collectStar(OPENID, event.starId);
       case 'collectAll':

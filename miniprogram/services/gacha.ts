@@ -1,7 +1,7 @@
 import GAME from '../utils/constants';
 import { call } from './api';
 import { getStars, setStars } from '../store/user';
-import { readInventoryCounts, writeInventoryCounts } from './inventory';
+import { readInventoryCounts, writeInventoryCounts, clearInvCache } from './inventory';
 import { resolveDynamicAsset } from '../utils/resolve-dynamic-asset';
 import { preloadImages } from '../utils/preload';
 
@@ -252,11 +252,13 @@ export async function drawGacha(count: 1 | 5): Promise<GachaDrawResult> {
       (res.results || []).map(async (i) => ({ ...i, icon: await resolveDynamicAsset(i.icon) })),
     );
     markObtainedInCache(res.results.map((r) => r.gachaId));
+    clearInvCache();
     return res;
   } catch (e) {
     if ((e as Error & { code?: string }).code === 'INSUFFICIENT_STARS') throw e;
     const res = localDraw(count);
     markObtainedInCache(res.results.map((r) => r.gachaId));
+    clearInvCache();
     return res;
   }
 }

@@ -3,6 +3,7 @@ import { setStars } from '../store/user';
 import { emit, GameEvent } from '../utils/event-bus';
 import { resolveDynamicAsset } from '../utils/resolve-dynamic-asset';
 import { preloadImages } from '../utils/preload';
+import { clearInvCache } from './inventory';
 
 export interface ShopItemView {
   id: string;
@@ -112,6 +113,7 @@ export async function purchaseShop(itemId: string): Promise<ShopPurchaseResult> 
   if (typeof res.stars === 'number') setStars(res.stars);
   markBoughtInCache(res.stars);
   bumpInventory(itemId);
+  clearInvCache();
   emit(GameEvent.INVENTORY_CHANGED, { itemId, delta: 1 });
   return res;
 }
