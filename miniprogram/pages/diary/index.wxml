@@ -29,11 +29,12 @@
       circular="{{false}}"
       duration="300"
     >
-      <swiper-item wx:for="{{pages}}" wx:key="index">
+      <swiper-item wx:for="{{pages}}" wx:for-index="pageIndex" wx:key="pageIndex">
         <view class="grid">
           <view
             wx:for="{{item}}"
             wx:for-item="slot"
+            wx:for-index="slotIndex"
             wx:key="key"
             class="grid-cell {{slot.entryIndex === 0 ? 'guide-anchor-postcard' : ''}}"
             data-index="{{slot.entryIndex}}"
@@ -46,6 +47,9 @@
               class="grid-thumb"
               src="{{slot.imageThumb}}"
               mode="aspectFill"
+              data-page-index="{{pageIndex}}"
+              data-slot-index="{{slotIndex}}"
+              binderror="onThumbError"
             />
             <image
               wx:elif="{{slot.imageFull}}"

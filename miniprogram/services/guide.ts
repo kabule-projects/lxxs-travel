@@ -431,12 +431,25 @@ export async function buildGuideRewardItems(
     },
   ];
   if (reward.postcard) {
-    const icon = await resolveDynamicAsset(reward.postcard.imageThumb);
+    const pc = reward.postcard;
+    const thumb = await resolveDynamicAsset(pc.imageThumb);
+    // 缩略图资源可能不存在（404）：探测失败时回退主图
+    // （缩略图为小图且教程奖励仅发放一次，getImageInfo 探测代价可接受）
+    const icon = await new Promise<string>((resolve) => {
+      if (!thumb) return resolve(thumb);
+      wx.getImageInfo({
+        src: thumb,
+        success: () => resolve(thumb),
+        fail: () => {
+          resolveDynamicAsset(pc.imageFull || '').then(resolve);
+        },
+      });
+    });
     results.push({
       gachaId: 'guide_postcard',
-      name: reward.postcard.title,
+      name: pc.title,
       icon,
-      rarity: reward.postcard.rarity || 'SR',
+      rarity: pc.rarity || 'SR',
       duplicate: false,
     });
   }

@@ -13,6 +13,13 @@ const COL = {
   manifest: 'asset_manifest',
 };
 
+/** 废卡清单（postcard-N.webp → pc_N）：不入图鉴，removeIncompleteCards 负责清除 */
+const WASTE_POSTCARD_IDS = [
+  30, 35, 37, 39, 40, 48, 52, 57, 58, 59, 65, 68, 69, 70, 79, 80, 82, 83, 87, 88,
+  94, 95, 99, 100, 102, 103, 105, 106, 107, 112, 113, 117, 132, 134, 141, 142, 143,
+  144, 145, 146, 147, 148, 149, 150, 151, 152, 154, 155, 156, 158, 161, 163,
+].map((n) => `pc_${n}`);
+
 async function listItems() {
   const res = await db.collection(COL.items).orderBy('shopSort', 'asc').get();
   return ok(res.data);
@@ -288,6 +295,57 @@ async function migratePostcardNames() {
   return ok({ postcardsUpdated, tripsScanned, tripsUpdated });
 }
 
+/** 给指定用户补录全部现存明信片图鉴（user_postcards），排除废卡。
+ *  已有条目不覆盖 claimCount；幂等，重复执行安全。 */
+async function grantAllPostcards(payload) {
+  const openid = payload.openid;
+  if (!openid) return fail('缺少 openid', 'VALIDATION');
+  const user = await db.collection('users').where({ openid }).limit(1).get();
+  if (!user.data.length) return fail('用户不存在', 'NOT_FOUND');
+
+  const pcs = await db.collection('postcards').limit(1000).get();
+  const list = (pcs.data || []).filter((pc) => !WASTE_POSTCARD_IDS.includes(pc.id));
+  const now = Date.now();
+
+  // 先并行查已有图鉴，再并行补缺失
+  const founds = await Promise.all(
+    list.map((pc) =>
+      db.collection('user_postcards').where({ userId: openid, postcardId: pc.id }).limit(1).get(),
+    ),
+  );
+  let existed = 0;
+  const adds = [];
+  for (let i = 0; i < list.length; i += 1) {
+    if (founds[i].data.length) {
+      existed += 1;
+      continue;
+    }
+    adds.push(
+      db.collection('user_postcards').add({
+        data: { userId: openid, postcardId: list[i].id, firstClaimedAt: now, claimCount: 1 },
+      }),
+    );
+  }
+  await Promise.all(adds);
+  return ok({ total: list.length, granted: adds.length, existed });
+}
+
+/** 清除废卡：删 postcards 主表条目 + 所有用户 user_postcards 图鉴条目。幂等。 */
+async function removeIncompleteCards() {
+  const pcRes = await db
+    .collection('postcards')
+    .where({ id: _.in(WASTE_POSTCARD_IDS) })
+    .remove();
+  const upRes = await db
+    .collection('user_postcards')
+    .where({ postcardId: _.in(WASTE_POSTCARD_IDS) })
+    .remove();
+  return ok({
+    postcardsRemoved: (pcRes.stats && pcRes.stats.removed) || 0,
+    userPostcardsRemoved: (upRes.stats && upRes.stats.removed) || 0,
+  });
+}
+
 /**
  * 短时签名 URL（占位：需云存储 fileID）
  */
@@ -325,6 +383,8 @@ exports.main = async (event) => {
       case 'seedTripCatalog': return await seedTripCatalog(payload);
       case 'grantShowcase': return await grantShowcase(payload);
       case 'migratePostcardNames': return await migratePostcardNames();
+      case 'grantAllPostcards': return await grantAllPostcards(payload);
+      case 'removeIncompleteCards': return await removeIncompleteCards();
       case 'getSignedUrl': return await getSignedUrl(payload.fileID);
       case 'ping': return ok({ service: 'admin', ts: Date.now() });
       default: return fail(`未知 action: ${action}`, 'BAD_ACTION');

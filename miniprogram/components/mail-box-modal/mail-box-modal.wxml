@@ -25,6 +25,8 @@
                   wx:if="{{item.imageThumb}}"
                   src="{{item.imageThumb}}"
                   mode="aspectFill"
+                  data-index="{{index}}"
+                  binderror="onThumbError"
                 />
                 <view wx:else class="mbox-thumb-ph">{{item.title[0] || '?'}}</view>
               </view>

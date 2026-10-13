@@ -76,6 +76,17 @@ Component({
       this._active = null;
     },
 
+    /** 缩略图资源实际不存在（404 等）时回退主图；主图同样失败则清空走占位首字 */
+    onThumbError(e: WechatMiniprogram.BaseEvent) {
+      const index = Number(e.currentTarget.dataset.index);
+      const item = (this.data.listItems as MailItem[])[index];
+      if (!item || !item.imageThumb) return;
+      const full = item.imageFull || '';
+      this.setData({
+        [`listItems[${index}].imageThumb`]: full !== item.imageThumb ? full : '',
+      });
+    },
+
     async onTapRow(e: WechatMiniprogram.TouchEvent) {
       const index = Number(e.currentTarget.dataset.index);
       const item = (this.data.listItems as MailItem[])[index];

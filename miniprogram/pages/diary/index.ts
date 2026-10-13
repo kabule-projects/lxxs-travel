@@ -294,6 +294,21 @@ Page({
     }
   },
 
+  /** 缩略图资源实际不存在（404 等）时回退主图；主图同样失败则清空走格子底图 */
+  onThumbError(e: WechatMiniprogram.BaseEvent) {
+    const { pageIndex, slotIndex } = e.currentTarget.dataset as {
+      pageIndex: number;
+      slotIndex: number;
+    };
+    const slot = this.data.pages?.[pageIndex]?.[slotIndex];
+    if (!slot || !slot.imageThumb) return;
+    const full = slot.imageFull || '';
+    this.setData({
+      [`pages[${pageIndex}][${slotIndex}].imageThumb`]:
+        full !== slot.imageThumb ? full : '',
+    });
+  },
+
   /** 计算 envelope 指引气泡位置：大图卡片下方、右端对齐信封列（卡片 75vw、3:4、全屏居中） */
   calcEnvelopeBubbleStyle(): string {
     const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
