@@ -217,6 +217,78 @@ async function grantShowcase(payload) {
 }
 
 /**
+ * 一次性数据迁移：明信片文案去「周深」。
+ * 把 postcards 主表 story/title、trips 集合内明信片快照 story/title 中的
+ * 「卡布叻周深」→「小深」（残余的单独「周深」同样替换为「小深」）。
+ * user_postcards 只存 id/次数，展示字段读取时联查主表，无需处理。
+ */
+async function migratePostcardNames() {
+  const rename = (s) => {
+    if (typeof s !== 'string' || !s.includes('周深')) return { text: s, changed: false };
+    const text = s.split('卡布叻周深').join('小深').split('周深').join('小深');
+    return { text, changed: text !== s };
+  };
+
+  // 主表 postcards（并行更新）
+  const pcs = await db.collection('postcards').limit(1000).get();
+  const pcTasks = [];
+  for (const doc of pcs.data || []) {
+    const story = rename(doc.story);
+    const title = rename(doc.title);
+    if (!story.changed && !title.changed) continue;
+    const data = { updatedAt: Date.now() };
+    if (story.changed) data.story = story.text;
+    if (title.changed) data.title = title.text;
+    pcTasks.push(db.collection('postcards').doc(doc._id).update({ data }));
+  }
+  await Promise.all(pcTasks);
+  const postcardsUpdated = pcTasks.length;
+
+  // trips 快照（分页扫全表）
+  const PAGE = 100;
+  let skip = 0;
+  let tripsScanned = 0;
+  let tripsUpdated = 0;
+  for (;;) {
+    const res = await db.collection('trips').skip(skip).limit(PAGE).get();
+    const list = res.data || [];
+    if (!list.length) break;
+    const pageTasks = [];
+    for (const trip of list) {
+      tripsScanned += 1;
+      const cards = trip.postcards || [];
+      let dirty = false;
+      const nextCards = cards.map((c) => {
+        const story = rename(c && c.story);
+        const title = rename(c && c.title);
+        if (story.changed || title.changed) {
+          dirty = true;
+          return {
+            ...c,
+            ...(story.changed ? { story: story.text } : {}),
+            ...(title.changed ? { title: title.text } : {}),
+          };
+        }
+        return c;
+      });
+      if (dirty) {
+        tripsUpdated += 1;
+        pageTasks.push(
+          db.collection('trips').doc(trip._id).update({
+            data: { postcards: nextCards, updatedAt: Date.now() },
+          }),
+        );
+      }
+    }
+    await Promise.all(pageTasks);
+    skip += list.length;
+    if (list.length < PAGE) break;
+  }
+
+  return ok({ postcardsUpdated, tripsScanned, tripsUpdated });
+}
+
+/**
  * 短时签名 URL（占位：需云存储 fileID）
  */
 async function getSignedUrl(fileID) {
@@ -252,6 +324,7 @@ exports.main = async (event) => {
       case 'upsertManifest': return await upsertManifestEntry(payload);
       case 'seedTripCatalog': return await seedTripCatalog(payload);
       case 'grantShowcase': return await grantShowcase(payload);
+      case 'migratePostcardNames': return await migratePostcardNames();
       case 'getSignedUrl': return await getSignedUrl(payload.fileID);
       case 'ping': return ok({ service: 'admin', ts: Date.now() });
       default: return fail(`未知 action: ${action}`, 'BAD_ACTION');
