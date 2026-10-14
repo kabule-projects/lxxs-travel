@@ -39,7 +39,7 @@
     <view
       wx:if="{{bubble.show}}"
       class="go-bubble {{bubble.below ? 'go-bubble--below' : 'go-bubble--above'}}"
-      style="left:{{bubble.x}}px;top:{{bubble.y}}px;width:{{bubble.w}}px;"
+      style="left:{{bubble.x}}px;{{bubble.posStyle}}width:{{bubble.w}}px;"
     >
       <view class="go-bubble-text">{{text}}</view>
       <view class="go-bubble-arrow" style="left:{{bubble.arrowX}}px;"></view>

@@ -7,6 +7,8 @@
   height: 100%;
   box-sizing: border-box;
   overflow: hidden;
+  /* 短宽屏舞台两侧留白的底色：与背景副本同色（地板色），避免露出前置页 */
+  background: #ffecbdff;
 }
 
 .shop-page-bg {
@@ -22,7 +24,7 @@
 .shop-page-bg--back {
   top: 0;
   z-index: -1;
-  background: #ce824c;
+  background: #ffecbdff;
 }
 
 .shop-overlay {

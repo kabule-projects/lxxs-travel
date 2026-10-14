@@ -13,16 +13,18 @@
   box-sizing: border-box;
 }
 
-/* 无圆角容器：卡片即信纸，尺寸跟随信纸切图比例 */
+/* 无圆角容器：卡片即信纸，尺寸跟随信纸切图比例。
+   max-height 用百分比（相对舞台画布）而非 vh：vh 是视口高度，短宽屏随舞台整体
+   缩小时会比画布更大，导致卡片相对偏大 */
 .dl-card {
   width: 85vw;
   max-width: 640rpx;
-  max-height: 82vh;
+  max-height: 82%;
   box-sizing: border-box;
 }
 
 .dl-body {
-  max-height: 82vh;
+  max-height: 82%;
   overflow: hidden;
 }
 

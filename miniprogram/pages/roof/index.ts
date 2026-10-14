@@ -1,6 +1,7 @@
 import { ROOF_SCENE_ASSETS, ROOF_ASSETS, SHOP_ASSETS } from '../../utils/asset-path';
 import { resolveAsset, resolveAssetMap } from '../../utils/resolve-assets';
 import { readSafeArea, readCapsuleRect } from '../../utils/device';
+import { getFit } from '../../utils/fit';
 import { getProfile, getRiceStars, getStars, setRiceStars, setStars, isTraveling } from '../../store/user';
 import * as guide from '../../services/guide';
 import {
@@ -43,9 +44,11 @@ Page({
     stars: 0,
     riceStars: 0,
     bgSrc: '',
-    /** 顶栏 top：胶囊按钮底边 + 间距，避开右上角关闭/菜单 */
+    /** 设计舞台内联样式（短宽屏缩放；见 utils/fit.ts） */
+    stageStyle: '',
+    /** 顶栏 top：胶囊按钮底边 + 间距，避开右上角关闭/菜单（舞台坐标 px） */
     hudTop: 0,
-    /** 底栏 bottom：安全区上沿 + 间距 */
+    /** 底栏 bottom：安全区上沿 + 间距（舞台坐标 px） */
     footerBottom: 0,
     assets: {} as RoofAssets,
     starItems: [] as RoofStarDisplay[],
@@ -114,11 +117,13 @@ Page({
   onLoad() {
     const safe = readSafeArea();
     const capsule = readCapsuleRect();
+    const fit = getFit();
     this.setData({
-      // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮
-      hudTop: capsule.bottom + 12,
+      stageStyle: fit.stageStyle,
+      // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮（屏幕 px → 舞台 px）
+      hudTop: fit.toStageY(capsule.bottom + 12),
       // 底栏贴安全区上沿，底部留间距
-      footerBottom: Math.max(safe.bottom, 16) + 8,
+      footerBottom: fit.toStageY(Math.max(safe.bottom, 16) + 8),
     });
     this.loadAssets();
     this.bindTripEvents();

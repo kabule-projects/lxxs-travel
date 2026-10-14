@@ -1,4 +1,6 @@
 <view class="diary">
+  <!-- 设计舞台：固定 750rpx × 1624rpx 画布；短宽屏整体等比缩小到贴合屏高（见 utils/fit.ts） -->
+  <view class="fit-stage fit-stage--diary" style="{{stageStyle}}">
   <!-- diary-bg（frame+notebook 合并图层）宽撑满屏幕、垂直居中；页内元素均按其边缘百分比定位 -->
   <view class="diary-frame">
     <image class="diary-frame-bg" src="{{assets.diaryBg}}" mode="scaleToFill" />
@@ -118,5 +120,6 @@
   <view wx:if="{{guideBubbleVisible}}" class="diary-guide-bubble" style="{{guideBubbleStyle}}">
     <view class="diary-guide-bubble-arrow"></view>
     <view class="diary-guide-bubble-text">{{guideBubbleText}}</view>
+  </view>
   </view>
 </view>

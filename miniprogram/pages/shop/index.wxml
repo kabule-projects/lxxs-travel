@@ -1,4 +1,6 @@
 <view class="shop">
+  <!-- 设计舞台：固定 750rpx × 1624rpx 画布；短宽屏整体等比缩小到贴合屏高（见 utils/fit.ts） -->
+  <view class="fit-stage" style="{{stageStyle}}">
   <!-- 背景副本：叠在主背景下方 -->
   <image class="shop-page-bg shop-page-bg--back" src="{{assets.pageBg}}" mode="aspectFill" />
   <!-- 整页静态背景（条纹/店主/柜台/木纹/信纸装饰等） -->
@@ -118,4 +120,5 @@
     bind:close="onCloseInv"
   />
   <settings-modal visible="{{showSettings}}" bind:close="onCloseSettings" />
+  </view>
 </view>

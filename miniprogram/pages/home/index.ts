@@ -2,6 +2,7 @@ import { HOME_ASSETS, SHOP_ASSETS, SHOWCASE_ASSETS, assetCdnBase } from '../../u
 import { preloadAssetKeys } from '../../utils/preload';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readSafeArea, readCapsuleRect } from '../../utils/device';
+import { getFit } from '../../utils/fit';
 import { emit, GameEvent, on } from '../../utils/event-bus';
 import { getProfile, getRiceStars, getStars, isTraveling } from '../../store/user';
 import { playSfx, playTap, playBgm } from '../../services/sound';
@@ -111,9 +112,11 @@ Page({
     travelBannerMode: 'depart' as 'depart' | 'return',
     /** 回家横幅是否带回纪念品（切换两种回家提示图） */
     travelBannerHasSouvenir: true,
-    /** 顶栏 top：胶囊按钮底边 + 间距，避开右上角关闭/菜单 */
+    /** 设计舞台内联样式（短宽屏缩放；见 utils/fit.ts） */
+    stageStyle: '',
+    /** 顶栏 top：胶囊按钮底边 + 间距，避开右上角关闭/菜单（舞台坐标 px） */
     hudTop: 0,
-    /** 底栏 bottom：安全区上沿 + 间距 */
+    /** 底栏 bottom：安全区上沿 + 间距（舞台坐标 px） */
     footerBottom: 0,
     assets: {} as HomeAssets,
     showBag: false,
@@ -158,11 +161,13 @@ Page({
   onLoad() {
     const safe = readSafeArea();
     const capsule = readCapsuleRect();
+    const fit = getFit();
     this.setData({
-      // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮
-      hudTop: capsule.bottom + 12,
+      stageStyle: fit.stageStyle,
+      // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮（屏幕 px → 舞台 px）
+      hudTop: fit.toStageY(capsule.bottom + 12),
       // 底栏贴安全区上沿，底部留间距
-      footerBottom: Math.max(safe.bottom, 16) + 8,
+      footerBottom: fit.toStageY(Math.max(safe.bottom, 16) + 8),
       stars: getStars(),
       riceStars: getRiceStars(),
     });

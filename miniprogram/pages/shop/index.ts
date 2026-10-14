@@ -1,6 +1,7 @@
 import { SHOP_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readSafeArea, readCapsuleRect } from '../../utils/device';
+import { getFit } from '../../utils/fit';
 import { playSfx, playTap, playBgm } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
 import { getRiceStars, getStars, setStars } from '../../store/user';
@@ -38,12 +39,14 @@ Page({
   data: {
     stars: 0,
     riceStars: 0,
-    /** 顶栏 top：胶囊底边 + 12px，避让右上角胶囊（同 home/gacha） */
+    /** 设计舞台内联样式（短宽屏缩放；见 utils/fit.ts） */
+    stageStyle: '',
+    /** 顶栏 top：胶囊底边 + 12px，避让右上角胶囊（舞台坐标 px，同 home/gacha） */
     hudTop: 0,
-    /** 底栏 bottom：安全区上沿 + 间距 */
+    /** 底栏 bottom：安全区上沿 + 间距（舞台坐标 px） */
     footBottom: 0,
     /** 展示柜像素矩形：真机上百分比高度链（min-height 父级 + swiper height:100%）会失效，
-     *  按屏显尺寸内联 px，保证 swiper 有确定高度（同 diary swiperH 的处理） */
+     *  按舞台（设计画布）尺寸内联 px，保证 swiper 有确定高度（同 diary swiperH 的处理） */
     cabinetStyle: '',
     assets: {} as ShopAssets,
     showSettings: false,
@@ -72,16 +75,18 @@ Page({
   onLoad() {
     const safe = readSafeArea();
     const capsule = readCapsuleRect();
-    const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
-    const screenW = info.windowWidth || 375;
-    const screenH = info.windowHeight || 667;
+    const fit = getFit();
+    const stageW = fit.stageW;
+    const stageH = fit.stageH;
     this.setData({
-      // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮
-      hudTop: capsule.bottom + 12,
+      stageStyle: fit.stageStyle,
+      // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮（屏幕 px → 舞台 px）
+      hudTop: fit.toStageY(capsule.bottom + 12),
       // 底栏贴安全区上沿，底部留间距
-      footBottom: Math.max(safe.bottom, 16) + 8,
-      // 展示柜矩形：与原 CSS 百分比一致（left/right 各 9%，top 42%，height 26%）
-      cabinetStyle: `left: ${screenW * 0.09}px; top: ${screenH * 0.42}px; width: ${screenW * 0.82}px; height: ${screenH * 0.26}px;`,
+      footBottom: fit.toStageY(Math.max(safe.bottom, 16) + 8),
+      // 展示柜矩形：与原 CSS 百分比一致（left/right 各 9%，top 42%，height 26%），
+      // 百分比基准是设计画布而非视口，短宽屏缩小后仍与背景对齐
+      cabinetStyle: `left: ${stageW * 0.09}px; top: ${stageH * 0.42}px; width: ${stageW * 0.82}px; height: ${stageH * 0.26}px;`,
       stars: getStars(),
       riceStars: getRiceStars(),
     });

@@ -1,4 +1,6 @@
-/** 开孔矩形（视口 px 坐标，boundingClientRect 口径） */
+import { getFit } from '../../utils/fit';
+
+/** 开孔矩形（舞台 px 坐标，见 utils/fit.ts） */
 export interface GuideHole {
   x: number;
   y: number;
@@ -11,10 +13,11 @@ interface BubbleLayout {
   show: boolean;
   below: boolean;
   x: number;
-  y: number;
   w: number;
   /** 小三角相对气泡左边的偏移（px） */
   arrowX: number;
+  /** 垂直定位内联样式：上方放置用 bottom 锚定（底边对齐开孔上沿），下方放置用 top */
+  posStyle: string;
 }
 
 const GAP = 16;
@@ -52,7 +55,7 @@ Component({
       midY: 0,
       midH: 0,
     },
-    bubble: { show: false, below: true, x: 0, y: 0, w: 0, arrowX: 0 } as BubbleLayout,
+    bubble: { show: false, below: true, x: 0, w: 0, arrowX: 0, posStyle: '' } as BubbleLayout,
     shake: false,
   },
 
@@ -61,12 +64,11 @@ Component({
 
   lifetimes: {
     attached() {
-      const info = wx.getWindowInfo
-        ? wx.getWindowInfo()
-        : wx.getSystemInfoSync();
+      // 遮罩与开孔都按舞台（设计画布）坐标绘制：窗口尺寸取舞台尺寸而非视口尺寸
+      const fit = getFit();
       this.setData({
-        winW: info.windowWidth,
-        winH: info.windowHeight || info.screenHeight || 0,
+        winW: fit.stageW,
+        winH: fit.stageH,
       });
       this.relayout();
     },
@@ -122,7 +124,7 @@ Component({
     layoutBubble(hit: { x: number; y: number; w: number; h: number }) {
       const { winW, winH, text } = this.data;
       const w = Math.min(winW - SIDE * 2, 300);
-      // 估算文案行数与气泡高度（15px/字、22px 行高）
+      // 估算文案行数与气泡高度（15px/字、22px 行高），仅用于判断放上方还是下方
       const perLine = Math.max(6, Math.floor((w - 28) / 15));
       const lines = Math.max(1, Math.min(3, Math.ceil((text || '').length / perLine)));
       const bubbleH = lines * 22 + 22;
@@ -131,10 +133,14 @@ Component({
       const spaceAbove = hit.y;
       const spaceBelow = winH - hit.y - hit.h;
       const below = spaceBelow < bubbleH + GAP && spaceAbove >= bubbleH + GAP ? false : true;
-      const y = below ? hit.y + hit.h + GAP : hit.y - bubbleH - GAP;
+      // 上方放置按「下边缘」锚定（bottom 定位）：气泡实际高度随文本换行/字体渲染变化，
+      // 用 top+估算高度会把气泡底边推进开孔；bottom 锚定保证底边恒在开孔上方 GAP 处
+      const posStyle = below
+        ? `top:${hit.y + hit.h + GAP}px;`
+        : `bottom:${winH - hit.y + GAP}px;`;
       const arrowX = Math.min(Math.max(24, centerX - x), w - 24);
       this.setData({
-        bubble: { show: !!text, below, x, y, w, arrowX },
+        bubble: { show: !!text, below, x, w, arrowX, posStyle },
       });
     },
 

@@ -1,6 +1,7 @@
 import { GACHA_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readSafeArea, readCapsuleRect } from '../../utils/device';
+import { getFit } from '../../utils/fit';
 import { playSfx, playTap, playBgm } from '../../services/sound';
 import { navigateBack } from '../../utils/nav';
 import { getStars, getRiceStars, setStars } from '../../store/user';
@@ -40,6 +41,8 @@ Page({
     animReady: false,
     stars: 0,
     riceStars: 0,
+    /** 设计舞台内联样式（短宽屏缩放；见 utils/fit.ts） */
+    stageStyle: '',
     spinning: false,
     showResult: false,
     showPrizes: false,
@@ -73,9 +76,12 @@ Page({
   onLoad() {
     const safe = readSafeArea();
     const capsule = readCapsuleRect();
+    const fit = getFit();
     this.setData({
-      hudTop: capsule.bottom + 12,
-      footBottom: Math.max(safe.bottom, 16) + 8,
+      stageStyle: fit.stageStyle,
+      // 顶栏/底栏按屏幕 px 锚定，换算到舞台坐标（短宽屏整体缩小时仍贴胶囊与安全区）
+      hudTop: fit.toStageY(capsule.bottom + 12),
+      footBottom: fit.toStageY(Math.max(safe.bottom, 16) + 8),
     });
     this.syncWallet();
     this.loadAssets();

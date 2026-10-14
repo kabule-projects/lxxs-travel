@@ -1,4 +1,6 @@
 <view class="memo">
+  <!-- 设计舞台：固定 750rpx × 1624rpx 画布；短宽屏整体等比缩小到贴合屏高（见 utils/fit.ts） -->
+  <view class="fit-stage fit-stage--memo" style="{{stageStyle}}">
   <!-- 竖条纹整屏底：宽撑满、垂直居中，条纹图案上下裁切无感 -->
   <view class="memo-bg">
     <image class="memo-bg-img" src="{{assets.bg}}" mode="scaleToFill" />
@@ -51,4 +53,5 @@
     mode="aspectFit"
     bindtap="onTapAdd"
   />
+  </view>
 </view>

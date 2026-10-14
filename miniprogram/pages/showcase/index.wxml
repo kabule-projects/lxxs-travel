@@ -1,4 +1,6 @@
 <view class="showcase">
+  <!-- 设计舞台：固定 750rpx × 1624rpx 画布；短宽屏整体等比缩小到贴合屏高（见 utils/fit.ts） -->
+  <view class="fit-stage fit-stage--showcase" style="{{stageStyle}}">
   <!-- 底层：整页背景 -->
   <image class="showcase-page-bg" src="{{assets.pageBg}}" mode="aspectFill" />
   <!-- 上层：柜子贴图（透明底，层板位置与物品定位对齐） -->
@@ -67,4 +69,5 @@
   />
 
   <settings-modal visible="{{showSettings}}" bind:close="onCloseSettings" />
+  </view>
 </view>

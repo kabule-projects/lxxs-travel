@@ -1,6 +1,7 @@
 import * as guide from '../services/guide';
 import type { GuideHost } from '../services/guide';
 import { measureSelectors } from './guide-measure';
+import { getFit } from './fit';
 import type { GuideHole } from '../components/guide-overlay/guide-overlay';
 
 /** 页面/组件实例的最小结构（Page 与 Component 的 this 均满足） */
@@ -20,11 +21,11 @@ interface HitRect {
   h: number;
 }
 
-/** 屋顶星星活动带：开孔外接矩形向外放宽，覆盖整堆星星的易点区域 */
+/** 屋顶星星活动带：开孔外接矩形向外放宽，覆盖整堆星星的易点区域（舞台坐标口径） */
 function roofBand(holes: GuideHole[]): HitRect {
-  const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
-  const winW = info.windowWidth;
-  const winH = info.windowHeight || info.screenHeight || 0;
+  const fit = getFit();
+  const winW = fit.stageW;
+  const winH = fit.stageH;
   const x1 = Math.min(...holes.map((h) => h.x));
   const y1 = Math.min(...holes.map((h) => h.y));
   const x2 = Math.max(...holes.map((h) => h.x + h.w));

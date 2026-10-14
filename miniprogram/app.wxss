@@ -6,6 +6,22 @@ page {
   overflow: hidden;
 }
 
+/* ── 设计舞台（全站统一，逻辑见 utils/fit.ts）：固定 750rpx × 1624rpx 的设计画布，
+   垂直居中，铺满屏宽；屏比低于阈值的短宽机型由各页 ts 写入 transform scale(k)
+   等比缩小到贴合屏高（两侧露出页面根节点底色），不再上下裁切。
+   页面所有内容（含弹窗/指引遮罩）都放在舞台内，% 与 rpx 一律相对画布解析，
+   背景、热区、角色在任何屏比下都保持对齐。 */
+.fit-stage {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 750rpx;
+  height: 1624rpx;
+  overflow: hidden;
+  transform: translateY(-50%);
+  transform-origin: 50% 50%;
+}
+
 /* ── 贴图计数框（roof/home 等页共用）：整张贴图（框+icon 已画进图），数字叠加其上 ──
    调数字位置/大小只改这里的 .currency-pill__num，所有页面同时生效；
    各页面用 --star/--rice 等 modifier 自定义宽度 */

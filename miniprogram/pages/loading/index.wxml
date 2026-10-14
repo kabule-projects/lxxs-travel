@@ -1,7 +1,7 @@
 <view class="scene">
-  <!-- 舞台：盒子与背景图渲染区域完全一致（宽 100%、按切图比例定高、垂直居中），
-       按钮/进度条都在舞台内按百分比定位，任何屏幕比例下都锚定背景图同一位置 -->
-  <view class="stage">
+  <!-- 设计舞台：与背景图渲染盒一致（宽铺满、按切图比例定高、垂直居中）；
+       短宽屏整体等比缩小到贴合屏高，按钮/进度条仍锚定背景图同一位置（见 utils/fit.ts） -->
+  <view class="fit-stage" style="{{stageStyle}}">
     <!-- loading 专属背景 -->
     <image
       class="layer layer-bg"
@@ -27,13 +27,14 @@
         />
       </view>
     </view>
-  </view>
 
-  <!-- 底部仅保留提示文字；进度条已上移到按钮位 -->
-  <loading-frame
-    progress="{{progress}}"
-    tip="{{entering ? '正在准备小屋…' : (canEnter ? '' : tip)}}"
-    safeBottom="{{safeBottom}}"
-    showBar="{{false}}"
-  />
+    <!-- 底部仅保留提示文字；进度条已上移到按钮位。
+         放在舞台内（而非舞台外）：内联 safeBottom 是舞台坐标，随舞台一起缩放 -->
+    <loading-frame
+      progress="{{progress}}"
+      tip="{{entering ? '正在准备小屋…' : (canEnter ? '' : tip)}}"
+      safeBottom="{{safeBottom}}"
+      showBar="{{false}}"
+    />
+  </view>
 </view>

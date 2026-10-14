@@ -2,6 +2,7 @@ import { DIARY_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { playSfx, playTap } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
+import { getFit } from '../../utils/fit';
 import { listDiary, type DiaryEntry, type PostcardType } from '../../services/diary';
 import * as guide from '../../services/guide';
 import {
@@ -137,13 +138,15 @@ Page({
   onLoad() {
     // swiper 是原生组件，必须内联明确的 px 尺寸/位置。
     // 3×4 正方形格子 → swiper 宽 = 3×格子+2×间距，高 = 4×格子+3×间距，宽高比由格子锁定
-    const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
-    const screenW = info.screenWidth || info.windowWidth || 375;
+    // 尺寸基准取舞台（设计画布）宽高，短宽屏整体缩小时仍与 frame 对齐
+    const fit = getFit();
+    const screenW = fit.stageW;
     const frameH = (screenW * 4330) / 2002;
     const cell = screenW * GRID_CELL_PCT;
     const gap = (screenW * GRID_GAP_RPX) / 750;
     const memoBtnW = screenW * MEMO_BTN_W_PCT;
     this.setData({
+      stageStyle: fit.stageStyle,
       swiperLeft: screenW * GRID_LEFT_PCT,
       swiperTop: frameH * GRID_TOP_PCT,
       swiperW: cell * 3 + gap * 2,
@@ -311,9 +314,10 @@ Page({
 
   /** 计算 envelope 指引气泡位置：大图卡片下方、右端对齐信封列（卡片 75vw、3:4、全屏居中） */
   calcEnvelopeBubbleStyle(): string {
-    const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
-    const screenW = info.windowWidth || 375;
-    const screenH = info.windowHeight || 667;
+    // 气泡在舞台（设计画布）坐标系里绝对定位，尺寸基准取舞台而非视口
+    const fit = getFit();
+    const screenW = fit.stageW;
+    const screenH = fit.stageH;
     const cardW = screenW * 0.75;
     const cardH = (cardW * 4) / 3;
     const cardTop = (screenH - cardH) / 2;

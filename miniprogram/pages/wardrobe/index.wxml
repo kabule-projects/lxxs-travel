@@ -1,4 +1,6 @@
 <view class="page">
+  <!-- 设计舞台：固定 750rpx × 1624rpx 画布；短宽屏整体等比缩小到贴合屏高（见 utils/fit.ts） -->
+  <view class="fit-stage fit-stage--wardrobe" style="{{stageStyle}}">
   <view class="hud" style="padding-top: {{safeTop}}px">
     <nav-icon src="{{assets.iconBack}}" label="返回" size="sm" bind:tap="onTapBack" />
     <nav-icon src="{{assets.iconGrid}}" label="设置" size="sm" bind:tap="onTapSettings" />
@@ -7,4 +9,5 @@
   <view class="empty-text">{{message || '衣柜还是空的'}}</view>
 
   <settings-modal visible="{{showSettings}}" bind:close="onCloseSettings" />
+  </view>
 </view>

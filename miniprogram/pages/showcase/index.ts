@@ -1,6 +1,7 @@
 import { SHOWCASE_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readCapsuleRect } from '../../utils/device';
+import { getFit } from '../../utils/fit';
 import { playTap } from '../../services/sound';
 import { navigateBack } from '../../utils/nav';
 import GAME from '../../utils/constants';
@@ -95,13 +96,13 @@ Page({
     this._viewed = new Set(Array.isArray(rawViewed) ? (rawViewed as string[]) : []);
 
     const capsule = readCapsuleRect();
-    const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
-    const screenW = info.windowWidth || 375;
-    const screenH = info.windowHeight || 667;
-    // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮（同 home/roof）
+    const fit = getFit();
+    // 顶栏整体落到胶囊下方，避开右上角关闭/菜单按钮（同 home/roof）；
+    // 柜子矩形按设计画布尺寸内联 px，短宽屏缩小后仍与背景层板对齐
     this.setData({
-      hudTop: capsule.bottom + 12,
-      cabStyle: `left: ${screenW * 0.15}px; top: ${screenH * 0.22}px; width: ${screenW * 0.7}px; height: ${screenH * 0.635}px;`,
+      stageStyle: fit.stageStyle,
+      hudTop: fit.toStageY(capsule.bottom + 12),
+      cabStyle: `left: ${fit.stageW * 0.15}px; top: ${fit.stageH * 0.22}px; width: ${fit.stageW * 0.7}px; height: ${fit.stageH * 0.635}px;`,
     });
     this.loadAssets();
     this.reload();

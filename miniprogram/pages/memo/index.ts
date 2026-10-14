@@ -1,6 +1,7 @@
 import { MEMO_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readCapsuleRect } from '../../utils/device';
+import { getFit } from '../../utils/fit';
 import { playTap } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
 import { listMemos, type MemoItem } from '../../services/memo';
@@ -28,7 +29,8 @@ Page({
   data: {
     assets: {} as MemoAssets,
     rows: [] as MemoRow[],
-    /** 面板/行高（px）：onLoad 按屏幕换算内联，任何机型比例一致 */
+    /** 面板/行高（px）：onLoad 按设计画布换算内联，任何机型比例一致 */
+    stageStyle: '',
     panelW: 0,
     panelH: 0,
     rowH: 0,
@@ -45,24 +47,23 @@ Page({
   _offMemoSaved: null as (() => void) | null,
 
   onLoad() {
-    const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
-    const screenW = info.screenWidth || info.windowWidth || 375;
-    const screenH = info.screenHeight || info.windowHeight || 667;
     const capsule = readCapsuleRect();
-    // 面板按屏高定尺寸（mockup 占高约 79.5%），超宽机型回退按屏宽 90% 限制
-    let panelH = screenH * 0.795;
+    const fit = getFit();
+    // 面板按设计画布（舞台）定尺寸（mockup 占高约 79.5%），超宽机型回退按画布宽 90% 限制
+    let panelH = fit.stageH * 0.795;
     let panelW = panelH * (1183 / 2354);
-    const maxW = screenW * 0.9;
+    const maxW = fit.stageW * 0.9;
     if (panelW > maxW) {
       panelW = maxW;
       panelH = panelW * (2354 / 1183);
     }
     const rowW = panelW * 0.86;
     this.setData({
+      stageStyle: fit.stageStyle,
       panelW,
       panelH,
       rowH: rowW * (135 / 1021),
-      backTop: (capsule.bottom || 88) + 12,
+      backTop: fit.toStageY(capsule.bottom + 12),
     });
     resolveAssetMap(MEMO_ASSETS).then((assets) => {
       this.setData({ assets });

@@ -1,4 +1,5 @@
 import { isSupportedOrDevtools, readSafeArea } from '../../utils/device';
+import { getFit } from '../../utils/fit';
 import { assetWebp, assetCdnBase, LOADING_ASSETS, ROOF_SCENE_ASSETS, ROOF_ASSETS } from '../../utils/asset-path';
 import { preloadImages } from '../../utils/preload';
 
@@ -27,6 +28,8 @@ Page({
     btnEnterDisabledSrc: '',
     safeBottom: 0,
     sessionReady: false,
+    /** 设计舞台内联样式（短宽屏缩放；见 utils/fit.ts） */
+    stageStyle: '',
     /** 进度条米子图标：默认空走原皮，命中概率时替换为随机变装米 */
     barThumbSrc: '',
   },
@@ -46,8 +49,11 @@ Page({
     }
 
     const safe = readSafeArea();
+    const fit = getFit();
     this.setData({
-      safeBottom: Math.max(safe.bottom, 0),
+      stageStyle: fit.stageStyle,
+      // 安全区按屏幕 px 锚定，换算到舞台坐标（随舞台一起缩放）
+      safeBottom: fit.toStageY(Math.max(safe.bottom, 0)),
     });
     // 本次启动的米子皮肤：原皮 + 4 变装五选一（各 20%），整段 loading 不变
     // 注意：必须在 onReady 才 setData——组件 attached 阶段读到的 thumbSrc 若是初始值，

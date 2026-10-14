@@ -1,7 +1,7 @@
 .home {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
   box-sizing: border-box;
   overflow: hidden;
   background: rgb(248, 236, 196);
@@ -22,7 +22,7 @@
 .home-overlay {
   position: relative;
   z-index: 1;
-  min-height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
 }

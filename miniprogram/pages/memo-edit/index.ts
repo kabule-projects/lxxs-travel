@@ -1,6 +1,7 @@
 import { MEMO_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readCapsuleRect } from '../../utils/device';
+import { getFit } from '../../utils/fit';
 import { playTap } from '../../services/sound';
 import { navigateBack } from '../../utils/nav';
 import { getMemo, saveMemo } from '../../services/memo';
@@ -29,6 +30,8 @@ Page({
     dateKey: '',
     content: '',
     maxLength: MAX_LENGTH,
+    /** 设计舞台内联样式（短宽屏缩放；见 utils/fit.ts） */
+    stageStyle: '',
     panelW: 0,
     panelH: 0,
     backTop: 120,
@@ -41,14 +44,12 @@ Page({
   _memoId: undefined as string | undefined,
 
   onLoad(options?: { id?: string }) {
-    const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
-    const screenW = info.screenWidth || info.windowWidth || 375;
-    const screenH = info.screenHeight || info.windowHeight || 667;
     const capsule = readCapsuleRect();
-    // 面板按屏高定尺寸（mockup 占高约 83%），超宽机型回退按屏宽 90% 限制
-    let panelH = screenH * 0.83;
+    const fit = getFit();
+    // 面板按设计画布（舞台）定尺寸（mockup 占高约 83%），超宽机型回退按画布宽 90% 限制
+    let panelH = fit.stageH * 0.83;
     let panelW = panelH * (1258 / 2450);
-    const maxW = screenW * 0.9;
+    const maxW = fit.stageW * 0.9;
     if (panelW > maxW) {
       panelW = maxW;
       panelH = panelW * (2450 / 1258);
@@ -56,9 +57,10 @@ Page({
     const id = options?.id;
     this._memoId = id || undefined;
     this.setData({
+      stageStyle: fit.stageStyle,
       panelW,
       panelH,
-      backTop: (capsule.bottom || 88) + 12,
+      backTop: fit.toStageY((capsule.bottom || 88) + 12),
       // 新建模式先显示今天（UTC+8 业务日），保存后以云端返回为准
       dateKey: id ? '' : businessDayKeyLocal(),
     });

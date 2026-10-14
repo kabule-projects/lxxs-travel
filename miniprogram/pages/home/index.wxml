@@ -1,4 +1,6 @@
 <view class="home">
+  <!-- 设计舞台：固定 750rpx × 1624rpx 画布；短宽屏整体等比缩小到贴合屏高（见 utils/fit.ts） -->
+  <view class="fit-stage" style="{{stageStyle}}">
   <!-- 整页静态背景：宽度铺满屏幕，垂直居中（上下溢出裁剪） -->
   <image class="home-page-bg" src="{{assets.room}}" mode="widthFix" />
 
@@ -115,4 +117,5 @@
     text="{{guideText}}"
     bind:blocked="onGuideBlocked"
   />
+  </view>
 </view>

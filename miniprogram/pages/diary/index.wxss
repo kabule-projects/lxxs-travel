@@ -1,12 +1,17 @@
-/* frame 宽撑满屏幕、垂直居中；高于屏幕时上下对称裁切 */
+/* frame 宽撑满屏幕、垂直居中；高于屏幕时上下对称裁切。
+   根容器退化为视口容器（底色=短宽屏舞台两侧留白色），居中由舞台承接 */
 .diary {
   position: relative;
-  min-height: 100vh;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #5a4088;
+}
+
+.fit-stage--diary {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  background: #5a4088;
 }
 
 .diary-frame {

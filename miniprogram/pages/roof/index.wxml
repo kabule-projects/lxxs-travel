@@ -1,4 +1,6 @@
 <view class="roof">
+  <!-- 设计舞台：固定 750rpx × 1624rpx 画布；短宽屏整体等比缩小到贴合屏高（见 utils/fit.ts） -->
+  <view class="fit-stage" style="{{stageStyle}}">
   <image class="layer layer-bg" src="{{bgSrc}}" mode="widthFix" />
 
   <!-- 星星：单一列表，空中倒计时 / 落下后堆在鸽子左下。
@@ -154,4 +156,5 @@
     bind:close="onCloseGuideReward"
     bind:confirm="onCloseGuideReward"
   />
+  </view>
 </view>

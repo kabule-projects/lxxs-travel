@@ -1,4 +1,6 @@
 <view class="gacha">
+  <!-- 设计舞台：固定 750rpx × 1624rpx 画布；短宽屏整体等比缩小到贴合屏高（见 utils/fit.ts） -->
+  <view class="fit-stage fit-stage--gacha" style="{{stageStyle}}">
   <image class="gacha-page-bg" src="{{assets.pageBg}}" mode="aspectFill" />
 
   <!-- 顶栏：双货币贴图框 + 设置（布局同 home）；top 内联，避让右上角胶囊 -->
@@ -79,4 +81,5 @@
   />
 
   <settings-modal visible="{{showSettings}}" bind:close="onCloseSettings" />
+  </view>
 </view>
