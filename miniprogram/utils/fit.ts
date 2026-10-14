@@ -56,7 +56,7 @@ export interface FitInfo {
   rectToStage(r: { left: number; top: number; width: number; height: number }): StageRect;
 }
 
-let cached: FitInfo | null = null;
+let cached: (FitInfo & { _w: number; _h: number }) | null = null;
 
 function compute(): FitInfo {
   const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
@@ -90,10 +90,39 @@ function compute(): FitInfo {
   };
 }
 
-/** 当前设备的舞台适配信息（会话内缓存；窗口尺寸不变，无需重复读取） */
+/**
+ * 当前设备的舞台适配信息。缓存按窗口尺寸校验：iPad 旋转、分屏、
+ * 折叠态切换等导致 windowWidth/Height 变化时自动重算，无需手动失效。
+ */
 export function getFit(): FitInfo {
-  if (!cached) cached = compute();
+  const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+  const w = info.windowWidth || 375;
+  const h = info.windowHeight || 667;
+  if (!cached || cached._w !== w || cached._h !== h) {
+    cached = Object.assign(compute(), { _w: w, _h: h });
+  }
   return cached;
+}
+
+/**
+ * 页面接入设计舞台：立即写入 stageStyle，并在窗口尺寸变化（iPad 旋转、
+ * 分屏、折叠态切换）时自动重算。各页 onLoad 调用一次即可。
+ * 注意：页内其他按屏幕 px 换算的布局（hudTop/footerBottom 等）只在进页时
+ * 取一次 getFit()，旋转后需重新进页才更新；stage 缩放与背景对齐始终正确。
+ */
+export function bindStageFit(page: {
+  setData(data: Record<string, unknown>): void;
+  onResize?: (...args: never[]) => void;
+}): void {
+  const apply = (): void => {
+    page.setData({ stageStyle: getFit().stageStyle });
+  };
+  const prev = page.onResize;
+  page.onResize = function (this: unknown, ...args: never[]) {
+    apply();
+    if (prev) prev.apply(this, args);
+  };
+  apply();
 }
 
 export { MIN_RATIO, STAGE_RATIO, STAGE_W_RPX, STAGE_H_RPX };

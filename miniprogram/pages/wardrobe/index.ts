@@ -1,7 +1,7 @@
 import { WARDROBE_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readSafeArea } from '../../utils/device';
-import { getFit } from '../../utils/fit';
+import { bindStageFit, getFit } from '../../utils/fit';
 import { playTap } from '../../services/sound';
 import { navigateBack } from '../../utils/nav';
 import { listWardrobe } from '../../services/wardrobe';
@@ -21,6 +21,7 @@ Page({
   },
 
   onLoad() {
+    bindStageFit(this);
     const { top } = readSafeArea();
     const fit = getFit();
     this.setData({ safeTop: fit.toStageY(top), stageStyle: fit.stageStyle });

@@ -1,7 +1,7 @@
 import { SHOWCASE_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readCapsuleRect } from '../../utils/device';
-import { getFit } from '../../utils/fit';
+import { bindStageFit, getFit } from '../../utils/fit';
 import { playTap } from '../../services/sound';
 import { navigateBack } from '../../utils/nav';
 import GAME from '../../utils/constants';
@@ -92,6 +92,7 @@ Page({
   _viewed: new Set<string>(),
 
   onLoad() {
+    bindStageFit(this);
     const rawViewed = wx.getStorageSync(VIEWED_KEY);
     this._viewed = new Set(Array.isArray(rawViewed) ? (rawViewed as string[]) : []);
 

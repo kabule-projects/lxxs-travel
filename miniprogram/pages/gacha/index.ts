@@ -1,7 +1,7 @@
 import { GACHA_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readSafeArea, readCapsuleRect } from '../../utils/device';
-import { getFit } from '../../utils/fit';
+import { bindStageFit, getFit } from '../../utils/fit';
 import { playSfx, playTap, playBgm } from '../../services/sound';
 import { navigateBack } from '../../utils/nav';
 import { getStars, getRiceStars, setStars } from '../../store/user';
@@ -74,6 +74,7 @@ Page({
   _guideBlockedAt: 0 as number,
 
   onLoad() {
+    bindStageFit(this);
     const safe = readSafeArea();
     const capsule = readCapsuleRect();
     const fit = getFit();

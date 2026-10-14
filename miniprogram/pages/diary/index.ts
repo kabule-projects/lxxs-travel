@@ -2,7 +2,7 @@ import { DIARY_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { playSfx, playTap } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
-import { getFit } from '../../utils/fit';
+import { bindStageFit, getFit } from '../../utils/fit';
 import { listDiary, type DiaryEntry, type PostcardType } from '../../services/diary';
 import * as guide from '../../services/guide';
 import {
@@ -136,6 +136,7 @@ Page({
   _memoVisited: false as boolean,
 
   onLoad() {
+    bindStageFit(this);
     // swiper 是原生组件，必须内联明确的 px 尺寸/位置。
     // 3×4 正方形格子 → swiper 宽 = 3×格子+2×间距，高 = 4×格子+3×间距，宽高比由格子锁定
     // 尺寸基准取舞台（设计画布）宽高，短宽屏整体缩小时仍与 frame 对齐

@@ -76,11 +76,13 @@ function readCapsuleRect(): CapsuleRect {
 }
 
 function isSupportedDevice(info: DeviceInfo): boolean {
-  const { windowWidth: width, pixelRatio: dpr } = info;
+  const { windowWidth: width, pixelRatio: dpr, platform } = info;
+  // PC 端微信（windows/mac）窗口尺寸可自由拉伸，布局语义不适用，仍拦截
+  if (platform === 'windows' || platform === 'mac') return false;
   const iphoneOk = width >= 375 && width <= 440;
-  // 安卓/鸿蒙直板机：下限放宽到 320（小屏旗舰与显示缩放偏大的机型不误伤），
-  // 上限 430 维持不变——折叠展开/平板仍进 tollgate，宽屏布局会失真
-  const androidHi = dpr >= 2 && width >= 320 && width <= 430;
+  // 安卓/鸿蒙直板机：320-430。平板（iPad/安卓/HarmonyOS 平板）与折叠展开态随
+  // 设计舞台适配（fit.ts 高度对齐、两侧留底色）放开到 1300；dpr>=2 保证切图渲染清晰。
+  const androidHi = dpr >= 2 && width >= 320 && width <= 1300;
   return iphoneOk || androidHi;
 }
 

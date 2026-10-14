@@ -1,5 +1,5 @@
 import { isSupportedOrDevtools, readSafeArea } from '../../utils/device';
-import { getFit } from '../../utils/fit';
+import { bindStageFit, getFit } from '../../utils/fit';
 import { assetWebp, assetCdnBase, LOADING_ASSETS, ROOF_SCENE_ASSETS, ROOF_ASSETS } from '../../utils/asset-path';
 import { preloadImages } from '../../utils/preload';
 
@@ -47,6 +47,8 @@ Page({
       wx.reLaunch({ url: '/pages/tollgate/index' });
       return;
     }
+
+    bindStageFit(this);
 
     const safe = readSafeArea();
     const fit = getFit();

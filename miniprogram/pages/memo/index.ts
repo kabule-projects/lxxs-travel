@@ -1,7 +1,7 @@
 import { MEMO_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readCapsuleRect } from '../../utils/device';
-import { getFit } from '../../utils/fit';
+import { bindStageFit, getFit } from '../../utils/fit';
 import { playTap } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
 import { listMemos, type MemoItem } from '../../services/memo';
@@ -47,6 +47,7 @@ Page({
   _offMemoSaved: null as (() => void) | null,
 
   onLoad() {
+    bindStageFit(this);
     const capsule = readCapsuleRect();
     const fit = getFit();
     // 面板按设计画布（舞台）定尺寸（mockup 占高约 79.5%），超宽机型回退按画布宽 90% 限制

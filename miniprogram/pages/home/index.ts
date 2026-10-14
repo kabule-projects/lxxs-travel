@@ -2,7 +2,7 @@ import { HOME_ASSETS, SHOP_ASSETS, SHOWCASE_ASSETS, assetCdnBase } from '../../u
 import { preloadAssetKeys } from '../../utils/preload';
 import { resolveAssetMap } from '../../utils/resolve-assets';
 import { readSafeArea, readCapsuleRect } from '../../utils/device';
-import { getFit } from '../../utils/fit';
+import { bindStageFit, getFit } from '../../utils/fit';
 import { emit, GameEvent, on } from '../../utils/event-bus';
 import { getProfile, getRiceStars, getStars, isTraveling } from '../../store/user';
 import { playSfx, playTap, playBgm } from '../../services/sound';
@@ -159,6 +159,7 @@ Page({
   _guideRewardResolve: null as (() => void) | null,
 
   onLoad() {
+    bindStageFit(this);
     const safe = readSafeArea();
     const capsule = readCapsuleRect();
     const fit = getFit();

@@ -1,7 +1,7 @@
 import { ROOF_SCENE_ASSETS, ROOF_ASSETS, SHOP_ASSETS } from '../../utils/asset-path';
 import { resolveAsset, resolveAssetMap } from '../../utils/resolve-assets';
 import { readSafeArea, readCapsuleRect } from '../../utils/device';
-import { getFit } from '../../utils/fit';
+import { bindStageFit, getFit } from '../../utils/fit';
 import { getProfile, getRiceStars, getStars, setRiceStars, setStars, isTraveling } from '../../store/user';
 import * as guide from '../../services/guide';
 import {
@@ -115,6 +115,7 @@ Page({
   _lastSyncAt: 0 as number,
 
   onLoad() {
+    bindStageFit(this);
     const safe = readSafeArea();
     const capsule = readCapsuleRect();
     const fit = getFit();
