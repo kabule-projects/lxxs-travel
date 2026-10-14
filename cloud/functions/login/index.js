@@ -16,7 +16,8 @@ function defaultNickName(userId) {
   return `旅行者${suffix}`;
 }
 
-/** 新用户赠送 / 老用户补发的跳过旅行券张数（每次 skip 消耗 1 张） */
+/** 跳过旅行券：新手在**完成教程时**获赠 / 老用户（字段缺失）补发的张数（每次 skip 消耗 1 张）。
+ *  建号不发——教程期间有券会让出门横幅的跳过套组盖住教程点击区（详见矛盾A修复） */
 const DEFAULT_SKIP_TICKETS = 3;
 
 async function createUser(openid) {
@@ -30,7 +31,7 @@ async function createUser(openid) {
     profileAuthorized: false,
     stars: 0,
     riceStars: 0,
-    skipTickets: DEFAULT_SKIP_TICKETS,
+    skipTickets: 0, // 教程完成时由 completeGuide 发放，建号不发（矛盾A）
     gm: false,
     pitySR: 0,
     pitySSR: 0,
@@ -166,7 +167,12 @@ async function completeGuide(openid, markCompleted = true) {
     .collection('users')
     .doc(user._id)
     .update({
-      data: { stars: _.inc(cfg.stars), riceStars: _.inc(cfg.riceStars) },
+      data: {
+        stars: _.inc(cfg.stars),
+        riceStars: _.inc(cfg.riceStars),
+        // 新手奖励与跳过券同一发奖闸：首次完成教程时 3 张券一并到账（建号不发，矛盾A）
+        skipTickets: _.inc(DEFAULT_SKIP_TICKETS),
+      },
     });
   const postcard = await grantGuidePostcard(openid, cfg.postcardId);
   return ok({
@@ -176,6 +182,7 @@ async function completeGuide(openid, markCompleted = true) {
     wallet: {
       stars: (user.stars || 0) + cfg.stars,
       riceStars: (user.riceStars || 0) + cfg.riceStars,
+      skipTickets: (user.skipTickets || 0) + DEFAULT_SKIP_TICKETS,
     },
   });
 }
@@ -248,7 +255,7 @@ async function register(openid, profile) {
     profileAuthorized: true,
     stars: 0,
     riceStars: 0,
-    skipTickets: DEFAULT_SKIP_TICKETS,
+    skipTickets: 0, // 教程完成时由 completeGuide 发放，建号不发（矛盾A）
     gm: false,
     pitySR: 0,
     pitySSR: 0,

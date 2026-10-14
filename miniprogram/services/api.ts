@@ -138,8 +138,8 @@ export interface GuideCompleteResult {
     riceStars: number;
     postcard: GuideRewardPostcard | null;
   } | null;
-  /** 发放后的最新钱包（仅首次发放时下发） */
-  wallet?: { stars: number; riceStars: number };
+  /** 发放后的最新钱包（仅首次发放时下发）；skipTickets=教程完成赠送的跳过券余额 */
+  wallet?: { stars: number; riceStars: number; skipTickets?: number };
 }
 
 /** 新手指引完成（真实出发成功）回写：首次完成发放新手奖励，云端幂等 */

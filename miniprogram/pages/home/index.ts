@@ -302,7 +302,9 @@ Page({
     });
     // 有跳过券：banner 不自动消失，等用户在跳过套组上点"继续/跳过"后由组件 dismiss 关闭；
     // 无券：不显示套组，保持原 5 秒自动消失
-    if ((getProfile()?.skipTickets || 0) <= 0) {
+    // 新手教程期间按无券处理（组件侧同步隐藏套组），否则套组盖住教程点击区且 banner 不自动消失
+    const skipTickets = guide.isActive() ? 0 : getProfile()?.skipTickets || 0;
+    if (skipTickets <= 0) {
       runDepartBannerFlow(() => {
         this.setData({ showTravelBanner: false });
       });

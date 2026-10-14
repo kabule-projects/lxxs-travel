@@ -2,7 +2,7 @@ import { completeGuideApi, type GuideCompleteResult, type UserProfile } from './
 import { emit, on, GameEvent } from '../utils/event-bus';
 import { resolveAsset } from '../utils/resolve-assets';
 import { resolveDynamicAsset } from '../utils/resolve-dynamic-asset';
-import { setStars, setRiceStars } from '../store/user';
+import { patchProfile, setStars, setRiceStars } from '../store/user';
 import type { GachaResultItem } from '../components/gacha-result/gacha-result';
 
 /** 本地完成标志（云端 guideCompletedAt 兜底）；冷启动判定以此为准 */
@@ -363,6 +363,15 @@ export async function complete(): Promise<GuideCompleteResult | null> {
   let result: GuideCompleteResult | null = null;
   try {
     result = await completeGuideApi();
+    // 直达完成（未经 preReward）时钱包随本次响应下发：同步余额与跳过券
+    if (result?.wallet) {
+      setStars(result.wallet.stars);
+      setRiceStars(result.wallet.riceStars);
+      if (typeof result.wallet.skipTickets === 'number') {
+        patchProfile({ skipTickets: result.wallet.skipTickets });
+      }
+      emit(GameEvent.STARS_UPDATED);
+    }
   } catch {
     /* 本地标志已兜底，下次启动重试由云端幂等处理 */
   }
@@ -389,6 +398,10 @@ export async function preReward(): Promise<GuideCompleteResult | null> {
     if (res.wallet) {
       setStars(res.wallet.stars);
       setRiceStars(res.wallet.riceStars);
+      // 教程完成赠送的跳过券到账：同步进本地 profile，出门横幅据此显示跳过套组
+      if (typeof res.wallet.skipTickets === 'number') {
+        patchProfile({ skipTickets: res.wallet.skipTickets });
+      }
       emit(GameEvent.STARS_UPDATED);
     }
     return res;

@@ -3,6 +3,7 @@ import { resolveAsset } from '../../utils/resolve-assets';
 import { skipTrip } from '../../services/trip';
 import { getProfile, patchProfile } from '../../store/user';
 import { playTap } from '../../services/sound';
+import { isActive as guideIsActive } from '../../services/guide';
 
 Component({
   properties: {
@@ -45,9 +46,11 @@ Component({
 
   observers: {
     // 每次出门 banner 重新出现：读取最新券数（>0 显示套组、=0 走 5 秒自动消失）
+    // 新手教程期间按 0 处理：否则跳过套组会盖住教程引导的点击区（如展示柜步骤），
+    // 且页面侧因券数>0 不自动消失，导致教程软锁
     visible(visible: boolean) {
       if (visible && this.data.mode === 'depart') {
-        this.setData({ skipTickets: getProfile()?.skipTickets || 0 });
+        this.setData({ skipTickets: guideIsActive() ? 0 : getProfile()?.skipTickets || 0 });
       }
     },
   },
