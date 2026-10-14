@@ -347,6 +347,61 @@ async function removeIncompleteCards() {
 }
 
 /**
+ * 批量把指定 userId 的 stars 覆盖为目标值。
+ * payload: { items: [{ userId: string, stars: number }] }
+ * 以 userId（非 _id）定位；逐个返回 prevStars 便于回读确认；非法/缺失分别汇总。
+ */
+async function setUserStars(payload) {
+  const items = Array.isArray(payload.items) ? payload.items : [];
+  if (!items.length) return fail('缺少 items', 'VALIDATION');
+
+  const results = [];
+  const tasks = [];
+  for (const it of items) {
+    const userId = it && it.userId;
+    const stars = it && it.stars;
+    if (typeof userId !== 'string' || !userId) {
+      results.push({ userId: userId || null, status: 'invalid', reason: 'bad userId' });
+      continue;
+    }
+    if (typeof stars !== 'number' || !Number.isFinite(stars) || stars < 0) {
+      results.push({ userId, status: 'invalid', reason: 'bad stars' });
+      continue;
+    }
+    tasks.push(
+      (async () => {
+        const res = await db.collection('users').where({ userId }).limit(1).get();
+        const user = (res.data || [])[0];
+        if (!user) {
+          results.push({ userId, status: 'notFound' });
+          return;
+        }
+        await db
+          .collection('users')
+          .doc(user._id)
+          .update({ data: { stars, updatedAt: Date.now() } });
+        results.push({
+          userId,
+          _id: user._id,
+          status: 'updated',
+          prevStars: user.stars || 0,
+          stars,
+        });
+      })(),
+    );
+  }
+  await Promise.all(tasks);
+
+  return ok({
+    total: items.length,
+    updated: results.filter((r) => r.status === 'updated').length,
+    notFound: results.filter((r) => r.status === 'notFound').map((r) => r.userId),
+    invalid: results.filter((r) => r.status === 'invalid').map((r) => r.userId),
+    results,
+  });
+}
+
+/**
  * 短时签名 URL（占位：需云存储 fileID）
  */
 async function getSignedUrl(fileID) {
@@ -385,6 +440,7 @@ exports.main = async (event) => {
       case 'migratePostcardNames': return await migratePostcardNames();
       case 'grantAllPostcards': return await grantAllPostcards(payload);
       case 'removeIncompleteCards': return await removeIncompleteCards();
+      case 'setUserStars': return await setUserStars(payload);
       case 'getSignedUrl': return await getSignedUrl(payload.fileID);
       case 'ping': return ok({ service: 'admin', ts: Date.now() });
       default: return fail(`未知 action: ${action}`, 'BAD_ACTION');
