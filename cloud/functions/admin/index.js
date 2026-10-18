@@ -402,6 +402,96 @@ async function setUserStars(payload) {
 }
 
 /**
+ * 合并重复明信片（图片重复的两张卡）：按 userId 分组处理。
+ * payload: { fromId: 'pc_15', toId: 'pc_49' }
+ *  - 用户仅有 fromId → 把该记录 postcardId 改为 toId（保留 claimCount/firstClaimedAt）
+ *  - 用户同时拥有 fromId 和 toId → 删除其全部 fromId 记录（toId 不动）
+ *  - 仅有 toId / 都没有 → 不动
+ * 异常兜底：某用户 fromId 多于一条（违背每用户每卡一条的写入约定）且无 toId 时，
+ * 第一条改写为 toId、多余删除并记入 anomalies。可重复执行（幂等）。
+ */
+async function mergeDuplicatePostcards(payload) {
+  const fromId = payload && payload.fromId;
+  const toId = payload && payload.toId;
+  if (typeof fromId !== 'string' || !fromId || typeof toId !== 'string' || !toId) {
+    return fail('缺少 fromId / toId', 'VALIDATION');
+  }
+  if (fromId === toId) return fail('fromId 与 toId 不能相同', 'VALIDATION');
+
+  // 分页拉取全部 fromId / toId 记录
+  const records = [];
+  const PAGE = 100;
+  for (let skip = 0; ; skip += PAGE) {
+    const res = await db
+      .collection('user_postcards')
+      .where({ postcardId: _.in([fromId, toId]) })
+      .skip(skip)
+      .limit(PAGE)
+      .get();
+    const batch = res.data || [];
+    records.push(...batch);
+    if (batch.length < PAGE) break;
+  }
+
+  // 按 userId 分组
+  const byUser = new Map();
+  for (const r of records) {
+    if (!byUser.has(r.userId)) byUser.set(r.userId, { from: [], to: [] });
+    const bucket = byUser.get(r.userId);
+    if (r.postcardId === fromId) bucket.from.push(r);
+    else bucket.to.push(r);
+  }
+
+  const summary = {
+    replaced: 0,
+    deleted: 0,
+    usersTouched: 0,
+    anomalies: [],
+    errors: [],
+  };
+  const tasks = [];
+  for (const [userId, bucket] of byUser) {
+    if (!bucket.from.length) continue; // 仅 toId：不动
+    tasks.push(
+      (async () => {
+        try {
+          if (bucket.to.length) {
+            // 两者都有：删除全部 fromId
+            for (const rec of bucket.from) {
+              await db.collection('user_postcards').doc(rec._id).remove();
+              summary.deleted += 1;
+            }
+          } else {
+            // 仅 fromId：第一条改写，多余（异常）删除
+            await db.collection('user_postcards').doc(bucket.from[0]._id).update({
+              data: { postcardId: toId, updatedAt: Date.now() },
+            });
+            summary.replaced += 1;
+            for (const rec of bucket.from.slice(1)) {
+              await db.collection('user_postcards').doc(rec._id).remove();
+              summary.deleted += 1;
+              summary.anomalies.push({ userId, extraFromId: rec._id });
+            }
+          }
+          summary.usersTouched += 1;
+        } catch (e) {
+          summary.errors.push({ userId, message: e && e.message });
+        }
+      })(),
+    );
+  }
+  await Promise.all(tasks);
+
+  return ok({
+    fromId,
+    toId,
+    scanned: records.length,
+    users: byUser.size,
+    ...summary,
+  });
+}
+
+/**
  * 短时签名 URL（占位：需云存储 fileID）
  */
 async function getSignedUrl(fileID) {
@@ -441,6 +531,7 @@ exports.main = async (event) => {
       case 'grantAllPostcards': return await grantAllPostcards(payload);
       case 'removeIncompleteCards': return await removeIncompleteCards();
       case 'setUserStars': return await setUserStars(payload);
+      case 'mergeDuplicatePostcards': return await mergeDuplicatePostcards(payload);
       case 'getSignedUrl': return await getSignedUrl(payload.fileID);
       case 'ping': return ok({ service: 'admin', ts: Date.now() });
       default: return fail(`未知 action: ${action}`, 'BAD_ACTION');
