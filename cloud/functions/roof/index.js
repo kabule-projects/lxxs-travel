@@ -446,6 +446,19 @@ async function syncAll(openid, restartGuide) {
   if (!starsRes.ok) return starsRes;
   const user = await getUser(openid);
   if (!user) return fail('用户不存在', 'NOT_FOUND');
+  // login 会话缓存（TTL 12h）命中时冷启动不再调 login，lastLoginAt 改由这里顺带刷新：
+  // 距上次写入超过 1h 才 update，控制数据库写成本；写失败不阻断 sync
+  const now = Date.now();
+  if (!user.lastLoginAt || now - user.lastLoginAt > 3600000) {
+    try {
+      await db
+        .collection('users')
+        .doc(user._id)
+        .update({ data: { lastLoginAt: now } });
+    } catch (e) {
+      /* ignore */
+    }
+  }
 
   const { active, home } = await loadMailTripsAdvanced(openid);
   const tripSection = await loadTripSection(openid, user, active, home);

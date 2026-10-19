@@ -1,4 +1,4 @@
-import { claimHome, syncTrip, type TripSyncResult } from './trip';
+import { claimHome, syncTrip, applyTripToProfile, type TripSyncResult } from './trip';
 import { prefetchShowcase } from './showcase';
 import { emit, GameEvent } from '../utils/event-bus';
 
@@ -69,8 +69,10 @@ export function scheduleReturnWatch(endAt?: number) {
   }, delay) as unknown as number;
 }
 
-export async function resolveTripSyncView(): Promise<TripSyncView> {
-  const sync = await syncTrip();
+export async function resolveTripSyncView(prefetched?: TripSyncResult): Promise<TripSyncView> {
+  // 预取路径（roof.syncAll 批量回同步）：行程已在响应里，不再发起第二次 callFunction
+  const sync = prefetched || (await syncTrip());
+  applyTripToProfile(sync);
   const trip = sync.trip;
 
   if (!trip || trip.status === 'at_home') {

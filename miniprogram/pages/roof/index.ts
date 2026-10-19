@@ -12,7 +12,7 @@ import {
 import type { GuideHole } from '../../components/guide-overlay/guide-overlay';
 import { playSfx, playTap, playBgm } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
-import { collectAllRoofStars, syncRoof } from '../../services/roof';
+import { collectAllRoofStars, syncRoof, syncRoofAll } from '../../services/roof';
 import { formatRemain, mergeRoofStars, withRemain, type RoofStarDisplay, type RoofStarView } from '../../utils/roof-logic';
 import { toastCloudError } from '../../utils/net-error';
 import GAME from '../../utils/constants';
@@ -28,6 +28,7 @@ import {
   clearTripBannerTimer,
   dismissReturnBanner,
   isReturnBannerHandled,
+  type TripSyncView,
 } from '../../services/trip-return';
 import {
   claimMail,
@@ -38,6 +39,11 @@ import {
 } from '../../services/postcard';
 
 type RoofAssets = Record<keyof typeof ROOF_ASSETS, string>;
+
+/** 旅行中兜底轮询间隔：5 分钟一次 syncAll（行程+信箱）。回家时刻的精确唤醒由
+ *  scheduleReturnWatch 负责，本兜底只兜"切后台/跨页 setTimeout 失效"，代价是回家横幅
+ *  与途中信最坏晚 5 分钟出现（旧双 60s 轮询每旅行分钟 2 次 callFunction，现 0.2 次） */
+const TRIP_POLL_MS = 5 * 60 * 1000;
 
 Page({
   data: {
@@ -113,6 +119,8 @@ Page({
   _guideRestartPending: false as boolean,
   /** 最近一次 onShow 批量 sync 时间：30s 节流窗口内再次 onShow 跳过三连 sync（主动操作触发的 sync 不受限） */
   _lastSyncAt: 0 as number,
+  /** 最近一次 syncAll 兜底轮询时间（仅旅行中，间隔见 TRIP_POLL_MS） */
+  _lastTripPollAt: 0 as number,
 
   onLoad() {
     bindStageFit(this);
@@ -206,23 +214,49 @@ Page({
     }
   },
 
+  /** resolveTripSyncView 结果统一落地：回家横幅 / 展示中守卫 / 隐藏 */
+  applyTripView(view: TripSyncView) {
+    const { banner, sync } = view;
+    if (banner.mode === 'return' && sync.trip?._id) {
+      this.showReturnBanner(sync.trip._id, banner.returnHasSouvenir ?? false);
+      return;
+    }
+    // 回家横幅展示期间（守卫已置），并发 sync 的隐藏分支不能把它闪掉
+    if (
+      this.data.travelBannerMode === 'return' &&
+      this._bannerTripId &&
+      isReturnBannerHandled(this._bannerTripId)
+    ) {
+      return;
+    }
+    this.setData({ showTravelBanner: false });
+  },
+
   async syncTripState() {
     try {
       const view = await resolveTripSyncView();
-      const { banner, sync } = view;
-      if (banner.mode === 'return' && sync.trip?._id) {
-        this.showReturnBanner(sync.trip._id, banner.returnHasSouvenir ?? false);
-        return;
-      }
-      // 回家横幅展示期间（守卫已置），并发 sync 的隐藏分支不能把它闪掉
-      if (
-        this.data.travelBannerMode === 'return' &&
-        this._bannerTripId &&
-        isReturnBannerHandled(this._bannerTripId)
-      ) {
-        return;
-      }
-      this.setData({ showTravelBanner: false });
+      this.applyTripView(view);
+    } catch {
+      toastCloudError('roof-trip', '网络异常，旅行状态同步失败');
+    }
+  },
+
+  /** 旅行中兜底轮询：一次 syncAll 拿回行程+信箱两段，分发到原有两个 sync 的处理路径 */
+  async pollTripMailbox() {
+    try {
+      const res = await syncRoofAll();
+      // 信箱段：与 syncMailboxState 同一套字段
+      const mailItems = res.mailbox.items || [];
+      const mailCap = res.mailbox.mailCap || GAME.PIGEON_MAIL_CAP;
+      this.setData({
+        pigeonReady: true,
+        pigeonState: res.mailbox.pigeonState,
+        mailItems,
+        mailCap,
+        mailFull: mailItems.length >= mailCap,
+      });
+      // 行程段：预取结果直接进 resolveTripSyncView（不再发起第二次 callFunction）
+      this.applyTripView(await resolveTripSyncView(res.trip));
     } catch {
       toastCloudError('roof-trip', '网络异常，旅行状态同步失败');
     }
@@ -264,6 +298,8 @@ Page({
     // 用户主动操作（收星/开信箱/领邮件/到点掉落）触发的 sync 走各自入口，不受此节流影响
     if (this._guideRestartPending || !this._lastSyncAt || Date.now() - this._lastSyncAt >= 30000) {
       this._lastSyncAt = Date.now();
+      // 本次 onShow 已全量 sync（含行程+信箱），兜底轮询窗口同步重置
+      this._lastTripPollAt = Date.now();
       // 各自内部已 try/catch，不需要聚合等待
       void this.syncFromServer();
       void this.syncMailboxState();
@@ -329,14 +365,11 @@ Page({
     }));
     this._pending = nextPending;
     this.refreshStarView();
-    /** 每 60s 检查一次回归（仅旅行中）：到点唤醒的 setTimeout 在切后台/跨页时不可靠，轮询兜底；
-     *  回家横幅展示由 syncTripState → resolveTripSyncView 统一负责 */
-    if (isTraveling() && now % 60000 < 1000) {
-      this.syncTripState();
-    }
-    /** 每 60s 拉一次信箱，赶上途中投递；仅旅行中轮询（非旅行状态信箱内容不变） */
-    if (isTraveling() && now % 60000 < 1000) {
-      this.syncMailboxState();
+    /** 旅行中兜底轮询：每 5min 一次 syncAll 同时回同步行程+信箱（旧双 60s 轮询的合并版，
+     *  每次 1 次 callFunction）。回家精确唤醒由 scheduleReturnWatch 负责，见 TRIP_POLL_MS */
+    if (isTraveling() && now - this._lastTripPollAt >= TRIP_POLL_MS) {
+      this._lastTripPollAt = now;
+      void this.pollTripMailbox();
     }
   },
 

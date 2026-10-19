@@ -140,7 +140,7 @@ Page({
   _catSwapTimer: 0 as number,
   _catSpot: -1 as number,
   _catIdx: -1 as number,
-  /** 60s 回归检查定时器（仅旅行中有效，非旅行自动停） */
+  /** 5min 回归兜底轮询定时器（仅旅行中有效，非旅行自动停） */
   _returnTimer: 0 as number,
 
   _offHidden: null as (() => void) | null,
@@ -244,7 +244,8 @@ Page({
     });
   },
 
-  /** 每 60s 检查一次小深是否回归（仅旅行中）：到点唤醒的 setTimeout 在切后台/跨页时不可靠，轮询兜底；
+  /** 每 5min 兜底检查一次小深是否回归（仅旅行中）：回家的精确唤醒由 scheduleReturnWatch
+   *  负责，本兜底只兜"切后台/跨页 setTimeout 失效"，代价是回家横幅最坏晚 5 分钟出现；
    *  回家横幅由 syncTripState → resolveTripSyncView 统一负责。仅主页/天台运行。 */
   startReturnCheck() {
     this.stopReturnCheck();
@@ -254,7 +255,7 @@ Page({
         return;
       }
       void this.syncTripState();
-    }, 60000) as unknown as number;
+    }, 300000) as unknown as number;
   },
 
   stopReturnCheck() {

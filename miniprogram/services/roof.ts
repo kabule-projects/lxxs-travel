@@ -1,5 +1,7 @@
 import { call } from './api';
 import type { RoofStarView } from '../utils/roof-logic';
+import type { TripSyncResult } from './trip';
+import { normalizeMailboxRes, type MailboxSyncResult } from './postcard';
 
 export interface RoofSyncResult {
   stars: number;
@@ -40,4 +42,21 @@ export async function collectAllRoofStars(): Promise<{
   riceStars: number;
 }> {
   return call('roof', { action: 'collectAll' });
+}
+
+/** roof.syncAll 批量回同步：一次 callFunction 拿回 行程+信箱 两段（旅行中兜底轮询用），
+ *  与 trip.sync / postcard.mailbox 输出同结构；星星段轮询不消费，仍走 syncRoof */
+export interface RoofAllResult {
+  trip: TripSyncResult;
+  mailbox: MailboxSyncResult;
+}
+
+export async function syncRoofAll(): Promise<RoofAllResult> {
+  const res = await call<{ trip: TripSyncResult; mailbox: MailboxSyncResult }>('roof', {
+    action: 'syncAll',
+  });
+  return {
+    trip: res.trip,
+    mailbox: await normalizeMailboxRes(res.mailbox),
+  };
 }

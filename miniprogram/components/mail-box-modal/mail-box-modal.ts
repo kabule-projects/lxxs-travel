@@ -1,5 +1,5 @@
 import type { MailItem } from '../../services/postcard';
-import { markMailSeen } from '../../services/postcard';
+import { markMailsSeen } from '../../services/postcard';
 import { playTap } from '../../services/sound';
 import { MAILBOX_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
@@ -42,8 +42,16 @@ Component({
         this.setData({ assets });
       });
     },
+    detached() {
+      // 页面销毁兜底：尝试 flush 已读攒批（组件销毁后 promise 仍会把上报发完，不影响结果）
+      void this.flushSeen();
+    },
   },
   _active: null as MailItem | null,
+  /** 已读攒批：读信只记 instanceId，本地立即变已读，云端等关弹窗/detached 时一次批量上报（见 flushSeen） */
+  _pendingSeen: null as Set<string> | null,
+  /** flush 重入锁：上报进行期间新产生的 pending 留给下一批 */
+  _pendingFlush: false as boolean,
 
   observers: {
     items(list: MailItem[]) {
@@ -52,6 +60,8 @@ Component({
     visible(v: boolean) {
       if (!v) {
         this.resetDetail();
+        // 关弹窗即 flush 已读攒批（一次 callFunction 批量上报）
+        void this.flushSeen();
       }
     },
   },
@@ -62,6 +72,22 @@ Component({
     onClose() {
       this.resetDetail();
       this.triggerEvent('close');
+    },
+
+    /** 已读攒批上报：关弹窗/detached/pending≥5 时调用；失败保留 pending 下次重试 */
+    async flushSeen() {
+      const pending = this._pendingSeen;
+      if (!pending || !pending.size || this._pendingFlush) return;
+      this._pendingFlush = true;
+      const ids = [...pending];
+      try {
+        await markMailsSeen(ids);
+        ids.forEach((id) => pending.delete(id));
+      } catch {
+        /* 网络失败：保留 pending，下次 flush 重试；服务端未读计数短暂滞后无影响 */
+      } finally {
+        this._pendingFlush = false;
+      }
     },
 
     resetDetail() {
@@ -96,16 +122,15 @@ Component({
 
       let listItems = this.data.listItems as MailItem[];
       if (item.isNew) {
-        try {
-          await markMailSeen(item.tripId, item.instanceId);
-        } catch {
-          /* ignore */
-        }
+        // 已读攒批：本地立即变已读，云端等 flushSeen（关弹窗/detached/pending≥5）
+        if (!this._pendingSeen) this._pendingSeen = new Set();
+        this._pendingSeen.add(item.instanceId);
         listItems = listItems.map((m) =>
           m.instanceId === item.instanceId ? { ...m, isNew: false } : m,
         );
         this.setData({ listItems });
         this.triggerEvent('itemschange', { items: listItems });
+        if (this._pendingSeen.size >= 5) void this.flushSeen();
       }
 
       this.setData({

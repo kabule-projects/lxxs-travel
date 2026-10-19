@@ -86,14 +86,19 @@ export interface TripSyncResult {
   souvenirGranted?: string | null;
 }
 
+/** 行程结果落地到本地 profile：syncTrip 与 roof.syncAll 预取路径共用 */
+export function applyTripToProfile(res: TripSyncResult): void {
+  if (!res.trip || res.trip.status === 'at_home') {
+    patchProfile({ currentTripId: undefined });
+  } else if (res.trip._id) {
+    patchProfile({ currentTripId: res.trip._id });
+  }
+}
+
 export async function syncTrip(): Promise<TripSyncResult> {
   try {
     const res = await call<TripSyncResult>('trip', { action: 'sync' });
-    if (!res.trip || res.trip.status === 'at_home') {
-      patchProfile({ currentTripId: undefined });
-    } else if (res.trip._id) {
-      patchProfile({ currentTripId: res.trip._id });
-    }
+    applyTripToProfile(res);
     // 注意：这里不能 emit TRIP_RETURNED——调用方 resolveTripSyncView 才是横幅唯一展示入口，
     // 事件先行显示会先把"已展示"守卫置上，导致 resolveTripSyncView 判定为已处理而把横幅压掉
     return res;
