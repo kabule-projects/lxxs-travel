@@ -36,5 +36,13 @@
       safeBottom="{{safeBottom}}"
       showBar="{{false}}"
     />
+
+    <!-- 通知弹窗：后端未接入，先常态显示；关闭仅本次会话生效 -->
+    <notice-modal
+      visible="{{noticeVisible}}"
+      title="{{noticeTitle}}"
+      content="{{noticeContent}}"
+      bind:close="onCloseNotice"
+    />
   </view>
 </view>

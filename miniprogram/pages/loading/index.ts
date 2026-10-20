@@ -32,6 +32,11 @@ Page({
     stageStyle: '',
     /** 进度条米子图标：默认空走原皮，命中概率时替换为随机变装米 */
     barThumbSrc: '',
+    /** 通知弹窗：后端未接入，暂隐藏；接入后改 true 并替换占位文案 */
+    noticeVisible: false,
+    noticeTitle: '旅行小深 · 更新通知',
+    noticeContent:
+      '· 新增屋顶星星与米字星收集玩法\n· 优化旅行产出与道具搭配体验\n· 修复明信片重复显示问题\n\n感谢你的陪伴，愿每次出发都带回惊喜～',
   },
 
   _bootDone: false,
@@ -195,6 +200,10 @@ Page({
       return;
     }
     this.enterGame();
+  },
+
+  onCloseNotice() {
+    this.setData({ noticeVisible: false });
   },
 });
 

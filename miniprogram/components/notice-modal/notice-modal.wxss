@@ -1,0 +1,64 @@
+/* 通知弹窗：暂用 CSS 面板（美术切图未出），标题/正文后续可换成贴图；
+   确认按钮为美术贴图，位于面板下方（面板外） */
+.ntc-root {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+}
+
+.ntc-backdrop {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 面板高度随内容自适应；正文超长时由 .ntc-body 兜底滚动 */
+.ntc-panel {
+  position: relative;
+  width: 80%;
+  padding: 48rpx 40rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: #fff8ec;
+  border: 4rpx solid #c9b28c;
+  border-radius: 36rpx;
+  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.28);
+}
+
+.ntc-title {
+  flex-shrink: 0;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #6b4a2f;
+  text-align: center;
+}
+
+.ntc-body {
+  margin-top: 32rpx;
+  max-height: 640rpx;
+}
+
+.ntc-content {
+  font-size: 28rpx;
+  line-height: 1.7;
+  color: #5a4a3a;
+  white-space: pre-wrap;
+}
+
+/* 确认按钮：面板内底部居中 */
+.ntc-ok {
+  width: 240rpx;
+  margin-top: 40rpx;
+  align-self: center;
+  display: block;
+}

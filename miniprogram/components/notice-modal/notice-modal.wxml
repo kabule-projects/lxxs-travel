@@ -1,0 +1,22 @@
+<view class="ntc-root" wx:if="{{visible}}">
+  <view class="ntc-backdrop" catchtap="onClose">
+    <view class="ntc-panel" catchtap="onStop">
+      <!-- 标题：贴图未出前先文字呈现，后续可替换为美术标题图 -->
+      <text class="ntc-title">{{title}}</text>
+
+      <!-- 正文：内容可能较长，可纵向滚动 -->
+      <scroll-view class="ntc-body" scroll-y>
+        <text class="ntc-content">{{content}}</text>
+      </scroll-view>
+
+      <!-- 确认按钮：面板内底部居中 -->
+      <image
+        wx:if="{{okBtn}}"
+        class="ntc-ok"
+        src="{{okBtn}}"
+        mode="widthFix"
+        catchtap="onClose"
+      />
+    </view>
+  </view>
+</view>

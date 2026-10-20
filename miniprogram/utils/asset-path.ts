@@ -255,6 +255,11 @@ export const REDEEM_ASSETS = {
   close: 'redeem/close',
 } as const;
 
+/** 通用通知弹窗：确认按钮置于面板下方（面板外） */
+export const NOTICE_ASSETS = {
+  okBtn: 'loading/ok-btn',
+} as const;
+
 export const HOME_IDLE_ASSETS: Record<(typeof GAME.IDLE_POSES)[number], string> = {
   bed: 'home/shenshen-bed',
   table: 'home/shenshen-table',
