@@ -5,7 +5,7 @@
     <image
       wx:if="{{image}}"
       class="pz-image"
-      src="{{image}}"
+      src="{{localImage || image}}"
       mode="aspectFit"
       bindload="onImageLoad"
     />

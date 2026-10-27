@@ -1,5 +1,6 @@
 import { GACHA_ASSETS } from '../../utils/asset-path';
 import { resolveAssetMap } from '../../utils/resolve-assets';
+import { resolvePersistentImage } from '../../utils/image-cache';
 import { readSafeArea, readCapsuleRect } from '../../utils/device';
 import { bindStageFit, getFit } from '../../utils/fit';
 import { playSfx, playTap, playBgm } from '../../services/sound';
@@ -27,6 +28,38 @@ type GachaAssets = Record<keyof typeof GACHA_ASSETS, string>;
 /** 抽扭蛋动图时长（ms）：需与 get_one / get_five 动图实际播放时长一致，到点衔接结果弹窗。
  * 素材实测 72 帧共 9.44s——之前配 6000 会在动画中途硬切，造成"每次都没播完/下次接着播"的重复感 */
 const ANIM_MS: Record<1 | 5, number> = { 1: 9400, 5: 9400 };
+
+/** 动画首帧重播：把本地文件复制成唯一新路径，迫使解码缓存 miss（替代旧的 URL 加时间戳方案——
+ *  时间戳会击穿客户端缓存，导致每次抽取都重复下载 3.5MB+，是 CDN 流量头号来源）。
+ *  副本只写在本地磁盘，自动保留最近 3 份；复制失败回落原路径（行为同旧时间戳方案的降级）。 */
+const ANIM_COPY_DIR = `${(wx as any).env.USER_DATA_PATH}/gacha-anim`;
+function makeReplayCopy(localSrc: string): string {
+  try {
+    // 项目 wx 类型版本较旧，未声明 env/copyFileSync 等运行时已有的 API，这里放宽取值
+    const fs = wx.getFileSystemManager() as any;
+    try {
+      fs.accessSync(ANIM_COPY_DIR);
+    } catch {
+      fs.mkdirSync(ANIM_COPY_DIR, true);
+    }
+    const name = `anim_${Date.now()}_${Math.random().toString(36).slice(2, 6)}.webp`;
+    fs.copyFileSync(localSrc, `${ANIM_COPY_DIR}/${name}`);
+    const files = fs.readdirSync(ANIM_COPY_DIR).sort();
+    while (files.length > 3) {
+      const old = files.shift();
+      if (old) {
+        try {
+          fs.unlinkSync(`${ANIM_COPY_DIR}/${old}`);
+        } catch {
+          /* 清理失败不阻断 */
+        }
+      }
+    }
+    return `${ANIM_COPY_DIR}/${name}`;
+  } catch {
+    return localSrc;
+  }
+}
 
 Page({
   data: {
@@ -126,9 +159,10 @@ Page({
   async loadAssets() {
     const assets = await resolveAssetMap(GACHA_ASSETS);
     this.setData({ assets });
-    // 预加载抽奖动图到缓存，抽奖开始时动图 bindload 更快触发
+    // 预载抽奖动图到【本地持久化缓存】（旧 getImageInfo 每次进页整图下载且不留存，
+    // 两台动画 7MB+ 每次访问都重复消耗 CDN；本地化后每台设备终身只下载一次）
     [assets.machineOne, assets.machineFive].forEach((src) => {
-      wx.getImageInfo({ src, fail: () => {} });
+      void resolvePersistentImage(src);
     });
   },
 
@@ -204,17 +238,16 @@ Page({
     if (this._animTimer) clearTimeout(this._animTimer);
     this._spinTimer = 0;
     this._animTimer = 0;
-    // 动图 opacity:0 隐藏加载。animSrc 加时间戳参数：强制 image 组件不复用
-    // 上次缓存的动画播放状态（否则第二次起会从上次停止的位置≈结尾继续播）。
-    // CDN 忽略 query 参数，HTTP 层面仍命中缓存，不会真正重新下载
     playSfx('gacha_drop');
     this._drawPromise = drawGacha(count);
     this._spinCount = count;
+    // 动图本地化：首次抽取下载并持久化（之后零 CDN 流量）；
+    // 每次抽取复制唯一本地副本实现首帧重播（解码缓存按路径缓存，新路径必从第一帧播）
     const baseSrc = count === 5 ? assets.machineFive : assets.machineOne;
-    this.setData({
-      spinning: true,
-      animReady: false,
-      animSrc: `${baseSrc}?_t=${Date.now()}`,
+    this.setData({ spinning: true, animReady: false, animSrc: '' });
+    void resolvePersistentImage(baseSrc).then((local) => {
+      if (!this.data.spinning) return; // 解析期间已跳过/收尾则丢弃
+      this.setData({ animSrc: makeReplayCopy(local) });
     });
     // 兜底：动图加载失败/超慢时也不卡死，最多 ANIM_MS+5s 后收尾
     this._spinTimer = setTimeout(() => {
