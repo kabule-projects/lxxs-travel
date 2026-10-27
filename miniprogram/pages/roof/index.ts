@@ -95,6 +95,8 @@ Page({
   _offReturned: null as (() => void) | null,
   _offStarted: null as (() => void) | null,
   _offVisible: null as (() => void) | null,
+  /** 钱包订阅：出发消耗米字星等场景 store 已更新，页面需跟随刷新（与 home 页同机制） */
+  _offStars: null as (() => void) | null,
   /** 当前回家横幅对应的行程 id（点击立即收下时用） */
   _bannerTripId: null as string | null,
   /** 进入商店的预载/跳转进行中，防止连点堆叠 */
@@ -149,6 +151,11 @@ Page({
     });
     this._offVisible = on(GameEvent.CHARACTER_VISIBLE, () => {
       this.setData({ charShenVisible: true });
+    });
+    // 钱包跟随：出发消耗米字星（setRiceStars 发 STARS_UPDATED）等 store 变动即时反映，
+    // 否则屋顶页余额要等下次 onShow/sync 才刷新（"出门时米字星不变，切页才变"）
+    this._offStars = on(GameEvent.STARS_UPDATED, () => {
+      this.setData({ stars: getStars(), riceStars: getRiceStars() });
     });
   },
 
@@ -290,6 +297,7 @@ Page({
     this._offReturned?.();
     this._offStarted?.();
     this._offVisible?.();
+    this._offStars?.();
     this._offGuide?.();
     if (this._guideTimer) clearTimeout(this._guideTimer);
     setGuideBackGuard(false);
