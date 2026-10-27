@@ -273,23 +273,32 @@ async function collectAllStars(openid) {
     });
   }
 
-  const rice = dropped.filter((s) => s.type === 'rice').length;
-  const normal = dropped.length - rice;
   const now = Date.now();
+  // 条件认领：只标记仍处 dropped 的星（where status 兜底，并发双收各认领各的），
+  // 入账按实际认领数——旧实现先整批标记再加钱，并发双收会整批重复入账（星星凭空翻倍）
+  let claimedNormal = 0;
+  let claimedRice = 0;
   for (const star of dropped) {
-    await db.collection('roof_stars').doc(star._id).update({
-      data: { status: 'collected', collectedAt: now },
+    const claimed = await db
+      .collection('roof_stars')
+      .where({ _id: star._id, status: 'dropped' })
+      .update({ data: { status: 'collected', collectedAt: now } });
+    if (claimed.stats && claimed.stats.updated) {
+      if (star.type === 'rice') claimedRice += 1;
+      else claimedNormal += 1;
+    }
+  }
+  if (claimedNormal || claimedRice) {
+    await db.collection('users').doc(user._id).update({
+      data: { stars: _.inc(claimedNormal), riceStars: _.inc(claimedRice) },
     });
   }
-  await db.collection('users').doc(user._id).update({
-    data: { stars: _.inc(normal), riceStars: _.inc(rice) },
-  });
 
   const fresh = await getUser(openid);
   return ok({
-    collected: dropped.length,
-    normal,
-    rice,
+    collected: claimedNormal + claimedRice,
+    normal: claimedNormal,
+    rice: claimedRice,
     stars: fresh.stars || 0,
     riceStars: fresh.riceStars || 0,
   });

@@ -114,12 +114,18 @@ async function purchase(openid, itemId, requestId) {
     return fail('星星不足', 'INSUFFICIENT_STARS');
   }
 
-  let nextStars = stars - price;
-  try {
-    await db.collection('users').doc(user._id).update({
-      data: { stars: nextStars },
-    });
+  // 原子条件扣款：余额足够才减（where stars>=price + inc），并发购买不互相覆盖。
+  // 旧实现是"读余额→算差值→写回"，并发窗口内两笔都按旧余额写回，会丢扣款（星星凭空变多）
+  const deductRes = await db
+    .collection('users')
+    .where({ _id: user._id, stars: _.gte(price) })
+    .update({ data: { stars: _.inc(-price) } });
+  if (!deductRes.stats || !deductRes.stats.updated) {
+    return fail('星星不足', 'INSUFFICIENT_STARS');
+  }
+  const nextStars = stars - price;
 
+  try {
     const invRes = await db
       .collection('user_inventory')
       .where({ userId: openid, itemId })
@@ -146,10 +152,10 @@ async function purchase(openid, itemId, requestId) {
       });
     }
   } catch (e) {
-    // 扣款/入库失败：回滚已扣星星，失败不覆盖主错误
+    // 扣款/入库失败：原子回补星星（inc 不回滚并发事务的变动，只补回自己这笔）
     try {
       await db.collection('users').doc(user._id).update({
-        data: { stars: stars },
+        data: { stars: _.inc(price) },
       });
     } catch {
       /* ignore */
