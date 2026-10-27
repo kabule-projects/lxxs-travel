@@ -336,6 +336,9 @@ async function loadMailTripsAdvanced(openid) {
     db
       .collection('trips')
       .where({ userId: openid, status: 'at_home' })
+      // 取【最新】50 趟：未收的信集中在最近结束的行程里；
+      // 无 orderBy 时自然序按创建时间升序，老玩家（>50 趟）会整页错过新行程，信件永不出现
+      .orderBy('endAt', 'desc')
       .limit(50)
       .get(),
   ]);

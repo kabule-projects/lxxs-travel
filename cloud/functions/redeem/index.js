@@ -19,13 +19,16 @@ async function getUser(openid) {
   return found.data[0] || null;
 }
 
-/** 展开奖励：item 直发；set 查 redeem_sets 展开为物品列表；stars/riceStars 为货币 */
+/** 展开奖励：item 直发；set 查 redeem_sets 展开为物品列表；stars/riceStars 为货币；
+ *  postcard 直发图鉴（user_postcards） */
 async function buildRewardPlan(rewards) {
-  const plan = { items: [], stars: 0, riceStars: 0 };
+  const plan = { items: [], postcards: [], stars: 0, riceStars: 0 };
   const list = Array.isArray(rewards) ? rewards : [];
   for (const r of list) {
     if (!r || typeof r !== 'object') continue;
-    if (r.type === 'stars') {
+    if (r.type === 'postcard' && r.postcardId) {
+      plan.postcards.push(String(r.postcardId));
+    } else if (r.type === 'stars') {
       plan.stars += Math.max(0, Number(r.count) || 0);
     } else if (r.type === 'riceStars') {
       plan.riceStars += Math.max(0, Number(r.count) || 0);
@@ -125,6 +128,50 @@ async function exchange(openid, rawCode) {
         count: r.count,
       });
     }
+    // 明信片奖励：写入日记图鉴（user_postcards，唯一索引 userId+postcardId 兜底并发），
+    // 与 login.grantGuidePostcard 同语义；配置错误/停用的 postcardId 静默跳过（与 item 同策略）
+    const grantedPostcards = [];
+    for (const pcId of plan.postcards) {
+      const pcRes = await db
+        .collection('postcards')
+        .where({ id: pcId, enabled: true })
+        .limit(1)
+        .get();
+      const pc = pcRes.data[0];
+      if (!pc) continue;
+      const album = await db
+        .collection('user_postcards')
+        .where({ userId: openid, postcardId: pc.id })
+        .limit(1)
+        .get();
+      let firstUnlock = !album.data.length;
+      if (firstUnlock) {
+        try {
+          await db.collection('user_postcards').add({
+            data: {
+              userId: openid,
+              postcardId: pc.id,
+              firstClaimedAt: Date.now(),
+              claimCount: 1,
+            },
+          });
+        } catch (e) {
+          // 撞唯一索引 = 并发下已有记录，按已拥有处理；其他错误（网络/权限）向外抛触发整体回滚
+          if (/duplicate key|E11000/i.test(String((e && e.message) || e))) {
+            firstUnlock = false;
+          } else {
+            throw e;
+          }
+        }
+      }
+      grantedPostcards.push({
+        postcardId: pc.id,
+        title: pc.title || '',
+        rarity: pc.rarity || '',
+        imageThumb: pc.imageThumb || '',
+        firstUnlock,
+      });
+    }
     await db.collection('redeem_codes').doc(codeDoc._id).update({
       data: { usedCount: _.inc(1) },
     });
@@ -134,6 +181,7 @@ async function exchange(openid, rawCode) {
       stars: plan.stars,
       riceStars: plan.riceStars,
       items: grantedItems,
+      postcards: grantedPostcards,
     });
   } catch (e) {
     // 发放失败：回滚兑换记录，避免占位导致用户永远无法再兑

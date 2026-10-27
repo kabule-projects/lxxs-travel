@@ -6,9 +6,7 @@ import { preloadImages } from '../../utils/preload';
 import { ensureSession } from '../../services/auth';
 import { getProfile } from '../../store/user';
 import { playTap, playBgm, preloadSfx, preloadBgm } from '../../services/sound';
-import { prefetchShowcase } from '../../services/showcase';
-import { prefetchShop } from '../../services/shop';
-import { prefetchGachaCatalog } from '../../services/gacha';
+import { prefetchAllPools } from '../../services/prefetch';
 
 /** 进度条米子变装池：原皮 + 4 变装共五选一，各 20% */
 const MI_SKINS = ['mi-1', 'mi-2', 'mi-3', 'mi-4'].map((n) =>
@@ -157,9 +155,8 @@ Page({
       this.setData({ layersReady: true });
     }
     // 会话就绪后预取展示柜/商店/扭蛋图鉴数据 + 物品图，相应页面可秒开（失败不阻塞启动）
-    void prefetchShowcase();
-    void prefetchShop();
-    void prefetchGachaCatalog();
+    // 三池合一：一次 showcase.batchGet 完成，段失败自动回落旧单接口预取
+    void prefetchAllPools();
     await this.tryFinishBoot();
   },
 

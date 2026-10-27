@@ -190,10 +190,8 @@ export function gachaCost(count: 1 | 5): number {
 /** 会话内缓存：loading 阶段预取，兑换列表秒开；抽卡后本地补 obtained */
 let catalogCache: GachaCatalogItem[] | null = null;
 
-async function fetchCatalogCloud(): Promise<GachaCatalogItem[]> {
-  const res = await call<{ items: GachaCatalogItem[] }>('gacha', {
-    action: 'catalog',
-  });
+/** 处理并写入会话缓存：cloud 单拉与 batchGet 段共用同一条管道 */
+async function ingestCatalog(res: { items: GachaCatalogItem[] }): Promise<GachaCatalogItem[]> {
   if (!res || !Array.isArray(res.items)) {
     throw new Error('扭蛋图鉴响应异常');
   }
@@ -205,6 +203,13 @@ async function fetchCatalogCloud(): Promise<GachaCatalogItem[]> {
   return items;
 }
 
+async function fetchCatalogCloud(): Promise<GachaCatalogItem[]> {
+  const res = await call<{ items: GachaCatalogItem[] }>('gacha', {
+    action: 'catalog',
+  });
+  return ingestCatalog(res);
+}
+
 /** loading 阶段预取扭蛋兑换列表并预热图标；失败不抛错 */
 export async function prefetchGachaCatalog(): Promise<void> {
   try {
@@ -212,6 +217,17 @@ export async function prefetchGachaCatalog(): Promise<void> {
     void preloadImages(items.map((i) => i.icon).filter(Boolean), 10000);
   } catch {
     /* 打开兑换列表时会自己拉 */
+  }
+}
+
+/** batchGet 扭蛋图鉴段入口：段合法则写入缓存并预热图片；不合法返回 false 由调用方回落单拉 */
+export async function seedGachaFromBatch(segment: unknown): Promise<boolean> {
+  try {
+    const items = await ingestCatalog(segment as { items: GachaCatalogItem[] });
+    void preloadImages(items.map((i) => i.icon).filter(Boolean), 10000);
+    return true;
+  } catch {
+    return false;
   }
 }
 

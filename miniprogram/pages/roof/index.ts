@@ -12,7 +12,7 @@ import {
 import type { GuideHole } from '../../components/guide-overlay/guide-overlay';
 import { playSfx, playTap, playBgm } from '../../services/sound';
 import { navigateBack, navigateTo } from '../../utils/nav';
-import { collectAllRoofStars, syncRoof, syncRoofAll } from '../../services/roof';
+import { collectAllRoofStars, syncRoof, syncRoofAll, type RoofSyncResult } from '../../services/roof';
 import { formatRemain, mergeRoofStars, withRemain, type RoofStarDisplay, type RoofStarView } from '../../utils/roof-logic';
 import { toastCloudError } from '../../utils/net-error';
 import GAME from '../../utils/constants';
@@ -34,16 +34,12 @@ import {
   claimMail,
   openMailbox,
   syncMailbox,
+  type MailboxSyncResult,
   type MailItem,
   type PigeonState,
 } from '../../services/postcard';
 
 type RoofAssets = Record<keyof typeof ROOF_ASSETS, string>;
-
-/** 旅行中兜底轮询间隔：5 分钟一次 syncAll（行程+信箱）。回家时刻的精确唤醒由
- *  scheduleReturnWatch 负责，本兜底只兜"切后台/跨页 setTimeout 失效"，代价是回家横幅
- *  与途中信最坏晚 5 分钟出现（旧双 60s 轮询每旅行分钟 2 次 callFunction，现 0.2 次） */
-const TRIP_POLL_MS = 5 * 60 * 1000;
 
 Page({
   data: {
@@ -119,8 +115,6 @@ Page({
   _guideRestartPending: false as boolean,
   /** 最近一次 onShow 批量 sync 时间：30s 节流窗口内再次 onShow 跳过三连 sync（主动操作触发的 sync 不受限） */
   _lastSyncAt: 0 as number,
-  /** 最近一次 syncAll 兜底轮询时间（仅旅行中，间隔见 TRIP_POLL_MS） */
-  _lastTripPollAt: 0 as number,
 
   onLoad() {
     bindStageFit(this);
@@ -214,7 +208,16 @@ Page({
     }
   },
 
-  /** resolveTripSyncView 结果统一落地：回家横幅 / 展示中守卫 / 隐藏 */
+  async syncTripState() {
+    try {
+      const view = await resolveTripSyncView();
+      this.applyTripView(view);
+    } catch {
+      toastCloudError('roof-trip', '网络异常，旅行状态同步失败');
+    }
+  },
+
+  /** 行程段统一落地：syncTripState 与 syncAllState（onShow 批量）共用 */
   applyTripView(view: TripSyncView) {
     const { banner, sync } = view;
     if (banner.mode === 'return' && sync.trip?._id) {
@@ -230,36 +233,6 @@ Page({
       return;
     }
     this.setData({ showTravelBanner: false });
-  },
-
-  async syncTripState() {
-    try {
-      const view = await resolveTripSyncView();
-      this.applyTripView(view);
-    } catch {
-      toastCloudError('roof-trip', '网络异常，旅行状态同步失败');
-    }
-  },
-
-  /** 旅行中兜底轮询：一次 syncAll 拿回行程+信箱两段，分发到原有两个 sync 的处理路径 */
-  async pollTripMailbox() {
-    try {
-      const res = await syncRoofAll();
-      // 信箱段：与 syncMailboxState 同一套字段
-      const mailItems = res.mailbox.items || [];
-      const mailCap = res.mailbox.mailCap || GAME.PIGEON_MAIL_CAP;
-      this.setData({
-        pigeonReady: true,
-        pigeonState: res.mailbox.pigeonState,
-        mailItems,
-        mailCap,
-        mailFull: mailItems.length >= mailCap,
-      });
-      // 行程段：预取结果直接进 resolveTripSyncView（不再发起第二次 callFunction）
-      this.applyTripView(await resolveTripSyncView(res.trip));
-    } catch {
-      toastCloudError('roof-trip', '网络异常，旅行状态同步失败');
-    }
   },
 
   onShow() {
@@ -294,16 +267,12 @@ Page({
       charShenVisible: !isTraveling(),
       isGm: !!getProfile()?.gm,
     });
-    // 三连 sync 节流：30s 内已 sync 过且无强制标记则跳过，降低 callFunction 消耗；
-    // 用户主动操作（收星/开信箱/领邮件/到点掉落）触发的 sync 走各自入口，不受此节流影响
+    // onShow 批量 sync 节流：30s 内已 sync 过且无强制标记则跳过，降低 callFunction 消耗；
+    // 一次 roof.syncAll 拿全 星星+行程+信箱（旧三连合并）；用户主动操作（收星/开信箱/领邮件/到点掉落）
+    // 触发的 sync 走各自入口，不受此节流影响
     if (this._guideRestartPending || !this._lastSyncAt || Date.now() - this._lastSyncAt >= 30000) {
       this._lastSyncAt = Date.now();
-      // 本次 onShow 已全量 sync（含行程+信箱），兜底轮询窗口同步重置
-      this._lastTripPollAt = Date.now();
-      // 各自内部已 try/catch，不需要聚合等待
-      void this.syncFromServer();
-      void this.syncMailboxState();
-      void this.syncTripState();
+      void this.syncAllState();
     }
     this.startTick();
     // 首屏渲染后延迟预热其他页面 UI 资产（会话内一次），避免与屋顶自身图片抢网络
@@ -365,11 +334,14 @@ Page({
     }));
     this._pending = nextPending;
     this.refreshStarView();
-    /** 旅行中兜底轮询：每 5min 一次 syncAll 同时回同步行程+信箱（旧双 60s 轮询的合并版，
-     *  每次 1 次 callFunction）。回家精确唤醒由 scheduleReturnWatch 负责，见 TRIP_POLL_MS */
-    if (isTraveling() && now - this._lastTripPollAt >= TRIP_POLL_MS) {
-      this._lastTripPollAt = now;
-      void this.pollTripMailbox();
+    /** 每 60s 检查一次回归（仅旅行中）：到点唤醒的 setTimeout 在切后台/跨页时不可靠，轮询兜底；
+     *  回家横幅展示由 syncTripState → resolveTripSyncView 统一负责 */
+    if (isTraveling() && now % 60000 < 1000) {
+      this.syncTripState();
+    }
+    /** 每 60s 拉一次信箱，赶上途中投递；仅旅行中轮询（非旅行状态信箱内容不变） */
+    if (isTraveling() && now % 60000 < 1000) {
+      this.syncMailboxState();
     }
   },
 
@@ -378,49 +350,74 @@ Page({
       const res = await syncRoof({ restartGuide: this._guideRestartPending });
       // 冷启动重置标记只在 sync 成功后清除：失败时保留，下次 sync 重试重置
       this._guideRestartPending = false;
-      const now = Date.now();
-      setStars(res.stars);
-      setRiceStars(res.riceStars);
-      const pending = (res.pending || []).map((s) => withRemain(s, now));
-      const dropped = (res.dropped || []).map((s) => withRemain(s, now));
-      this._pending = pending;
-      this._dropped = dropped;
-      // 教学星剩余数：优先用 sync 计数，旧云函数兜底按 dropped guide 标记统计
-      this._guideDropped =
-        typeof res.guideDropped === 'number'
-          ? res.guideDropped
-          : dropped.filter((s) => s.guide).length;
-      this.setData({
-        stars: res.stars,
-        riceStars: res.riceStars,
-      });
-      this.refreshStarView();
-      // 注意：roof-stars 步绝不能因 sync 返回 0 颗教学星而自动跳过——
-      // 老账号/云函数未更新时教学星可能尚未播种或标记缺失，自动跳步会让玩家看不到完整流程。
-      // 该步只允许由 onCollectStar 捡满 9 颗真实教学星推进。
-      this.refreshGuide();
+      this.applyStarsRes(res);
     } catch (e) {
       console.warn('[roof] sync fail', e);
       toastCloudError('roof-sync', '网络异常，星星加载失败', 30_000);
     }
   },
 
+  /** 星星段统一落地：syncFromServer（星星专用）与 syncAllState（onShow 批量）共用 */
+  applyStarsRes(res: RoofSyncResult) {
+    const now = Date.now();
+    setStars(res.stars);
+    setRiceStars(res.riceStars);
+    const pending = (res.pending || []).map((s) => withRemain(s, now));
+    const dropped = (res.dropped || []).map((s) => withRemain(s, now));
+    this._pending = pending;
+    this._dropped = dropped;
+    // 教学星剩余数：优先用 sync 计数，旧云函数兜底按 dropped guide 标记统计
+    this._guideDropped =
+      typeof res.guideDropped === 'number'
+        ? res.guideDropped
+        : dropped.filter((s) => s.guide).length;
+    this.setData({
+      stars: res.stars,
+      riceStars: res.riceStars,
+    });
+    this.refreshStarView();
+    // 注意：roof-stars 步绝不能因 sync 返回 0 颗教学星而自动跳过——
+    // 老账号/云函数未更新时教学星可能尚未播种或标记缺失，自动跳步会让玩家看不到完整流程。
+    // 该步只允许由 onCollectStar 捡满 9 颗真实教学星推进。
+    this.refreshGuide();
+  },
+
   async syncMailboxState() {
     try {
       const res = await syncMailbox();
-      const mailCap = res.mailCap || GAME.PIGEON_MAIL_CAP;
-      const mailItems = res.items || [];
-      this.setData({
-        pigeonReady: true,
-        pigeonState: res.pigeonState,
-        mailItems,
-        mailCap,
-        mailFull: mailItems.length >= mailCap,
-      });
+      this.applyMailboxRes(res);
     } catch {
       // 同步失败也解除隐藏，避免鸽子永远不出现
       this.setData({ pigeonReady: true });
       toastCloudError('roof-mail', '网络异常，信箱同步失败', 30_000);
+    }
+  },
+
+  /** 信箱段统一落地：syncMailboxState（用户操作触发）与 syncAllState（onShow 批量）共用 */
+  applyMailboxRes(res: MailboxSyncResult) {
+    const mailCap = res.mailCap || GAME.PIGEON_MAIL_CAP;
+    const mailItems = res.items || [];
+    this.setData({
+      pigeonReady: true,
+      pigeonState: res.pigeonState,
+      mailItems,
+      mailCap,
+      mailFull: mailItems.length >= mailCap,
+    });
+  },
+
+  /** onShow 批量 sync 合一：一次 roof.syncAll 拿回 星星+行程+信箱 三段（旧三连合并，行为等价） */
+  async syncAllState() {
+    try {
+      const res = await syncRoofAll(this._guideRestartPending);
+      // 冷启动重置标记只在 sync 成功后清除：失败时保留，下次 sync 重试重置
+      this._guideRestartPending = false;
+      this.applyStarsRes(res.stars);
+      this.applyMailboxRes(res.mailbox);
+      this.applyTripView(await resolveTripSyncView(res.trip));
+    } catch (e) {
+      console.warn('[roof] syncAll fail', e);
+      toastCloudError('roof-sync', '网络异常，同步失败', 30_000);
     }
   },
 

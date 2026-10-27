@@ -66,11 +66,9 @@ export async function openMailbox(): Promise<MailboxSyncResult> {
   return normalizeMailboxRes(res);
 }
 
-/** 批量标记已读（信箱攒批 flush 用）：一次调用标记多封，免 tripId（服务端自行定位行程）。
- *  失败由调用方保留 pending 重试，这里原样抛出 */
-export async function markMailsSeen(instanceIds: string[]) {
-  if (!instanceIds.length) return;
-  await call('postcard', { action: 'markSeen', instanceIds });
+/** 标记已读失败不阻断开信，调用方自行忽略 */
+export async function markMailSeen(tripId: string, instanceId: string) {
+  await call('postcard', { action: 'markSeen', tripId, instanceId });
 }
 
 export async function claimMail(tripId: string, instanceId: string) {

@@ -60,8 +60,8 @@ function bumpInventory(itemId: string) {
 /** 会话内缓存：loading 阶段预取，进商店纯读缓存秒开；购买后本地补 boughtToday */
 let cache: ShopListResult | null = null;
 
-async function fetchCloud(): Promise<ShopListResult> {
-  const res = await call<ShopListResult>('shop', { action: 'list' });
+/** 处理并写入会话缓存：cloud 单拉与 batchGet 段共用同一条管道 */
+async function ingestList(res: ShopListResult): Promise<ShopListResult> {
   if (!res || !Array.isArray(res.items) || !res.items.length) {
     throw new Error('商店响应异常');
   }
@@ -71,6 +71,11 @@ async function fetchCloud(): Promise<ShopListResult> {
   );
   cache = res;
   return res;
+}
+
+async function fetchCloud(): Promise<ShopListResult> {
+  const res = await call<ShopListResult>('shop', { action: 'list' });
+  return ingestList(res);
 }
 
 /** loading 阶段预取货架数据并预热商品图；失败不抛错（商店页打开时会自己拉并报错） */
@@ -83,6 +88,20 @@ export async function prefetchShop(): Promise<void> {
     );
   } catch {
     /* 商店页打开时会自己拉 */
+  }
+}
+
+/** batchGet 商店段入口：段合法则写入缓存并预热图片；不合法返回 false 由调用方回落单拉 */
+export async function seedShopFromBatch(segment: unknown): Promise<boolean> {
+  try {
+    const res = await ingestList(segment as ShopListResult);
+    void preloadImages(
+      res.items.map((i) => i.icon).filter(Boolean),
+      10000,
+    );
+    return true;
+  } catch {
+    return false;
   }
 }
 

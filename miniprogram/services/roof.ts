@@ -44,18 +44,26 @@ export async function collectAllRoofStars(): Promise<{
   return call('roof', { action: 'collectAll' });
 }
 
-/** roof.syncAll 批量回同步：一次 callFunction 拿回 行程+信箱 两段（旅行中兜底轮询用），
- *  与 trip.sync / postcard.mailbox 输出同结构；星星段轮询不消费，仍走 syncRoof */
+/** roof.syncAll 批量回同步：一次 callFunction 拿回 星星+行程+信箱 三段（roof onShow 批量 sync 用），
+ *  与 roof.sync / trip.sync / postcard.mailbox 输出同结构。
+ *  restartGuide：仅冷启动重开教程时传 true（与 syncRoof 同语义） */
 export interface RoofAllResult {
+  stars: RoofSyncResult;
   trip: TripSyncResult;
   mailbox: MailboxSyncResult;
 }
 
-export async function syncRoofAll(): Promise<RoofAllResult> {
-  const res = await call<{ trip: TripSyncResult; mailbox: MailboxSyncResult }>('roof', {
+export async function syncRoofAll(restartGuide = false): Promise<RoofAllResult> {
+  const res = await call<{
+    stars: RoofSyncResult;
+    trip: TripSyncResult;
+    mailbox: MailboxSyncResult;
+  }>('roof', {
     action: 'syncAll',
+    restartGuide,
   });
   return {
+    stars: res.stars,
     trip: res.trip,
     mailbox: await normalizeMailboxRes(res.mailbox),
   };

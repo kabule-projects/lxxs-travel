@@ -9,11 +9,22 @@ export interface RedeemItem {
   count: number;
 }
 
+/** 明信片奖励（云端写入日记图鉴，不入背包） */
+export interface RedeemPostcard {
+  postcardId: string;
+  title: string;
+  rarity: string;
+  imageThumb: string;
+  /** true=本次新入图鉴；false=图鉴已有（重复获得） */
+  firstUnlock: boolean;
+}
+
 export interface RedeemResult {
   code: string;
   stars: number;
   riceStars: number;
   items: RedeemItem[];
+  postcards?: RedeemPostcard[];
 }
 
 /** 兑换码兑换；错误 code：NOT_FOUND_CODE 不存在 / ALREADY_USED 已兑换 / EXPIRED 过期 / EXHAUSTED 兑完 */
@@ -37,6 +48,10 @@ export async function redeemCode(code: string): Promise<RedeemResult> {
 /** 兑换结果转展示文案（系统弹窗 content） */
 export function describeRedeem(res: RedeemResult): string {
   const parts: string[] = [];
+  // 明信片最醒目（稀有奖励）；图鉴已有的标注一下，避免玩家误以为新获得
+  for (const pc of res.postcards || []) {
+    parts.push(pc.firstUnlock === false ? `${pc.title}（图鉴已有）` : pc.title);
+  }
   for (const it of res.items || []) parts.push(`${it.name}×${it.count}`);
   if (res.stars) parts.push(`星星×${res.stars}`);
   if (res.riceStars) parts.push(`米子星×${res.riceStars}`);

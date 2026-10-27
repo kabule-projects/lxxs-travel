@@ -33,14 +33,19 @@ function normalizeList(res: ShowcaseListResult): ShowcaseListResult {
 /** 会话内缓存：loading 阶段预取，展示柜页先吃缓存秒开再后台刷新 */
 let cache: ShowcaseListResult | null = null;
 
-async function fetchCloud(): Promise<ShowcaseListResult> {
-  const res = await call<ShowcaseListResult>('showcase', { action: 'list' });
+/** 处理并写入会话缓存：cloud 单拉与 batchGet 段共用同一条管道 */
+async function ingestList(res: ShowcaseListResult): Promise<ShowcaseListResult> {
   if (!res || !Array.isArray(res.items)) {
     throw new Error('展示柜响应异常');
   }
   const items = (await resolveDynamicAssetList(res.items, ['icon'])) as ShowcaseItemView[];
   cache = normalizeList({ ...res, items });
   return cache;
+}
+
+async function fetchCloud(): Promise<ShowcaseListResult> {
+  const res = await call<ShowcaseListResult>('showcase', { action: 'list' });
+  return ingestList(res);
 }
 
 /** loading 阶段预取展示柜数据并预热物品图；失败不抛错（展示柜页自行回落） */
@@ -53,6 +58,20 @@ export async function prefetchShowcase(): Promise<void> {
     );
   } catch {
     /* 展示柜页打开时会自己拉 */
+  }
+}
+
+/** batchGet 展示柜段入口：段合法则写入缓存并预热图片；不合法返回 false 由调用方回落单拉 */
+export async function seedShowcaseFromBatch(segment: unknown): Promise<boolean> {
+  try {
+    const res = await ingestList(segment as ShowcaseListResult);
+    void preloadImages(
+      res.items.map((i) => i.icon).filter(Boolean),
+      10000,
+    );
+    return true;
+  } catch {
+    return false;
   }
 }
 

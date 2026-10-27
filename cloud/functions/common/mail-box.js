@@ -12,14 +12,21 @@ async function upsertDiaryEntry(db, _, openid, card) {
     .get();
 
   if (!album.data.length) {
-    await db.collection('user_postcards').add({
-      data: {
-        userId: openid,
-        postcardId: card.postcardId,
-        firstClaimedAt: Date.now(),
-        claimCount: 1,
-      },
-    });
+    try {
+      await db.collection('user_postcards').add({
+        data: {
+          userId: openid,
+          postcardId: card.postcardId,
+          firstClaimedAt: Date.now(),
+          claimCount: 1,
+        },
+      });
+    } catch (e) {
+      // 并发撞唯一索引（claim 与超容自动已读同时写）：视为已拥有，不阻断整次同步
+      if (!/duplicate key|E11000/i.test(String((e && e.message) || e))) {
+        throw e;
+      }
+    }
     return;
   }
 

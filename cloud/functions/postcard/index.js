@@ -59,6 +59,9 @@ async function loadMailTrips(openid) {
     db
       .collection('trips')
       .where({ userId: openid, status: 'at_home' })
+      // 取【最新】50 趟：未收的信集中在最近结束的行程里；
+      // 无 orderBy 时自然序按创建时间升序，老玩家（>50 趟）会整页错过新行程，信件永不出现
+      .orderBy('endAt', 'desc')
       .limit(50)
       .get(),
   ]);
@@ -180,6 +183,7 @@ async function markSeen(openid, tripId, instanceIdOrIds) {
       db
         .collection('trips')
         .where({ userId: openid, status: 'at_home' })
+        .orderBy('endAt', 'desc')
         .limit(50)
         .get(),
     ]);
@@ -245,6 +249,40 @@ async function claim(openid, tripId, instanceId) {
     return fail('明信片尚未送达', 'NOT_DELIVERED');
   }
 
+  // 先写图鉴再标 claimed：图鉴成功而行程更新失败时信件仍在信箱可重试（仅 claimCount 多记，无感）；
+  // 若按原顺序（先标 claimed 再写图鉴），图鉴写入失败会留下"行程 claimed 但图鉴无记录"的孤儿信件——
+  // 信箱不再展示、日记本也没有，玩家视角即信件丢失（线上真实案例：claim 持久化后 diary 写入失败）
+  const album = await db
+    .collection('user_postcards')
+    .where({ userId: openid, postcardId: card.postcardId })
+    .limit(1)
+    .get();
+
+  let firstUnlock = false;
+  if (!album.data.length) {
+    firstUnlock = true;
+    try {
+      await db.collection('user_postcards').add({
+        data: {
+          userId: openid,
+          postcardId: card.postcardId,
+          firstClaimedAt: Date.now(),
+          claimCount: 1,
+        },
+      });
+    } catch (e) {
+      // 并发收下撞唯一索引：按已拥有处理（幂等），不算失败
+      if (!/duplicate key|E11000/i.test(String((e && e.message) || e))) {
+        throw e;
+      }
+      firstUnlock = false;
+    }
+  } else {
+    await db.collection('user_postcards').doc(album.data[0]._id).update({
+      data: { claimCount: _.inc(1), lastClaimedAt: Date.now() },
+    });
+  }
+
   const next = [...advanced.trip.postcards];
   const snap = normalizePostcardSnapshot(card);
   next[idx] = {
@@ -261,29 +299,6 @@ async function claim(openid, tripId, instanceId) {
       updatedAt: Date.now(),
     },
   });
-
-  const album = await db
-    .collection('user_postcards')
-    .where({ userId: openid, postcardId: card.postcardId })
-    .limit(1)
-    .get();
-
-  let firstUnlock = false;
-  if (!album.data.length) {
-    firstUnlock = true;
-    await db.collection('user_postcards').add({
-      data: {
-        userId: openid,
-        postcardId: card.postcardId,
-        firstClaimedAt: Date.now(),
-        claimCount: 1,
-      },
-    });
-  } else {
-    await db.collection('user_postcards').doc(album.data[0]._id).update({
-      data: { claimCount: _.inc(1), lastClaimedAt: Date.now() },
-    });
-  }
 
   return ok({
     postcardId: card.postcardId,
