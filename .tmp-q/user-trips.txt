@@ -1,0 +1,22 @@
+trip 15ff78a66acdb82c000f398c2f4c9fdd at_home
+  pc_11 claimed new=False AUTO
+trip 1233ab626ace497d00213f6c44c2879e at_home
+  pc_02 claimed new=False AUTO
+trip 15ff78a66ace49b20010aa8013ef4a2f at_home
+  pc_02 claimed new=False AUTO
+trip fc12c1fb6acf9db60020ffd5241f9c1c at_home
+  pc_02 claimed new=False AUTO
+trip 31ce82556ad0a7ea002ec1c85d896deb at_home
+  pc_04 claimed new=False AUTO
+trip 1233ab626ad2430c002ca81f7e5d1a29 at_home
+  pc_17 delivered new=False
+trip 1233ab626ad5c9d10036a1b472da460d at_home
+  pc_13 delivered new=False
+trip afb54b316ad82254000394a86295ced9 at_home
+  pc_131 delivered new=False
+trip db9477096add4e7900050b1154f320fe at_home
+  pc_02 delivered new=True
+trip 45b854606adecfa50011e23249279890 at_home
+  pc_14 delivered new=False
+trip baa766cd6adff228000a6da9288e17da traveling
+  pc_89 pending new=None

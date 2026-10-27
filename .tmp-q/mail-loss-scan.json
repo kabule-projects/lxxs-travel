@@ -1,0 +1,88 @@
+{
+ "sampled_trips": 500,
+ "claimed_pairs": 500,
+ "users": 187,
+ "missing_count": 16,
+ "missing": [
+  {
+   "userId": "o-PoB7QI2DvsJN6T0BDGINiQjUvU",
+   "postcardId": "pc_15",
+   "tripId": "dc9ed69d6abbbcc2000320b3025dee33"
+  },
+  {
+   "userId": "o-PoB7QbvUP0_iIVFsbmRkAJ_kzk",
+   "postcardId": "pc_15",
+   "tripId": "fc12c1fb6acc93ae0016a89e5219bed2"
+  },
+  {
+   "userId": "o-PoB7RxXfjQ0Y7Ua6FEDriMzK5Y",
+   "postcardId": "pc_134",
+   "tripId": "31ce82556acaf53e001ed44079b632c3"
+  },
+  {
+   "userId": "o-PoB7RxXfjQ0Y7Ua6FEDriMzK5Y",
+   "postcardId": "pc_15",
+   "tripId": "fc12c1fb6abc602600008f0c577cc569"
+  },
+  {
+   "userId": "o-PoB7S3uKwxdh2VxPH2PT3Fu7-4",
+   "postcardId": "pc_15",
+   "tripId": "fc12c1fb6ac9fa23001226977cad3df5"
+  },
+  {
+   "userId": "o-PoB7TYhwdzOO9i9fpxvc99gg-Y",
+   "postcardId": "pc_15",
+   "tripId": "d95ea0076ab331760021e72448746c89"
+  },
+  {
+   "userId": "o-PoB7TZStMWtc2l1Sy9NaZZBvXg",
+   "postcardId": "pc_15",
+   "tripId": "67a8ff176aaf344c000b0e4b48f9f58c"
+  },
+  {
+   "userId": "o-PoB7VC6CKYpA-oVyrCvkqnIHjk",
+   "postcardId": "pc_15",
+   "tripId": "31ce82556ac34151000a7c1940af0176"
+  },
+  {
+   "userId": "o-PoB7YOUDPW5TUurdjVTMRNrRX8",
+   "postcardId": "pc_15",
+   "tripId": "9fb821b66ab76f1e0012006179dfcd06"
+  },
+  {
+   "userId": "o-PoB7b9r2sOwJeEEpPusRw254vk",
+   "postcardId": "pc_15",
+   "tripId": "15ff78a66ac8e4690009d11270d3b947"
+  },
+  {
+   "userId": "o-PoB7c6tCu4HBV8BlnoOttcgoPk",
+   "postcardId": "pc_15",
+   "tripId": "67a8ff176ab0bbd6001a334965281734"
+  },
+  {
+   "userId": "o-PoB7e0OCvgImE4vvS1rUMFvJ30",
+   "postcardId": "pc_15",
+   "tripId": "fc12c1fb6acb976e0014a9500e4a445c"
+  },
+  {
+   "userId": "o-PoB7fQaprenbic9ofWKv4NesxA",
+   "postcardId": "pc_15",
+   "tripId": "f1b59b636abb350a0000835730140490"
+  },
+  {
+   "userId": "o-PoB7ffA9Zzu6Ndb86n-aNWi0II",
+   "postcardId": "pc_87",
+   "tripId": "15ff78a66ac99f4e000a3f413f5d4d4f"
+  },
+  {
+   "userId": "o-PoB7ffA9Zzu6Ndb86n-aNWi0II",
+   "postcardId": "pc_15",
+   "tripId": "9fb821b66aafe4b10008297671c106e2"
+  },
+  {
+   "userId": "o-PoB7ficAMgC0AfBP1c1LG3sPUo",
+   "postcardId": "pc_15",
+   "tripId": "9fb821b66ab5efe20010d2805c6ba761"
+  }
+ ]
+}
